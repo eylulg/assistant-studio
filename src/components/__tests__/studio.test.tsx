@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Studio } from "../studio";
@@ -80,7 +80,7 @@ describe("Studio in demo mode", () => {
         await user.click(resume);
 
         expect(await screen.findByText(/interruption, not an error/)).toBeVisible();
-        expect(screen.getByRole("textbox", { name: "Message" })).toHaveFocus();
+        await waitFor(() => expect(screen.getByRole("textbox", { name: "Message" })).toHaveFocus());
         expect(screen.queryByRole("button", { name: "Resume answer" })).not.toBeInTheDocument();
     });
 
