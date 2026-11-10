@@ -1,0 +1,199 @@
+{
+  "id": "no-tool",
+  "prompt": "In one sentence, what does a mutex do?",
+  "model": "claude-sonnet-5-5",
+  "source": "authored",
+  "rounds": [
+    {
+      "events": [
+        {
+          "atMs": 402,
+          "event": {
+            "type": "text",
+            "text": "A mu"
+          }
+        },
+        {
+          "atMs": 424,
+          "event": {
+            "type": "text",
+            "text": "tex l"
+          }
+        },
+        {
+          "atMs": 446,
+          "event": {
+            "type": "text",
+            "text": "ets on"
+          }
+        },
+        {
+          "atMs": 468,
+          "event": {
+            "type": "text",
+            "text": "ly o"
+          }
+        },
+        {
+          "atMs": 490,
+          "event": {
+            "type": "text",
+            "text": "ne th"
+          }
+        },
+        {
+          "atMs": 512,
+          "event": {
+            "type": "text",
+            "text": "read a"
+          }
+        },
+        {
+          "atMs": 534,
+          "event": {
+            "type": "text",
+            "text": "t a "
+          }
+        },
+        {
+          "atMs": 556,
+          "event": {
+            "type": "text",
+            "text": "time "
+          }
+        },
+        {
+          "atMs": 578,
+          "event": {
+            "type": "text",
+            "text": "enter "
+          }
+        },
+        {
+          "atMs": 600,
+          "event": {
+            "type": "text",
+            "text": "a cr"
+          }
+        },
+        {
+          "atMs": 622,
+          "event": {
+            "type": "text",
+            "text": "itica"
+          }
+        },
+        {
+          "atMs": 644,
+          "event": {
+            "type": "text",
+            "text": "l sect"
+          }
+        },
+        {
+          "atMs": 666,
+          "event": {
+            "type": "text",
+            "text": "ion,"
+          }
+        },
+        {
+          "atMs": 688,
+          "event": {
+            "type": "text",
+            "text": " so s"
+          }
+        },
+        {
+          "atMs": 710,
+          "event": {
+            "type": "text",
+            "text": "hared "
+          }
+        },
+        {
+          "atMs": 732,
+          "event": {
+            "type": "text",
+            "text": "data"
+          }
+        },
+        {
+          "atMs": 754,
+          "event": {
+            "type": "text",
+            "text": " is n"
+          }
+        },
+        {
+          "atMs": 776,
+          "event": {
+            "type": "text",
+            "text": "ever c"
+          }
+        },
+        {
+          "atMs": 798,
+          "event": {
+            "type": "text",
+            "text": "hang"
+          }
+        },
+        {
+          "atMs": 820,
+          "event": {
+            "type": "text",
+            "text": "ed by"
+          }
+        },
+        {
+          "atMs": 842,
+          "event": {
+            "type": "text",
+            "text": " two t"
+          }
+        },
+        {
+          "atMs": 864,
+          "event": {
+            "type": "text",
+            "text": "hrea"
+          }
+        },
+        {
+          "atMs": 886,
+          "event": {
+            "type": "text",
+            "text": "ds at"
+          }
+        },
+        {
+          "atMs": 908,
+          "event": {
+            "type": "text",
+            "text": " once."
+          }
+        },
+        {
+          "atMs": 948,
+          "event": {
+            "type": "end",
+            "stopReason": "end_turn",
+            "usage": {
+              "inputTokens": 48,
+              "outputTokens": 34,
+              "cacheReadTokens": 1180,
+              "cacheWriteTokens": 0
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "A mutex lets only one thread at a time enter a critical section, so shared data is never changed by two threads at once."
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,473 @@
+{
+  "id": "parallel-mixed",
+  "prompt": "Is it warmer in Istanbul or Amsterdam right now, and what time is it in Istanbul?",
+  "model": "claude-sonnet-5-5",
+  "source": "authored",
+  "rounds": [
+    {
+      "events": [
+        {
+          "atMs": 402,
+          "event": {
+            "type": "text",
+            "text": "Look"
+          }
+        },
+        {
+          "atMs": 424,
+          "event": {
+            "type": "text",
+            "text": "ing u"
+          }
+        },
+        {
+          "atMs": 446,
+          "event": {
+            "type": "text",
+            "text": "p both"
+          }
+        },
+        {
+          "atMs": 468,
+          "event": {
+            "type": "text",
+            "text": " cit"
+          }
+        },
+        {
+          "atMs": 490,
+          "event": {
+            "type": "text",
+            "text": "ies a"
+          }
+        },
+        {
+          "atMs": 512,
+          "event": {
+            "type": "text",
+            "text": "nd the"
+          }
+        },
+        {
+          "atMs": 534,
+          "event": {
+            "type": "text",
+            "text": " tim"
+          }
+        },
+        {
+          "atMs": 556,
+          "event": {
+            "type": "text",
+            "text": "e tog"
+          }
+        },
+        {
+          "atMs": 578,
+          "event": {
+            "type": "text",
+            "text": "ether."
+          }
+        },
+        {
+          "atMs": 638,
+          "event": {
+            "type": "tool_start",
+            "id": "toolu_sample_10",
+            "name": "lookup_weather"
+          }
+        },
+        {
+          "atMs": 673,
+          "event": {
+            "type": "tool_input",
+            "id": "toolu_sample_10",
+            "delta": "{\"city\":\"Ista"
+          }
+        },
+        {
+          "atMs": 708,
+          "event": {
+            "type": "tool_input",
+            "id": "toolu_sample_10",
+            "delta": "nbul\"}"
+          }
+        },
+        {
+          "atMs": 768,
+          "event": {
+            "type": "tool_start",
+            "id": "toolu_sample_11",
+            "name": "lookup_weather"
+          }
+        },
+        {
+          "atMs": 803,
+          "event": {
+            "type": "tool_input",
+            "id": "toolu_sample_11",
+            "delta": "{\"city\":\"Amst"
+          }
+        },
+        {
+          "atMs": 838,
+          "event": {
+            "type": "tool_input",
+            "id": "toolu_sample_11",
+            "delta": "erdam\"}"
+          }
+        },
+        {
+          "atMs": 898,
+          "event": {
+            "type": "tool_start",
+            "id": "toolu_sample_12",
+            "name": "get_time"
+          }
+        },
+        {
+          "atMs": 933,
+          "event": {
+            "type": "tool_input",
+            "id": "toolu_sample_12",
+            "delta": "{\"timezone\":\""
+          }
+        },
+        {
+          "atMs": 968,
+          "event": {
+            "type": "tool_input",
+            "id": "toolu_sample_12",
+            "delta": "Europe/Istanbu"
+          }
+        },
+        {
+          "atMs": 1003,
+          "event": {
+            "type": "tool_input",
+            "id": "toolu_sample_12",
+            "delta": "l\"}"
+          }
+        },
+        {
+          "atMs": 1043,
+          "event": {
+            "type": "end",
+            "stopReason": "tool_use",
+            "usage": {
+              "inputTokens": 48,
+              "outputTokens": 60,
+              "cacheReadTokens": 1180,
+              "cacheWriteTokens": 0
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Looking up both cities and the time together."
+              },
+              {
+                "type": "tool_use",
+                "id": "toolu_sample_10",
+                "name": "lookup_weather",
+                "input": {
+                  "city": "Istanbul"
+                }
+              },
+              {
+                "type": "tool_use",
+                "id": "toolu_sample_11",
+                "name": "lookup_weather",
+                "input": {
+                  "city": "Amsterdam"
+                }
+              },
+              {
+                "type": "tool_use",
+                "id": "toolu_sample_12",
+                "name": "get_time",
+                "input": {
+                  "timezone": "Europe/Istanbul"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "events": [
+        {
+          "atMs": 402,
+          "event": {
+            "type": "text",
+            "text": "Ista"
+          }
+        },
+        {
+          "atMs": 424,
+          "event": {
+            "type": "text",
+            "text": "nbul "
+          }
+        },
+        {
+          "atMs": 446,
+          "event": {
+            "type": "text",
+            "text": "is war"
+          }
+        },
+        {
+          "atMs": 468,
+          "event": {
+            "type": "text",
+            "text": "mer:"
+          }
+        },
+        {
+          "atMs": 490,
+          "event": {
+            "type": "text",
+            "text": " 16 °"
+          }
+        },
+        {
+          "atMs": 512,
+          "event": {
+            "type": "text",
+            "text": "C agai"
+          }
+        },
+        {
+          "atMs": 534,
+          "event": {
+            "type": "text",
+            "text": "nst "
+          }
+        },
+        {
+          "atMs": 556,
+          "event": {
+            "type": "text",
+            "text": "9 °C "
+          }
+        },
+        {
+          "atMs": 578,
+          "event": {
+            "type": "text",
+            "text": "in Ams"
+          }
+        },
+        {
+          "atMs": 600,
+          "event": {
+            "type": "text",
+            "text": "terd"
+          }
+        },
+        {
+          "atMs": 622,
+          "event": {
+            "type": "text",
+            "text": "am. B"
+          }
+        },
+        {
+          "atMs": 644,
+          "event": {
+            "type": "text",
+            "text": "oth te"
+          }
+        },
+        {
+          "atMs": 666,
+          "event": {
+            "type": "text",
+            "text": "mper"
+          }
+        },
+        {
+          "atMs": 688,
+          "event": {
+            "type": "text",
+            "text": "ature"
+          }
+        },
+        {
+          "atMs": 710,
+          "event": {
+            "type": "text",
+            "text": "s are "
+          }
+        },
+        {
+          "atMs": 732,
+          "event": {
+            "type": "text",
+            "text": "samp"
+          }
+        },
+        {
+          "atMs": 754,
+          "event": {
+            "type": "text",
+            "text": "le da"
+          }
+        },
+        {
+          "atMs": 776,
+          "event": {
+            "type": "text",
+            "text": "ta, no"
+          }
+        },
+        {
+          "atMs": 798,
+          "event": {
+            "type": "text",
+            "text": "t a "
+          }
+        },
+        {
+          "atMs": 820,
+          "event": {
+            "type": "text",
+            "text": "live "
+          }
+        },
+        {
+          "atMs": 842,
+          "event": {
+            "type": "text",
+            "text": "foreca"
+          }
+        },
+        {
+          "atMs": 864,
+          "event": {
+            "type": "text",
+            "text": "st. "
+          }
+        },
+        {
+          "atMs": 886,
+          "event": {
+            "type": "text",
+            "text": "The t"
+          }
+        },
+        {
+          "atMs": 908,
+          "event": {
+            "type": "text",
+            "text": "ime in"
+          }
+        },
+        {
+          "atMs": 930,
+          "event": {
+            "type": "text",
+            "text": " Ist"
+          }
+        },
+        {
+          "atMs": 952,
+          "event": {
+            "type": "text",
+            "text": "anbul"
+          }
+        },
+        {
+          "atMs": 974,
+          "event": {
+            "type": "text",
+            "text": " is 12"
+          }
+        },
+        {
+          "atMs": 996,
+          "event": {
+            "type": "text",
+            "text": ":30:"
+          }
+        },
+        {
+          "atMs": 1018,
+          "event": {
+            "type": "text",
+            "text": "00 (U"
+          }
+        },
+        {
+          "atMs": 1040,
+          "event": {
+            "type": "text",
+            "text": "TC+03:"
+          }
+        },
+        {
+          "atMs": 1062,
+          "event": {
+            "type": "text",
+            "text": "00) "
+          }
+        },
+        {
+          "atMs": 1084,
+          "event": {
+            "type": "text",
+            "text": "on th"
+          }
+        },
+        {
+          "atMs": 1106,
+          "event": {
+            "type": "text",
+            "text": "e froz"
+          }
+        },
+        {
+          "atMs": 1128,
+          "event": {
+            "type": "text",
+            "text": "en d"
+          }
+        },
+        {
+          "atMs": 1150,
+          "event": {
+            "type": "text",
+            "text": "emo c"
+          }
+        },
+        {
+          "atMs": 1172,
+          "event": {
+            "type": "text",
+            "text": "lock."
+          }
+        },
+        {
+          "atMs": 1212,
+          "event": {
+            "type": "end",
+            "stopReason": "end_turn",
+            "usage": {
+              "inputTokens": 48,
+              "outputTokens": 51,
+              "cacheReadTokens": 1180,
+              "cacheWriteTokens": 0
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Istanbul is warmer: 16 °C against 9 °C in Amsterdam. Both temperatures are sample data, not a live forecast. The time in Istanbul is 12:30:00 (UTC+03:00) on the frozen demo clock."
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

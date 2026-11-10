@@ -1,0 +1,285 @@
+{
+  "id": "time-zone",
+  "prompt": "What time is it in Tokyo right now?",
+  "model": "claude-sonnet-5-5",
+  "source": "authored",
+  "rounds": [
+    {
+      "events": [
+        {
+          "atMs": 440,
+          "event": {
+            "type": "tool_start",
+            "id": "toolu_sample_04",
+            "name": "get_time"
+          }
+        },
+        {
+          "atMs": 475,
+          "event": {
+            "type": "tool_input",
+            "id": "toolu_sample_04",
+            "delta": "{\"timezone\":\""
+          }
+        },
+        {
+          "atMs": 510,
+          "event": {
+            "type": "tool_input",
+            "id": "toolu_sample_04",
+            "delta": "Asia/Tokyo\"}"
+          }
+        },
+        {
+          "atMs": 550,
+          "event": {
+            "type": "end",
+            "stopReason": "tool_use",
+            "usage": {
+              "inputTokens": 48,
+              "outputTokens": 16,
+              "cacheReadTokens": 1180,
+              "cacheWriteTokens": 0
+            },
+            "content": [
+              {
+                "type": "tool_use",
+                "id": "toolu_sample_04",
+                "name": "get_time",
+                "input": {
+                  "timezone": "Asia/Tokyo"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "events": [
+        {
+          "atMs": 402,
+          "event": {
+            "type": "text",
+            "text": "It i"
+          }
+        },
+        {
+          "atMs": 424,
+          "event": {
+            "type": "text",
+            "text": "s 18:"
+          }
+        },
+        {
+          "atMs": 446,
+          "event": {
+            "type": "text",
+            "text": "30:00 "
+          }
+        },
+        {
+          "atMs": 468,
+          "event": {
+            "type": "text",
+            "text": "on T"
+          }
+        },
+        {
+          "atMs": 490,
+          "event": {
+            "type": "text",
+            "text": "uesda"
+          }
+        },
+        {
+          "atMs": 512,
+          "event": {
+            "type": "text",
+            "text": "y, 202"
+          }
+        },
+        {
+          "atMs": 534,
+          "event": {
+            "type": "text",
+            "text": "6-11"
+          }
+        },
+        {
+          "atMs": 556,
+          "event": {
+            "type": "text",
+            "text": "-10, "
+          }
+        },
+        {
+          "atMs": 578,
+          "event": {
+            "type": "text",
+            "text": "in Tok"
+          }
+        },
+        {
+          "atMs": 600,
+          "event": {
+            "type": "text",
+            "text": "yo ("
+          }
+        },
+        {
+          "atMs": 622,
+          "event": {
+            "type": "text",
+            "text": "UTC+0"
+          }
+        },
+        {
+          "atMs": 644,
+          "event": {
+            "type": "text",
+            "text": "9:00)."
+          }
+        },
+        {
+          "atMs": 666,
+          "event": {
+            "type": "text",
+            "text": " The"
+          }
+        },
+        {
+          "atMs": 688,
+          "event": {
+            "type": "text",
+            "text": " tool"
+          }
+        },
+        {
+          "atMs": 710,
+          "event": {
+            "type": "text",
+            "text": " repor"
+          }
+        },
+        {
+          "atMs": 732,
+          "event": {
+            "type": "text",
+            "text": "ts a"
+          }
+        },
+        {
+          "atMs": 754,
+          "event": {
+            "type": "text",
+            "text": " froz"
+          }
+        },
+        {
+          "atMs": 776,
+          "event": {
+            "type": "text",
+            "text": "en dem"
+          }
+        },
+        {
+          "atMs": 798,
+          "event": {
+            "type": "text",
+            "text": "o cl"
+          }
+        },
+        {
+          "atMs": 820,
+          "event": {
+            "type": "text",
+            "text": "ock h"
+          }
+        },
+        {
+          "atMs": 842,
+          "event": {
+            "type": "text",
+            "text": "ere, s"
+          }
+        },
+        {
+          "atMs": 864,
+          "event": {
+            "type": "text",
+            "text": "o th"
+          }
+        },
+        {
+          "atMs": 886,
+          "event": {
+            "type": "text",
+            "text": "is is"
+          }
+        },
+        {
+          "atMs": 908,
+          "event": {
+            "type": "text",
+            "text": " not t"
+          }
+        },
+        {
+          "atMs": 930,
+          "event": {
+            "type": "text",
+            "text": "he r"
+          }
+        },
+        {
+          "atMs": 952,
+          "event": {
+            "type": "text",
+            "text": "eal c"
+          }
+        },
+        {
+          "atMs": 974,
+          "event": {
+            "type": "text",
+            "text": "urrent"
+          }
+        },
+        {
+          "atMs": 996,
+          "event": {
+            "type": "text",
+            "text": " tim"
+          }
+        },
+        {
+          "atMs": 1018,
+          "event": {
+            "type": "text",
+            "text": "e."
+          }
+        },
+        {
+          "atMs": 1058,
+          "event": {
+            "type": "end",
+            "stopReason": "end_turn",
+            "usage": {
+              "inputTokens": 48,
+              "outputTokens": 40,
+              "cacheReadTokens": 1180,
+              "cacheWriteTokens": 0
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "It is 18:30:00 on Tuesday, 2026-11-10, in Tokyo (UTC+09:00). The tool reports a frozen demo clock here, so this is not the real current time."
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

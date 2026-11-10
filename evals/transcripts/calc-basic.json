@@ -1,0 +1,207 @@
+{
+  "id": "calc-basic",
+  "prompt": "What is 18% of 2,450, plus 75?",
+  "model": "claude-sonnet-5-5",
+  "source": "authored",
+  "suggested": true,
+  "rounds": [
+    {
+      "events": [
+        {
+          "atMs": 402,
+          "event": {
+            "type": "text",
+            "text": "I'll"
+          }
+        },
+        {
+          "atMs": 424,
+          "event": {
+            "type": "text",
+            "text": " work"
+          }
+        },
+        {
+          "atMs": 446,
+          "event": {
+            "type": "text",
+            "text": " that "
+          }
+        },
+        {
+          "atMs": 468,
+          "event": {
+            "type": "text",
+            "text": "out "
+          }
+        },
+        {
+          "atMs": 490,
+          "event": {
+            "type": "text",
+            "text": "exact"
+          }
+        },
+        {
+          "atMs": 512,
+          "event": {
+            "type": "text",
+            "text": "ly."
+          }
+        },
+        {
+          "atMs": 572,
+          "event": {
+            "type": "tool_start",
+            "id": "toolu_sample_01",
+            "name": "calculate"
+          }
+        },
+        {
+          "atMs": 607,
+          "event": {
+            "type": "tool_input",
+            "id": "toolu_sample_01",
+            "delta": "{\"expression\""
+          }
+        },
+        {
+          "atMs": 642,
+          "event": {
+            "type": "tool_input",
+            "id": "toolu_sample_01",
+            "delta": ":\"2450 * 0.18 "
+          }
+        },
+        {
+          "atMs": 677,
+          "event": {
+            "type": "tool_input",
+            "id": "toolu_sample_01",
+            "delta": "+ 75\"}"
+          }
+        },
+        {
+          "atMs": 717,
+          "event": {
+            "type": "end",
+            "stopReason": "tool_use",
+            "usage": {
+              "inputTokens": 48,
+              "outputTokens": 26,
+              "cacheReadTokens": 1180,
+              "cacheWriteTokens": 0
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "I'll work that out exactly."
+              },
+              {
+                "type": "tool_use",
+                "id": "toolu_sample_01",
+                "name": "calculate",
+                "input": {
+                  "expression": "2450 * 0.18 + 75"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "events": [
+        {
+          "atMs": 402,
+          "event": {
+            "type": "text",
+            "text": "18% "
+          }
+        },
+        {
+          "atMs": 424,
+          "event": {
+            "type": "text",
+            "text": "of 2,"
+          }
+        },
+        {
+          "atMs": 446,
+          "event": {
+            "type": "text",
+            "text": "450 is"
+          }
+        },
+        {
+          "atMs": 468,
+          "event": {
+            "type": "text",
+            "text": " 441"
+          }
+        },
+        {
+          "atMs": 490,
+          "event": {
+            "type": "text",
+            "text": ", and"
+          }
+        },
+        {
+          "atMs": 512,
+          "event": {
+            "type": "text",
+            "text": " addin"
+          }
+        },
+        {
+          "atMs": 534,
+          "event": {
+            "type": "text",
+            "text": "g 75"
+          }
+        },
+        {
+          "atMs": 556,
+          "event": {
+            "type": "text",
+            "text": " give"
+          }
+        },
+        {
+          "atMs": 578,
+          "event": {
+            "type": "text",
+            "text": "s **51"
+          }
+        },
+        {
+          "atMs": 600,
+          "event": {
+            "type": "text",
+            "text": "6**."
+          }
+        },
+        {
+          "atMs": 640,
+          "event": {
+            "type": "end",
+            "stopReason": "end_turn",
+            "usage": {
+              "inputTokens": 48,
+              "outputTokens": 15,
+              "cacheReadTokens": 1180,
+              "cacheWriteTokens": 0
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "18% of 2,450 is 441, and adding 75 gives **516**."
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,676 @@
+{
+  "id": "chain-note-task",
+  "prompt": "Find my Kyoto notes and add a task to book the tea ceremony.",
+  "model": "claude-sonnet-5-5",
+  "source": "authored",
+  "note": "Two rounds of tools, one automatic and one that needs approval.",
+  "suggested": true,
+  "rounds": [
+    {
+      "events": [
+        {
+          "atMs": 402,
+          "event": {
+            "type": "text",
+            "text": "I'll"
+          }
+        },
+        {
+          "atMs": 424,
+          "event": {
+            "type": "text",
+            "text": " look"
+          }
+        },
+        {
+          "atMs": 446,
+          "event": {
+            "type": "text",
+            "text": " for t"
+          }
+        },
+        {
+          "atMs": 468,
+          "event": {
+            "type": "text",
+            "text": "he K"
+          }
+        },
+        {
+          "atMs": 490,
+          "event": {
+            "type": "text",
+            "text": "yoto "
+          }
+        },
+        {
+          "atMs": 512,
+          "event": {
+            "type": "text",
+            "text": "notes "
+          }
+        },
+        {
+          "atMs": 534,
+          "event": {
+            "type": "text",
+            "text": "firs"
+          }
+        },
+        {
+          "atMs": 556,
+          "event": {
+            "type": "text",
+            "text": "t."
+          }
+        },
+        {
+          "atMs": 616,
+          "event": {
+            "type": "tool_start",
+            "id": "toolu_sample_13",
+            "name": "search_notes"
+          }
+        },
+        {
+          "atMs": 651,
+          "event": {
+            "type": "tool_input",
+            "id": "toolu_sample_13",
+            "delta": "{\"query\":\"Kyo"
+          }
+        },
+        {
+          "atMs": 686,
+          "event": {
+            "type": "tool_input",
+            "id": "toolu_sample_13",
+            "delta": "to tea ceremon"
+          }
+        },
+        {
+          "atMs": 721,
+          "event": {
+            "type": "tool_input",
+            "id": "toolu_sample_13",
+            "delta": "y\",\"limit\":3}"
+          }
+        },
+        {
+          "atMs": 761,
+          "event": {
+            "type": "end",
+            "stopReason": "tool_use",
+            "usage": {
+              "inputTokens": 48,
+              "outputTokens": 31,
+              "cacheReadTokens": 1180,
+              "cacheWriteTokens": 0
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "I'll look for the Kyoto notes first."
+              },
+              {
+                "type": "tool_use",
+                "id": "toolu_sample_13",
+                "name": "search_notes",
+                "input": {
+                  "query": "Kyoto tea ceremony",
+                  "limit": 3
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "events": [
+        {
+          "atMs": 402,
+          "event": {
+            "type": "text",
+            "text": "Your"
+          }
+        },
+        {
+          "atMs": 424,
+          "event": {
+            "type": "text",
+            "text": " Kyot"
+          }
+        },
+        {
+          "atMs": 446,
+          "event": {
+            "type": "text",
+            "text": "o itin"
+          }
+        },
+        {
+          "atMs": 468,
+          "event": {
+            "type": "text",
+            "text": "erar"
+          }
+        },
+        {
+          "atMs": 490,
+          "event": {
+            "type": "text",
+            "text": "y [no"
+          }
+        },
+        {
+          "atMs": 512,
+          "event": {
+            "type": "text",
+            "text": "te-17]"
+          }
+        },
+        {
+          "atMs": 534,
+          "event": {
+            "type": "text",
+            "text": " say"
+          }
+        },
+        {
+          "atMs": 556,
+          "event": {
+            "type": "text",
+            "text": "s to "
+          }
+        },
+        {
+          "atMs": 578,
+          "event": {
+            "type": "text",
+            "text": "book t"
+          }
+        },
+        {
+          "atMs": 600,
+          "event": {
+            "type": "text",
+            "text": "he t"
+          }
+        },
+        {
+          "atMs": 622,
+          "event": {
+            "type": "text",
+            "text": "ea ce"
+          }
+        },
+        {
+          "atMs": 644,
+          "event": {
+            "type": "text",
+            "text": "remony"
+          }
+        },
+        {
+          "atMs": 666,
+          "event": {
+            "type": "text",
+            "text": " in "
+          }
+        },
+        {
+          "atMs": 688,
+          "event": {
+            "type": "text",
+            "text": "advan"
+          }
+        },
+        {
+          "atMs": 710,
+          "event": {
+            "type": "text",
+            "text": "ce, so"
+          }
+        },
+        {
+          "atMs": 732,
+          "event": {
+            "type": "text",
+            "text": " I'l"
+          }
+        },
+        {
+          "atMs": 754,
+          "event": {
+            "type": "text",
+            "text": "l add"
+          }
+        },
+        {
+          "atMs": 776,
+          "event": {
+            "type": "text",
+            "text": " that "
+          }
+        },
+        {
+          "atMs": 798,
+          "event": {
+            "type": "text",
+            "text": "as a"
+          }
+        },
+        {
+          "atMs": 820,
+          "event": {
+            "type": "text",
+            "text": " task"
+          }
+        },
+        {
+          "atMs": 842,
+          "event": {
+            "type": "text",
+            "text": "."
+          }
+        },
+        {
+          "atMs": 902,
+          "event": {
+            "type": "tool_start",
+            "id": "toolu_sample_14",
+            "name": "create_task"
+          }
+        },
+        {
+          "atMs": 937,
+          "event": {
+            "type": "tool_input",
+            "id": "toolu_sample_14",
+            "delta": "{\"title\":\"Boo"
+          }
+        },
+        {
+          "atMs": 972,
+          "event": {
+            "type": "tool_input",
+            "id": "toolu_sample_14",
+            "delta": "k the Kyoto te"
+          }
+        },
+        {
+          "atMs": 1007,
+          "event": {
+            "type": "tool_input",
+            "id": "toolu_sample_14",
+            "delta": "a ceremony\",\"pr"
+          }
+        },
+        {
+          "atMs": 1042,
+          "event": {
+            "type": "tool_input",
+            "id": "toolu_sample_14",
+            "delta": "iority\":\"norm"
+          }
+        },
+        {
+          "atMs": 1077,
+          "event": {
+            "type": "tool_input",
+            "id": "toolu_sample_14",
+            "delta": "al\"}"
+          }
+        },
+        {
+          "atMs": 1117,
+          "event": {
+            "type": "end",
+            "stopReason": "tool_use",
+            "usage": {
+              "inputTokens": 48,
+              "outputTokens": 54,
+              "cacheReadTokens": 1180,
+              "cacheWriteTokens": 0
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Your Kyoto itinerary [note-17] says to book the tea ceremony in advance, so I'll add that as a task."
+              },
+              {
+                "type": "tool_use",
+                "id": "toolu_sample_14",
+                "name": "create_task",
+                "input": {
+                  "title": "Book the Kyoto tea ceremony",
+                  "priority": "normal"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "events": [
+        {
+          "atMs": 402,
+          "event": {
+            "type": "text",
+            "text": "Done"
+          }
+        },
+        {
+          "atMs": 424,
+          "event": {
+            "type": "text",
+            "text": ". The"
+          }
+        },
+        {
+          "atMs": 446,
+          "event": {
+            "type": "text",
+            "text": " task "
+          }
+        },
+        {
+          "atMs": 468,
+          "event": {
+            "type": "text",
+            "text": "is i"
+          }
+        },
+        {
+          "atMs": 490,
+          "event": {
+            "type": "text",
+            "text": "n you"
+          }
+        },
+        {
+          "atMs": 512,
+          "event": {
+            "type": "text",
+            "text": "r list"
+          }
+        },
+        {
+          "atMs": 534,
+          "event": {
+            "type": "text",
+            "text": ", an"
+          }
+        },
+        {
+          "atMs": 556,
+          "event": {
+            "type": "text",
+            "text": "d the"
+          }
+        },
+        {
+          "atMs": 578,
+          "event": {
+            "type": "text",
+            "text": " itine"
+          }
+        },
+        {
+          "atMs": 600,
+          "event": {
+            "type": "text",
+            "text": "rary"
+          }
+        },
+        {
+          "atMs": 622,
+          "event": {
+            "type": "text",
+            "text": " [not"
+          }
+        },
+        {
+          "atMs": 644,
+          "event": {
+            "type": "text",
+            "text": "e-17] "
+          }
+        },
+        {
+          "atMs": 666,
+          "event": {
+            "type": "text",
+            "text": "has "
+          }
+        },
+        {
+          "atMs": 688,
+          "event": {
+            "type": "text",
+            "text": "the r"
+          }
+        },
+        {
+          "atMs": 710,
+          "event": {
+            "type": "text",
+            "text": "est of"
+          }
+        },
+        {
+          "atMs": 732,
+          "event": {
+            "type": "text",
+            "text": " the"
+          }
+        },
+        {
+          "atMs": 754,
+          "event": {
+            "type": "text",
+            "text": " plan"
+          }
+        },
+        {
+          "atMs": 776,
+          "event": {
+            "type": "text",
+            "text": "."
+          }
+        },
+        {
+          "atMs": 816,
+          "event": {
+            "type": "end",
+            "stopReason": "end_turn",
+            "usage": {
+              "inputTokens": 48,
+              "outputTokens": 25,
+              "cacheReadTokens": 1180,
+              "cacheWriteTokens": 0
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Done. The task is in your list, and the itinerary [note-17] has the rest of the plan."
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "denied": {
+    "events": [
+      {
+        "atMs": 402,
+        "event": {
+          "type": "text",
+          "text": "No p"
+        }
+      },
+      {
+        "atMs": 424,
+        "event": {
+          "type": "text",
+          "text": "roble"
+        }
+      },
+      {
+        "atMs": 446,
+        "event": {
+          "type": "text",
+          "text": "m, I l"
+        }
+      },
+      {
+        "atMs": 468,
+        "event": {
+          "type": "text",
+          "text": "eft "
+        }
+      },
+      {
+        "atMs": 490,
+        "event": {
+          "type": "text",
+          "text": "your "
+        }
+      },
+      {
+        "atMs": 512,
+        "event": {
+          "type": "text",
+          "text": "list a"
+        }
+      },
+      {
+        "atMs": 534,
+        "event": {
+          "type": "text",
+          "text": "s it"
+        }
+      },
+      {
+        "atMs": 556,
+        "event": {
+          "type": "text",
+          "text": " is. "
+        }
+      },
+      {
+        "atMs": 578,
+        "event": {
+          "type": "text",
+          "text": "The it"
+        }
+      },
+      {
+        "atMs": 600,
+        "event": {
+          "type": "text",
+          "text": "iner"
+        }
+      },
+      {
+        "atMs": 622,
+        "event": {
+          "type": "text",
+          "text": "ary ["
+        }
+      },
+      {
+        "atMs": 644,
+        "event": {
+          "type": "text",
+          "text": "note-1"
+        }
+      },
+      {
+        "atMs": 666,
+        "event": {
+          "type": "text",
+          "text": "7] s"
+        }
+      },
+      {
+        "atMs": 688,
+        "event": {
+          "type": "text",
+          "text": "till "
+        }
+      },
+      {
+        "atMs": 710,
+        "event": {
+          "type": "text",
+          "text": "remind"
+        }
+      },
+      {
+        "atMs": 732,
+        "event": {
+          "type": "text",
+          "text": "s yo"
+        }
+      },
+      {
+        "atMs": 754,
+        "event": {
+          "type": "text",
+          "text": "u to "
+        }
+      },
+      {
+        "atMs": 776,
+        "event": {
+          "type": "text",
+          "text": "book i"
+        }
+      },
+      {
+        "atMs": 798,
+        "event": {
+          "type": "text",
+          "text": "t in"
+        }
+      },
+      {
+        "atMs": 820,
+        "event": {
+          "type": "text",
+          "text": " adva"
+        }
+      },
+      {
+        "atMs": 842,
+        "event": {
+          "type": "text",
+          "text": "nce."
+        }
+      },
+      {
+        "atMs": 882,
+        "event": {
+          "type": "end",
+          "stopReason": "end_turn",
+          "usage": {
+            "inputTokens": 48,
+            "outputTokens": 30,
+            "cacheReadTokens": 1180,
+            "cacheWriteTokens": 0
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "No problem, I left your list as it is. The itinerary [note-17] still reminds you to book it in advance."
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

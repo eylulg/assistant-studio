@@ -1,0 +1,427 @@
+{
+  "id": "weather-sample",
+  "prompt": "What's the weather like in Oslo and Lisbon?",
+  "model": "claude-sonnet-5-5",
+  "source": "authored",
+  "suggested": true,
+  "rounds": [
+    {
+      "events": [
+        {
+          "atMs": 402,
+          "event": {
+            "type": "text",
+            "text": "Chec"
+          }
+        },
+        {
+          "atMs": 424,
+          "event": {
+            "type": "text",
+            "text": "king "
+          }
+        },
+        {
+          "atMs": 446,
+          "event": {
+            "type": "text",
+            "text": "both c"
+          }
+        },
+        {
+          "atMs": 468,
+          "event": {
+            "type": "text",
+            "text": "itie"
+          }
+        },
+        {
+          "atMs": 490,
+          "event": {
+            "type": "text",
+            "text": "s."
+          }
+        },
+        {
+          "atMs": 550,
+          "event": {
+            "type": "tool_start",
+            "id": "toolu_sample_08",
+            "name": "lookup_weather"
+          }
+        },
+        {
+          "atMs": 585,
+          "event": {
+            "type": "tool_input",
+            "id": "toolu_sample_08",
+            "delta": "{\"city\":\"Oslo"
+          }
+        },
+        {
+          "atMs": 620,
+          "event": {
+            "type": "tool_input",
+            "id": "toolu_sample_08",
+            "delta": "\"}"
+          }
+        },
+        {
+          "atMs": 680,
+          "event": {
+            "type": "tool_start",
+            "id": "toolu_sample_09",
+            "name": "lookup_weather"
+          }
+        },
+        {
+          "atMs": 715,
+          "event": {
+            "type": "tool_input",
+            "id": "toolu_sample_09",
+            "delta": "{\"city\":\"Lisb"
+          }
+        },
+        {
+          "atMs": 750,
+          "event": {
+            "type": "tool_input",
+            "id": "toolu_sample_09",
+            "delta": "on\"}"
+          }
+        },
+        {
+          "atMs": 790,
+          "event": {
+            "type": "end",
+            "stopReason": "tool_use",
+            "usage": {
+              "inputTokens": 48,
+              "outputTokens": 35,
+              "cacheReadTokens": 1180,
+              "cacheWriteTokens": 0
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Checking both cities."
+              },
+              {
+                "type": "tool_use",
+                "id": "toolu_sample_08",
+                "name": "lookup_weather",
+                "input": {
+                  "city": "Oslo"
+                }
+              },
+              {
+                "type": "tool_use",
+                "id": "toolu_sample_09",
+                "name": "lookup_weather",
+                "input": {
+                  "city": "Lisbon"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "events": [
+        {
+          "atMs": 402,
+          "event": {
+            "type": "text",
+            "text": "Both"
+          }
+        },
+        {
+          "atMs": 424,
+          "event": {
+            "type": "text",
+            "text": " figu"
+          }
+        },
+        {
+          "atMs": 446,
+          "event": {
+            "type": "text",
+            "text": "res ar"
+          }
+        },
+        {
+          "atMs": 468,
+          "event": {
+            "type": "text",
+            "text": "e **"
+          }
+        },
+        {
+          "atMs": 490,
+          "event": {
+            "type": "text",
+            "text": "sampl"
+          }
+        },
+        {
+          "atMs": 512,
+          "event": {
+            "type": "text",
+            "text": "e data"
+          }
+        },
+        {
+          "atMs": 534,
+          "event": {
+            "type": "text",
+            "text": "**, "
+          }
+        },
+        {
+          "atMs": 556,
+          "event": {
+            "type": "text",
+            "text": "not a"
+          }
+        },
+        {
+          "atMs": 578,
+          "event": {
+            "type": "text",
+            "text": " live "
+          }
+        },
+        {
+          "atMs": 600,
+          "event": {
+            "type": "text",
+            "text": "fore"
+          }
+        },
+        {
+          "atMs": 622,
+          "event": {
+            "type": "text",
+            "text": "cast:"
+          }
+        },
+        {
+          "atMs": 644,
+          "event": {
+            "type": "text",
+            "text": "\n\n- **"
+          }
+        },
+        {
+          "atMs": 666,
+          "event": {
+            "type": "text",
+            "text": "Oslo"
+          }
+        },
+        {
+          "atMs": 688,
+          "event": {
+            "type": "text",
+            "text": "**: 2"
+          }
+        },
+        {
+          "atMs": 710,
+          "event": {
+            "type": "text",
+            "text": " °C, c"
+          }
+        },
+        {
+          "atMs": 732,
+          "event": {
+            "type": "text",
+            "text": "lear"
+          }
+        },
+        {
+          "atMs": 754,
+          "event": {
+            "type": "text",
+            "text": " and "
+          }
+        },
+        {
+          "atMs": 776,
+          "event": {
+            "type": "text",
+            "text": "cold, "
+          }
+        },
+        {
+          "atMs": 798,
+          "event": {
+            "type": "text",
+            "text": "wind"
+          }
+        },
+        {
+          "atMs": 820,
+          "event": {
+            "type": "text",
+            "text": " 9 km"
+          }
+        },
+        {
+          "atMs": 842,
+          "event": {
+            "type": "text",
+            "text": "/h.\n- "
+          }
+        },
+        {
+          "atMs": 864,
+          "event": {
+            "type": "text",
+            "text": "**Li"
+          }
+        },
+        {
+          "atMs": 886,
+          "event": {
+            "type": "text",
+            "text": "sbon*"
+          }
+        },
+        {
+          "atMs": 908,
+          "event": {
+            "type": "text",
+            "text": "*: 19 "
+          }
+        },
+        {
+          "atMs": 930,
+          "event": {
+            "type": "text",
+            "text": "°C, "
+          }
+        },
+        {
+          "atMs": 952,
+          "event": {
+            "type": "text",
+            "text": "sunny"
+          }
+        },
+        {
+          "atMs": 974,
+          "event": {
+            "type": "text",
+            "text": ", wind"
+          }
+        },
+        {
+          "atMs": 996,
+          "event": {
+            "type": "text",
+            "text": " 14 "
+          }
+        },
+        {
+          "atMs": 1018,
+          "event": {
+            "type": "text",
+            "text": "km/h."
+          }
+        },
+        {
+          "atMs": 1040,
+          "event": {
+            "type": "text",
+            "text": "\n\nLisb"
+          }
+        },
+        {
+          "atMs": 1062,
+          "event": {
+            "type": "text",
+            "text": "on i"
+          }
+        },
+        {
+          "atMs": 1084,
+          "event": {
+            "type": "text",
+            "text": "s the"
+          }
+        },
+        {
+          "atMs": 1106,
+          "event": {
+            "type": "text",
+            "text": " warme"
+          }
+        },
+        {
+          "atMs": 1128,
+          "event": {
+            "type": "text",
+            "text": "r of"
+          }
+        },
+        {
+          "atMs": 1150,
+          "event": {
+            "type": "text",
+            "text": " the "
+          }
+        },
+        {
+          "atMs": 1172,
+          "event": {
+            "type": "text",
+            "text": "two in"
+          }
+        },
+        {
+          "atMs": 1194,
+          "event": {
+            "type": "text",
+            "text": " thi"
+          }
+        },
+        {
+          "atMs": 1216,
+          "event": {
+            "type": "text",
+            "text": "s sam"
+          }
+        },
+        {
+          "atMs": 1238,
+          "event": {
+            "type": "text",
+            "text": "ple."
+          }
+        },
+        {
+          "atMs": 1278,
+          "event": {
+            "type": "end",
+            "stopReason": "end_turn",
+            "usage": {
+              "inputTokens": 48,
+              "outputTokens": 55,
+              "cacheReadTokens": 1180,
+              "cacheWriteTokens": 0
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Both figures are **sample data**, not a live forecast:\n\n- **Oslo**: 2 °C, clear and cold, wind 9 km/h.\n- **Lisbon**: 19 °C, sunny, wind 14 km/h.\n\nLisbon is the warmer of the two in this sample."
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

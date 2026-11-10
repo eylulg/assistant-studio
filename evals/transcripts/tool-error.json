@@ -1,0 +1,383 @@
+{
+  "id": "tool-error",
+  "prompt": "How many cups is 3 kilometres?",
+  "model": "claude-sonnet-5-5",
+  "source": "authored",
+  "rounds": [
+    {
+      "events": [
+        {
+          "atMs": 402,
+          "event": {
+            "type": "text",
+            "text": "Let "
+          }
+        },
+        {
+          "atMs": 424,
+          "event": {
+            "type": "text",
+            "text": "me co"
+          }
+        },
+        {
+          "atMs": 446,
+          "event": {
+            "type": "text",
+            "text": "nvert "
+          }
+        },
+        {
+          "atMs": 468,
+          "event": {
+            "type": "text",
+            "text": "that"
+          }
+        },
+        {
+          "atMs": 490,
+          "event": {
+            "type": "text",
+            "text": "."
+          }
+        },
+        {
+          "atMs": 550,
+          "event": {
+            "type": "tool_start",
+            "id": "toolu_sample_15",
+            "name": "convert_units"
+          }
+        },
+        {
+          "atMs": 585,
+          "event": {
+            "type": "tool_input",
+            "id": "toolu_sample_15",
+            "delta": "{\"value\":3,\"f"
+          }
+        },
+        {
+          "atMs": 620,
+          "event": {
+            "type": "tool_input",
+            "id": "toolu_sample_15",
+            "delta": "rom\":\"km\",\"to\""
+          }
+        },
+        {
+          "atMs": 655,
+          "event": {
+            "type": "tool_input",
+            "id": "toolu_sample_15",
+            "delta": ":\"cups\"}"
+          }
+        },
+        {
+          "atMs": 695,
+          "event": {
+            "type": "end",
+            "stopReason": "tool_use",
+            "usage": {
+              "inputTokens": 48,
+              "outputTokens": 25,
+              "cacheReadTokens": 1180,
+              "cacheWriteTokens": 0
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Let me convert that."
+              },
+              {
+                "type": "tool_use",
+                "id": "toolu_sample_15",
+                "name": "convert_units",
+                "input": {
+                  "value": 3,
+                  "from": "km",
+                  "to": "cups"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "events": [
+        {
+          "atMs": 402,
+          "event": {
+            "type": "text",
+            "text": "That"
+          }
+        },
+        {
+          "atMs": 424,
+          "event": {
+            "type": "text",
+            "text": " conv"
+          }
+        },
+        {
+          "atMs": 446,
+          "event": {
+            "type": "text",
+            "text": "ersion"
+          }
+        },
+        {
+          "atMs": 468,
+          "event": {
+            "type": "text",
+            "text": " doe"
+          }
+        },
+        {
+          "atMs": 490,
+          "event": {
+            "type": "text",
+            "text": "s not"
+          }
+        },
+        {
+          "atMs": 512,
+          "event": {
+            "type": "text",
+            "text": " work:"
+          }
+        },
+        {
+          "atMs": 534,
+          "event": {
+            "type": "text",
+            "text": " kil"
+          }
+        },
+        {
+          "atMs": 556,
+          "event": {
+            "type": "text",
+            "text": "ometr"
+          }
+        },
+        {
+          "atMs": 578,
+          "event": {
+            "type": "text",
+            "text": "es mea"
+          }
+        },
+        {
+          "atMs": 600,
+          "event": {
+            "type": "text",
+            "text": "sure"
+          }
+        },
+        {
+          "atMs": 622,
+          "event": {
+            "type": "text",
+            "text": " leng"
+          }
+        },
+        {
+          "atMs": 644,
+          "event": {
+            "type": "text",
+            "text": "th and"
+          }
+        },
+        {
+          "atMs": 666,
+          "event": {
+            "type": "text",
+            "text": " cup"
+          }
+        },
+        {
+          "atMs": 688,
+          "event": {
+            "type": "text",
+            "text": "s mea"
+          }
+        },
+        {
+          "atMs": 710,
+          "event": {
+            "type": "text",
+            "text": "sure v"
+          }
+        },
+        {
+          "atMs": 732,
+          "event": {
+            "type": "text",
+            "text": "olum"
+          }
+        },
+        {
+          "atMs": 754,
+          "event": {
+            "type": "text",
+            "text": "e, so"
+          }
+        },
+        {
+          "atMs": 776,
+          "event": {
+            "type": "text",
+            "text": " there"
+          }
+        },
+        {
+          "atMs": 798,
+          "event": {
+            "type": "text",
+            "text": " is "
+          }
+        },
+        {
+          "atMs": 820,
+          "event": {
+            "type": "text",
+            "text": "no nu"
+          }
+        },
+        {
+          "atMs": 842,
+          "event": {
+            "type": "text",
+            "text": "mber t"
+          }
+        },
+        {
+          "atMs": 864,
+          "event": {
+            "type": "text",
+            "text": "o gi"
+          }
+        },
+        {
+          "atMs": 886,
+          "event": {
+            "type": "text",
+            "text": "ve. I"
+          }
+        },
+        {
+          "atMs": 908,
+          "event": {
+            "type": "text",
+            "text": "f you "
+          }
+        },
+        {
+          "atMs": 930,
+          "event": {
+            "type": "text",
+            "text": "mean"
+          }
+        },
+        {
+          "atMs": 952,
+          "event": {
+            "type": "text",
+            "text": "t a v"
+          }
+        },
+        {
+          "atMs": 974,
+          "event": {
+            "type": "text",
+            "text": "olume,"
+          }
+        },
+        {
+          "atMs": 996,
+          "event": {
+            "type": "text",
+            "text": " tel"
+          }
+        },
+        {
+          "atMs": 1018,
+          "event": {
+            "type": "text",
+            "text": "l me "
+          }
+        },
+        {
+          "atMs": 1040,
+          "event": {
+            "type": "text",
+            "text": "the am"
+          }
+        },
+        {
+          "atMs": 1062,
+          "event": {
+            "type": "text",
+            "text": "ount"
+          }
+        },
+        {
+          "atMs": 1084,
+          "event": {
+            "type": "text",
+            "text": " and "
+          }
+        },
+        {
+          "atMs": 1106,
+          "event": {
+            "type": "text",
+            "text": "I will"
+          }
+        },
+        {
+          "atMs": 1128,
+          "event": {
+            "type": "text",
+            "text": " con"
+          }
+        },
+        {
+          "atMs": 1150,
+          "event": {
+            "type": "text",
+            "text": "vert "
+          }
+        },
+        {
+          "atMs": 1172,
+          "event": {
+            "type": "text",
+            "text": "it."
+          }
+        },
+        {
+          "atMs": 1212,
+          "event": {
+            "type": "end",
+            "stopReason": "end_turn",
+            "usage": {
+              "inputTokens": 48,
+              "outputTokens": 50,
+              "cacheReadTokens": 1180,
+              "cacheWriteTokens": 0
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "That conversion does not work: kilometres measure length and cups measure volume, so there is no number to give. If you meant a volume, tell me the amount and I will convert it."
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,711 @@
+{
+  "id": "markdown-code",
+  "prompt": "Show me a TypeScript debounce function.",
+  "model": "claude-sonnet-5-5",
+  "source": "authored",
+  "suggested": true,
+  "rounds": [
+    {
+      "events": [
+        {
+          "atMs": 402,
+          "event": {
+            "type": "text",
+            "text": "Here"
+          }
+        },
+        {
+          "atMs": 424,
+          "event": {
+            "type": "text",
+            "text": " is a"
+          }
+        },
+        {
+          "atMs": 446,
+          "event": {
+            "type": "text",
+            "text": " small"
+          }
+        },
+        {
+          "atMs": 468,
+          "event": {
+            "type": "text",
+            "text": ", ty"
+          }
+        },
+        {
+          "atMs": 490,
+          "event": {
+            "type": "text",
+            "text": "ped d"
+          }
+        },
+        {
+          "atMs": 512,
+          "event": {
+            "type": "text",
+            "text": "ebounc"
+          }
+        },
+        {
+          "atMs": 534,
+          "event": {
+            "type": "text",
+            "text": "e:\n\n"
+          }
+        },
+        {
+          "atMs": 556,
+          "event": {
+            "type": "text",
+            "text": "```ts"
+          }
+        },
+        {
+          "atMs": 578,
+          "event": {
+            "type": "text",
+            "text": "\nfunct"
+          }
+        },
+        {
+          "atMs": 600,
+          "event": {
+            "type": "text",
+            "text": "ion "
+          }
+        },
+        {
+          "atMs": 622,
+          "event": {
+            "type": "text",
+            "text": "debou"
+          }
+        },
+        {
+          "atMs": 644,
+          "event": {
+            "type": "text",
+            "text": "nce<Ar"
+          }
+        },
+        {
+          "atMs": 666,
+          "event": {
+            "type": "text",
+            "text": "gs e"
+          }
+        },
+        {
+          "atMs": 688,
+          "event": {
+            "type": "text",
+            "text": "xtend"
+          }
+        },
+        {
+          "atMs": 710,
+          "event": {
+            "type": "text",
+            "text": "s unkn"
+          }
+        },
+        {
+          "atMs": 732,
+          "event": {
+            "type": "text",
+            "text": "own["
+          }
+        },
+        {
+          "atMs": 754,
+          "event": {
+            "type": "text",
+            "text": "]>(fn"
+          }
+        },
+        {
+          "atMs": 776,
+          "event": {
+            "type": "text",
+            "text": ": (..."
+          }
+        },
+        {
+          "atMs": 798,
+          "event": {
+            "type": "text",
+            "text": "args"
+          }
+        },
+        {
+          "atMs": 820,
+          "event": {
+            "type": "text",
+            "text": ": Arg"
+          }
+        },
+        {
+          "atMs": 842,
+          "event": {
+            "type": "text",
+            "text": "s) => "
+          }
+        },
+        {
+          "atMs": 864,
+          "event": {
+            "type": "text",
+            "text": "void"
+          }
+        },
+        {
+          "atMs": 886,
+          "event": {
+            "type": "text",
+            "text": ", wai"
+          }
+        },
+        {
+          "atMs": 908,
+          "event": {
+            "type": "text",
+            "text": "tMs: n"
+          }
+        },
+        {
+          "atMs": 930,
+          "event": {
+            "type": "text",
+            "text": "umbe"
+          }
+        },
+        {
+          "atMs": 952,
+          "event": {
+            "type": "text",
+            "text": "r) {\n"
+          }
+        },
+        {
+          "atMs": 974,
+          "event": {
+            "type": "text",
+            "text": "    le"
+          }
+        },
+        {
+          "atMs": 996,
+          "event": {
+            "type": "text",
+            "text": "t ti"
+          }
+        },
+        {
+          "atMs": 1018,
+          "event": {
+            "type": "text",
+            "text": "mer: "
+          }
+        },
+        {
+          "atMs": 1040,
+          "event": {
+            "type": "text",
+            "text": "Return"
+          }
+        },
+        {
+          "atMs": 1062,
+          "event": {
+            "type": "text",
+            "text": "Type"
+          }
+        },
+        {
+          "atMs": 1084,
+          "event": {
+            "type": "text",
+            "text": "<type"
+          }
+        },
+        {
+          "atMs": 1106,
+          "event": {
+            "type": "text",
+            "text": "of set"
+          }
+        },
+        {
+          "atMs": 1128,
+          "event": {
+            "type": "text",
+            "text": "Time"
+          }
+        },
+        {
+          "atMs": 1150,
+          "event": {
+            "type": "text",
+            "text": "out> "
+          }
+        },
+        {
+          "atMs": 1172,
+          "event": {
+            "type": "text",
+            "text": "| unde"
+          }
+        },
+        {
+          "atMs": 1194,
+          "event": {
+            "type": "text",
+            "text": "fine"
+          }
+        },
+        {
+          "atMs": 1216,
+          "event": {
+            "type": "text",
+            "text": "d;\n  "
+          }
+        },
+        {
+          "atMs": 1238,
+          "event": {
+            "type": "text",
+            "text": "  retu"
+          }
+        },
+        {
+          "atMs": 1260,
+          "event": {
+            "type": "text",
+            "text": "rn ("
+          }
+        },
+        {
+          "atMs": 1282,
+          "event": {
+            "type": "text",
+            "text": "...ar"
+          }
+        },
+        {
+          "atMs": 1304,
+          "event": {
+            "type": "text",
+            "text": "gs: Ar"
+          }
+        },
+        {
+          "atMs": 1326,
+          "event": {
+            "type": "text",
+            "text": "gs) "
+          }
+        },
+        {
+          "atMs": 1348,
+          "event": {
+            "type": "text",
+            "text": "=> {\n"
+          }
+        },
+        {
+          "atMs": 1370,
+          "event": {
+            "type": "text",
+            "text": "      "
+          }
+        },
+        {
+          "atMs": 1392,
+          "event": {
+            "type": "text",
+            "text": "  cl"
+          }
+        },
+        {
+          "atMs": 1414,
+          "event": {
+            "type": "text",
+            "text": "earTi"
+          }
+        },
+        {
+          "atMs": 1436,
+          "event": {
+            "type": "text",
+            "text": "meout("
+          }
+        },
+        {
+          "atMs": 1458,
+          "event": {
+            "type": "text",
+            "text": "time"
+          }
+        },
+        {
+          "atMs": 1480,
+          "event": {
+            "type": "text",
+            "text": "r);\n "
+          }
+        },
+        {
+          "atMs": 1502,
+          "event": {
+            "type": "text",
+            "text": "      "
+          }
+        },
+        {
+          "atMs": 1524,
+          "event": {
+            "type": "text",
+            "text": " tim"
+          }
+        },
+        {
+          "atMs": 1546,
+          "event": {
+            "type": "text",
+            "text": "er = "
+          }
+        },
+        {
+          "atMs": 1568,
+          "event": {
+            "type": "text",
+            "text": "setTim"
+          }
+        },
+        {
+          "atMs": 1590,
+          "event": {
+            "type": "text",
+            "text": "eout"
+          }
+        },
+        {
+          "atMs": 1612,
+          "event": {
+            "type": "text",
+            "text": "(() ="
+          }
+        },
+        {
+          "atMs": 1634,
+          "event": {
+            "type": "text",
+            "text": "> fn(."
+          }
+        },
+        {
+          "atMs": 1656,
+          "event": {
+            "type": "text",
+            "text": "..ar"
+          }
+        },
+        {
+          "atMs": 1678,
+          "event": {
+            "type": "text",
+            "text": "gs), "
+          }
+        },
+        {
+          "atMs": 1700,
+          "event": {
+            "type": "text",
+            "text": "waitMs"
+          }
+        },
+        {
+          "atMs": 1722,
+          "event": {
+            "type": "text",
+            "text": ");\n "
+          }
+        },
+        {
+          "atMs": 1744,
+          "event": {
+            "type": "text",
+            "text": "   };"
+          }
+        },
+        {
+          "atMs": 1766,
+          "event": {
+            "type": "text",
+            "text": "\n}\n```"
+          }
+        },
+        {
+          "atMs": 1788,
+          "event": {
+            "type": "text",
+            "text": "\n\nEa"
+          }
+        },
+        {
+          "atMs": 1810,
+          "event": {
+            "type": "text",
+            "text": "ch ca"
+          }
+        },
+        {
+          "atMs": 1832,
+          "event": {
+            "type": "text",
+            "text": "ll can"
+          }
+        },
+        {
+          "atMs": 1854,
+          "event": {
+            "type": "text",
+            "text": "cels"
+          }
+        },
+        {
+          "atMs": 1876,
+          "event": {
+            "type": "text",
+            "text": " the "
+          }
+        },
+        {
+          "atMs": 1898,
+          "event": {
+            "type": "text",
+            "text": "pendin"
+          }
+        },
+        {
+          "atMs": 1920,
+          "event": {
+            "type": "text",
+            "text": "g on"
+          }
+        },
+        {
+          "atMs": 1942,
+          "event": {
+            "type": "text",
+            "text": "e and"
+          }
+        },
+        {
+          "atMs": 1964,
+          "event": {
+            "type": "text",
+            "text": " start"
+          }
+        },
+        {
+          "atMs": 1986,
+          "event": {
+            "type": "text",
+            "text": "s a "
+          }
+        },
+        {
+          "atMs": 2008,
+          "event": {
+            "type": "text",
+            "text": "new t"
+          }
+        },
+        {
+          "atMs": 2030,
+          "event": {
+            "type": "text",
+            "text": "imer, "
+          }
+        },
+        {
+          "atMs": 2052,
+          "event": {
+            "type": "text",
+            "text": "so `"
+          }
+        },
+        {
+          "atMs": 2074,
+          "event": {
+            "type": "text",
+            "text": "fn` o"
+          }
+        },
+        {
+          "atMs": 2096,
+          "event": {
+            "type": "text",
+            "text": "nly ru"
+          }
+        },
+        {
+          "atMs": 2118,
+          "event": {
+            "type": "text",
+            "text": "ns a"
+          }
+        },
+        {
+          "atMs": 2140,
+          "event": {
+            "type": "text",
+            "text": "fter "
+          }
+        },
+        {
+          "atMs": 2162,
+          "event": {
+            "type": "text",
+            "text": "calls "
+          }
+        },
+        {
+          "atMs": 2184,
+          "event": {
+            "type": "text",
+            "text": "have"
+          }
+        },
+        {
+          "atMs": 2206,
+          "event": {
+            "type": "text",
+            "text": " stop"
+          }
+        },
+        {
+          "atMs": 2228,
+          "event": {
+            "type": "text",
+            "text": "ped fo"
+          }
+        },
+        {
+          "atMs": 2250,
+          "event": {
+            "type": "text",
+            "text": "r `w"
+          }
+        },
+        {
+          "atMs": 2272,
+          "event": {
+            "type": "text",
+            "text": "aitMs"
+          }
+        },
+        {
+          "atMs": 2294,
+          "event": {
+            "type": "text",
+            "text": "`. Use"
+          }
+        },
+        {
+          "atMs": 2316,
+          "event": {
+            "type": "text",
+            "text": " it "
+          }
+        },
+        {
+          "atMs": 2338,
+          "event": {
+            "type": "text",
+            "text": "as `c"
+          }
+        },
+        {
+          "atMs": 2360,
+          "event": {
+            "type": "text",
+            "text": "onst o"
+          }
+        },
+        {
+          "atMs": 2382,
+          "event": {
+            "type": "text",
+            "text": "nTyp"
+          }
+        },
+        {
+          "atMs": 2404,
+          "event": {
+            "type": "text",
+            "text": "e = d"
+          }
+        },
+        {
+          "atMs": 2426,
+          "event": {
+            "type": "text",
+            "text": "ebounc"
+          }
+        },
+        {
+          "atMs": 2448,
+          "event": {
+            "type": "text",
+            "text": "e(se"
+          }
+        },
+        {
+          "atMs": 2470,
+          "event": {
+            "type": "text",
+            "text": "arch,"
+          }
+        },
+        {
+          "atMs": 2492,
+          "event": {
+            "type": "text",
+            "text": " 250)`"
+          }
+        },
+        {
+          "atMs": 2514,
+          "event": {
+            "type": "text",
+            "text": "."
+          }
+        },
+        {
+          "atMs": 2554,
+          "event": {
+            "type": "end",
+            "stopReason": "end_turn",
+            "usage": {
+              "inputTokens": 48,
+              "outputTokens": 135,
+              "cacheReadTokens": 1180,
+              "cacheWriteTokens": 0
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Here is a small, typed debounce:\n\n```ts\nfunction debounce<Args extends unknown[]>(fn: (...args: Args) => void, waitMs: number) {\n    let timer: ReturnType<typeof setTimeout> | undefined;\n    return (...args: Args) => {\n        clearTimeout(timer);\n        timer = setTimeout(() => fn(...args), waitMs);\n    };\n}\n```\n\nEach call cancels the pending one and starts a new timer, so `fn` only runs after calls have stopped for `waitMs`. Use it as `const onType = debounce(search, 250)`."
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

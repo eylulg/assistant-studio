@@ -1,0 +1,544 @@
+{
+  "id": "notes-search",
+  "prompt": "Do I have a lentil soup recipe in my notes? What goes in it?",
+  "model": "claude-sonnet-5-5",
+  "source": "authored",
+  "suggested": true,
+  "rounds": [
+    {
+      "events": [
+        {
+          "atMs": 402,
+          "event": {
+            "type": "text",
+            "text": "Let "
+          }
+        },
+        {
+          "atMs": 424,
+          "event": {
+            "type": "text",
+            "text": "me ch"
+          }
+        },
+        {
+          "atMs": 446,
+          "event": {
+            "type": "text",
+            "text": "eck yo"
+          }
+        },
+        {
+          "atMs": 468,
+          "event": {
+            "type": "text",
+            "text": "ur n"
+          }
+        },
+        {
+          "atMs": 490,
+          "event": {
+            "type": "text",
+            "text": "otes."
+          }
+        },
+        {
+          "atMs": 550,
+          "event": {
+            "type": "tool_start",
+            "id": "toolu_sample_05",
+            "name": "search_notes"
+          }
+        },
+        {
+          "atMs": 585,
+          "event": {
+            "type": "tool_input",
+            "id": "toolu_sample_05",
+            "delta": "{\"query\":\"len"
+          }
+        },
+        {
+          "atMs": 620,
+          "event": {
+            "type": "tool_input",
+            "id": "toolu_sample_05",
+            "delta": "til soup recip"
+          }
+        },
+        {
+          "atMs": 655,
+          "event": {
+            "type": "tool_input",
+            "id": "toolu_sample_05",
+            "delta": "e\",\"limit\":3}"
+          }
+        },
+        {
+          "atMs": 695,
+          "event": {
+            "type": "end",
+            "stopReason": "tool_use",
+            "usage": {
+              "inputTokens": 48,
+              "outputTokens": 28,
+              "cacheReadTokens": 1180,
+              "cacheWriteTokens": 0
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Let me check your notes."
+              },
+              {
+                "type": "tool_use",
+                "id": "toolu_sample_05",
+                "name": "search_notes",
+                "input": {
+                  "query": "lentil soup recipe",
+                  "limit": 3
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "events": [
+        {
+          "atMs": 402,
+          "event": {
+            "type": "text",
+            "text": "Yes,"
+          }
+        },
+        {
+          "atMs": 424,
+          "event": {
+            "type": "text",
+            "text": " your"
+          }
+        },
+        {
+          "atMs": 446,
+          "event": {
+            "type": "text",
+            "text": " note "
+          }
+        },
+        {
+          "atMs": 468,
+          "event": {
+            "type": "text",
+            "text": "**Le"
+          }
+        },
+        {
+          "atMs": 490,
+          "event": {
+            "type": "text",
+            "text": "ntil "
+          }
+        },
+        {
+          "atMs": 512,
+          "event": {
+            "type": "text",
+            "text": "soup r"
+          }
+        },
+        {
+          "atMs": 534,
+          "event": {
+            "type": "text",
+            "text": "ecip"
+          }
+        },
+        {
+          "atMs": 556,
+          "event": {
+            "type": "text",
+            "text": "e** ["
+          }
+        },
+        {
+          "atMs": 578,
+          "event": {
+            "type": "text",
+            "text": "note-0"
+          }
+        },
+        {
+          "atMs": 600,
+          "event": {
+            "type": "text",
+            "text": "6] h"
+          }
+        },
+        {
+          "atMs": 622,
+          "event": {
+            "type": "text",
+            "text": "as it"
+          }
+        },
+        {
+          "atMs": 644,
+          "event": {
+            "type": "text",
+            "text": ":\n\n- F"
+          }
+        },
+        {
+          "atMs": 666,
+          "event": {
+            "type": "text",
+            "text": "ry o"
+          }
+        },
+        {
+          "atMs": 688,
+          "event": {
+            "type": "text",
+            "text": "ne ch"
+          }
+        },
+        {
+          "atMs": 710,
+          "event": {
+            "type": "text",
+            "text": "opped "
+          }
+        },
+        {
+          "atMs": 732,
+          "event": {
+            "type": "text",
+            "text": "onio"
+          }
+        },
+        {
+          "atMs": 754,
+          "event": {
+            "type": "text",
+            "text": "n, tw"
+          }
+        },
+        {
+          "atMs": 776,
+          "event": {
+            "type": "text",
+            "text": "o carr"
+          }
+        },
+        {
+          "atMs": 798,
+          "event": {
+            "type": "text",
+            "text": "ots "
+          }
+        },
+        {
+          "atMs": 820,
+          "event": {
+            "type": "text",
+            "text": "and g"
+          }
+        },
+        {
+          "atMs": 842,
+          "event": {
+            "type": "text",
+            "text": "arlic "
+          }
+        },
+        {
+          "atMs": 864,
+          "event": {
+            "type": "text",
+            "text": "in o"
+          }
+        },
+        {
+          "atMs": 886,
+          "event": {
+            "type": "text",
+            "text": "live "
+          }
+        },
+        {
+          "atMs": 908,
+          "event": {
+            "type": "text",
+            "text": "oil.\n-"
+          }
+        },
+        {
+          "atMs": 930,
+          "event": {
+            "type": "text",
+            "text": " Add"
+          }
+        },
+        {
+          "atMs": 952,
+          "event": {
+            "type": "text",
+            "text": " 250 "
+          }
+        },
+        {
+          "atMs": 974,
+          "event": {
+            "type": "text",
+            "text": "g red "
+          }
+        },
+        {
+          "atMs": 996,
+          "event": {
+            "type": "text",
+            "text": "lent"
+          }
+        },
+        {
+          "atMs": 1018,
+          "event": {
+            "type": "text",
+            "text": "ils, "
+          }
+        },
+        {
+          "atMs": 1040,
+          "event": {
+            "type": "text",
+            "text": "one li"
+          }
+        },
+        {
+          "atMs": 1062,
+          "event": {
+            "type": "text",
+            "text": "tre "
+          }
+        },
+        {
+          "atMs": 1084,
+          "event": {
+            "type": "text",
+            "text": "of ve"
+          }
+        },
+        {
+          "atMs": 1106,
+          "event": {
+            "type": "text",
+            "text": "getabl"
+          }
+        },
+        {
+          "atMs": 1128,
+          "event": {
+            "type": "text",
+            "text": "e st"
+          }
+        },
+        {
+          "atMs": 1150,
+          "event": {
+            "type": "text",
+            "text": "ock, "
+          }
+        },
+        {
+          "atMs": 1172,
+          "event": {
+            "type": "text",
+            "text": "cumin "
+          }
+        },
+        {
+          "atMs": 1194,
+          "event": {
+            "type": "text",
+            "text": "and "
+          }
+        },
+        {
+          "atMs": 1216,
+          "event": {
+            "type": "text",
+            "text": "a pin"
+          }
+        },
+        {
+          "atMs": 1238,
+          "event": {
+            "type": "text",
+            "text": "ch of "
+          }
+        },
+        {
+          "atMs": 1260,
+          "event": {
+            "type": "text",
+            "text": "chil"
+          }
+        },
+        {
+          "atMs": 1282,
+          "event": {
+            "type": "text",
+            "text": "li.\n-"
+          }
+        },
+        {
+          "atMs": 1304,
+          "event": {
+            "type": "text",
+            "text": " Simme"
+          }
+        },
+        {
+          "atMs": 1326,
+          "event": {
+            "type": "text",
+            "text": "r fo"
+          }
+        },
+        {
+          "atMs": 1348,
+          "event": {
+            "type": "text",
+            "text": "r 25 "
+          }
+        },
+        {
+          "atMs": 1370,
+          "event": {
+            "type": "text",
+            "text": "minute"
+          }
+        },
+        {
+          "atMs": 1392,
+          "event": {
+            "type": "text",
+            "text": "s, b"
+          }
+        },
+        {
+          "atMs": 1414,
+          "event": {
+            "type": "text",
+            "text": "lend "
+          }
+        },
+        {
+          "atMs": 1436,
+          "event": {
+            "type": "text",
+            "text": "half o"
+          }
+        },
+        {
+          "atMs": 1458,
+          "event": {
+            "type": "text",
+            "text": "f it"
+          }
+        },
+        {
+          "atMs": 1480,
+          "event": {
+            "type": "text",
+            "text": " and "
+          }
+        },
+        {
+          "atMs": 1502,
+          "event": {
+            "type": "text",
+            "text": "finish"
+          }
+        },
+        {
+          "atMs": 1524,
+          "event": {
+            "type": "text",
+            "text": " wit"
+          }
+        },
+        {
+          "atMs": 1546,
+          "event": {
+            "type": "text",
+            "text": "h lem"
+          }
+        },
+        {
+          "atMs": 1568,
+          "event": {
+            "type": "text",
+            "text": "on jui"
+          }
+        },
+        {
+          "atMs": 1590,
+          "event": {
+            "type": "text",
+            "text": "ce.\n"
+          }
+        },
+        {
+          "atMs": 1612,
+          "event": {
+            "type": "text",
+            "text": "\nIt s"
+          }
+        },
+        {
+          "atMs": 1634,
+          "event": {
+            "type": "text",
+            "text": "erves "
+          }
+        },
+        {
+          "atMs": 1656,
+          "event": {
+            "type": "text",
+            "text": "four"
+          }
+        },
+        {
+          "atMs": 1678,
+          "event": {
+            "type": "text",
+            "text": "."
+          }
+        },
+        {
+          "atMs": 1718,
+          "event": {
+            "type": "end",
+            "stopReason": "end_turn",
+            "usage": {
+              "inputTokens": 48,
+              "outputTokens": 82,
+              "cacheReadTokens": 1180,
+              "cacheWriteTokens": 0
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Yes, your note **Lentil soup recipe** [note-06] has it:\n\n- Fry one chopped onion, two carrots and garlic in olive oil.\n- Add 250 g red lentils, one litre of vegetable stock, cumin and a pinch of chilli.\n- Simmer for 25 minutes, blend half of it and finish with lemon juice.\n\nIt serves four."
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

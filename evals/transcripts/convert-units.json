@@ -1,0 +1,272 @@
+{
+  "id": "convert-units",
+  "prompt": "How many miles is a 10 km run, and how many pounds is 72 kg?",
+  "model": "claude-sonnet-5-5",
+  "source": "authored",
+  "suggested": true,
+  "rounds": [
+    {
+      "events": [
+        {
+          "atMs": 402,
+          "event": {
+            "type": "text",
+            "text": "Conv"
+          }
+        },
+        {
+          "atMs": 424,
+          "event": {
+            "type": "text",
+            "text": "ertin"
+          }
+        },
+        {
+          "atMs": 446,
+          "event": {
+            "type": "text",
+            "text": "g both"
+          }
+        },
+        {
+          "atMs": 468,
+          "event": {
+            "type": "text",
+            "text": " at "
+          }
+        },
+        {
+          "atMs": 490,
+          "event": {
+            "type": "text",
+            "text": "once."
+          }
+        },
+        {
+          "atMs": 550,
+          "event": {
+            "type": "tool_start",
+            "id": "toolu_sample_02",
+            "name": "convert_units"
+          }
+        },
+        {
+          "atMs": 585,
+          "event": {
+            "type": "tool_input",
+            "id": "toolu_sample_02",
+            "delta": "{\"value\":10,\""
+          }
+        },
+        {
+          "atMs": 620,
+          "event": {
+            "type": "tool_input",
+            "id": "toolu_sample_02",
+            "delta": "from\":\"km\",\"to"
+          }
+        },
+        {
+          "atMs": 655,
+          "event": {
+            "type": "tool_input",
+            "id": "toolu_sample_02",
+            "delta": "\":\"mi\"}"
+          }
+        },
+        {
+          "atMs": 715,
+          "event": {
+            "type": "tool_start",
+            "id": "toolu_sample_03",
+            "name": "convert_units"
+          }
+        },
+        {
+          "atMs": 750,
+          "event": {
+            "type": "tool_input",
+            "id": "toolu_sample_03",
+            "delta": "{\"value\":72,\""
+          }
+        },
+        {
+          "atMs": 785,
+          "event": {
+            "type": "tool_input",
+            "id": "toolu_sample_03",
+            "delta": "from\":\"kg\",\"to"
+          }
+        },
+        {
+          "atMs": 820,
+          "event": {
+            "type": "tool_input",
+            "id": "toolu_sample_03",
+            "delta": "\":\"lb\"}"
+          }
+        },
+        {
+          "atMs": 860,
+          "event": {
+            "type": "end",
+            "stopReason": "tool_use",
+            "usage": {
+              "inputTokens": 48,
+              "outputTokens": 45,
+              "cacheReadTokens": 1180,
+              "cacheWriteTokens": 0
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Converting both at once."
+              },
+              {
+                "type": "tool_use",
+                "id": "toolu_sample_02",
+                "name": "convert_units",
+                "input": {
+                  "value": 10,
+                  "from": "km",
+                  "to": "mi"
+                }
+              },
+              {
+                "type": "tool_use",
+                "id": "toolu_sample_03",
+                "name": "convert_units",
+                "input": {
+                  "value": 72,
+                  "from": "kg",
+                  "to": "lb"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "events": [
+        {
+          "atMs": 402,
+          "event": {
+            "type": "text",
+            "text": "- 10"
+          }
+        },
+        {
+          "atMs": 424,
+          "event": {
+            "type": "text",
+            "text": " km i"
+          }
+        },
+        {
+          "atMs": 446,
+          "event": {
+            "type": "text",
+            "text": "s abou"
+          }
+        },
+        {
+          "atMs": 468,
+          "event": {
+            "type": "text",
+            "text": "t **"
+          }
+        },
+        {
+          "atMs": 490,
+          "event": {
+            "type": "text",
+            "text": "6.21 "
+          }
+        },
+        {
+          "atMs": 512,
+          "event": {
+            "type": "text",
+            "text": "miles*"
+          }
+        },
+        {
+          "atMs": 534,
+          "event": {
+            "type": "text",
+            "text": "*.\n-"
+          }
+        },
+        {
+          "atMs": 556,
+          "event": {
+            "type": "text",
+            "text": " 72 k"
+          }
+        },
+        {
+          "atMs": 578,
+          "event": {
+            "type": "text",
+            "text": "g is a"
+          }
+        },
+        {
+          "atMs": 600,
+          "event": {
+            "type": "text",
+            "text": "bout"
+          }
+        },
+        {
+          "atMs": 622,
+          "event": {
+            "type": "text",
+            "text": " **15"
+          }
+        },
+        {
+          "atMs": 644,
+          "event": {
+            "type": "text",
+            "text": "8.7 po"
+          }
+        },
+        {
+          "atMs": 666,
+          "event": {
+            "type": "text",
+            "text": "unds"
+          }
+        },
+        {
+          "atMs": 688,
+          "event": {
+            "type": "text",
+            "text": "**."
+          }
+        },
+        {
+          "atMs": 728,
+          "event": {
+            "type": "end",
+            "stopReason": "end_turn",
+            "usage": {
+              "inputTokens": 48,
+              "outputTokens": 20,
+              "cacheReadTokens": 1180,
+              "cacheWriteTokens": 0
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "- 10 km is about **6.21 miles**.\n- 72 kg is about **158.7 pounds**."
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

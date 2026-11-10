@@ -1,0 +1,452 @@
+{
+  "id": "create-task",
+  "prompt": "Add a task to renew my passport by 2026-12-01, high priority.",
+  "model": "claude-sonnet-5-5",
+  "source": "authored",
+  "note": "Approval flow. The final text is the same whether the user edits the input or not, so it does not repeat the task details.",
+  "suggested": true,
+  "rounds": [
+    {
+      "events": [
+        {
+          "atMs": 402,
+          "event": {
+            "type": "text",
+            "text": "I'll"
+          }
+        },
+        {
+          "atMs": 424,
+          "event": {
+            "type": "text",
+            "text": " add "
+          }
+        },
+        {
+          "atMs": 446,
+          "event": {
+            "type": "text",
+            "text": "that t"
+          }
+        },
+        {
+          "atMs": 468,
+          "event": {
+            "type": "text",
+            "text": "o yo"
+          }
+        },
+        {
+          "atMs": 490,
+          "event": {
+            "type": "text",
+            "text": "ur ta"
+          }
+        },
+        {
+          "atMs": 512,
+          "event": {
+            "type": "text",
+            "text": "sk lis"
+          }
+        },
+        {
+          "atMs": 534,
+          "event": {
+            "type": "text",
+            "text": "t. Y"
+          }
+        },
+        {
+          "atMs": 556,
+          "event": {
+            "type": "text",
+            "text": "ou wi"
+          }
+        },
+        {
+          "atMs": 578,
+          "event": {
+            "type": "text",
+            "text": "ll be "
+          }
+        },
+        {
+          "atMs": 600,
+          "event": {
+            "type": "text",
+            "text": "aske"
+          }
+        },
+        {
+          "atMs": 622,
+          "event": {
+            "type": "text",
+            "text": "d to "
+          }
+        },
+        {
+          "atMs": 644,
+          "event": {
+            "type": "text",
+            "text": "approv"
+          }
+        },
+        {
+          "atMs": 666,
+          "event": {
+            "type": "text",
+            "text": "e it"
+          }
+        },
+        {
+          "atMs": 688,
+          "event": {
+            "type": "text",
+            "text": " firs"
+          }
+        },
+        {
+          "atMs": 710,
+          "event": {
+            "type": "text",
+            "text": "t."
+          }
+        },
+        {
+          "atMs": 770,
+          "event": {
+            "type": "tool_start",
+            "id": "toolu_sample_06",
+            "name": "create_task"
+          }
+        },
+        {
+          "atMs": 805,
+          "event": {
+            "type": "tool_input",
+            "id": "toolu_sample_06",
+            "delta": "{\"title\":\"Ren"
+          }
+        },
+        {
+          "atMs": 840,
+          "event": {
+            "type": "tool_input",
+            "id": "toolu_sample_06",
+            "delta": "ew passport\",\""
+          }
+        },
+        {
+          "atMs": 875,
+          "event": {
+            "type": "tool_input",
+            "id": "toolu_sample_06",
+            "delta": "due\":\"2026-12-0"
+          }
+        },
+        {
+          "atMs": 910,
+          "event": {
+            "type": "tool_input",
+            "id": "toolu_sample_06",
+            "delta": "1\",\"priority\""
+          }
+        },
+        {
+          "atMs": 945,
+          "event": {
+            "type": "tool_input",
+            "id": "toolu_sample_06",
+            "delta": ":\"high\"}"
+          }
+        },
+        {
+          "atMs": 985,
+          "event": {
+            "type": "end",
+            "stopReason": "tool_use",
+            "usage": {
+              "inputTokens": 48,
+              "outputTokens": 47,
+              "cacheReadTokens": 1180,
+              "cacheWriteTokens": 0
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "I'll add that to your task list. You will be asked to approve it first."
+              },
+              {
+                "type": "tool_use",
+                "id": "toolu_sample_06",
+                "name": "create_task",
+                "input": {
+                  "title": "Renew passport",
+                  "due": "2026-12-01",
+                  "priority": "high"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "events": [
+        {
+          "atMs": 402,
+          "event": {
+            "type": "text",
+            "text": "Done"
+          }
+        },
+        {
+          "atMs": 424,
+          "event": {
+            "type": "text",
+            "text": ". The"
+          }
+        },
+        {
+          "atMs": 446,
+          "event": {
+            "type": "text",
+            "text": " task "
+          }
+        },
+        {
+          "atMs": 468,
+          "event": {
+            "type": "text",
+            "text": "is n"
+          }
+        },
+        {
+          "atMs": 490,
+          "event": {
+            "type": "text",
+            "text": "ow in"
+          }
+        },
+        {
+          "atMs": 512,
+          "event": {
+            "type": "text",
+            "text": " your "
+          }
+        },
+        {
+          "atMs": 534,
+          "event": {
+            "type": "text",
+            "text": "list"
+          }
+        },
+        {
+          "atMs": 556,
+          "event": {
+            "type": "text",
+            "text": " in t"
+          }
+        },
+        {
+          "atMs": 578,
+          "event": {
+            "type": "text",
+            "text": "he sid"
+          }
+        },
+        {
+          "atMs": 600,
+          "event": {
+            "type": "text",
+            "text": "e pa"
+          }
+        },
+        {
+          "atMs": 622,
+          "event": {
+            "type": "text",
+            "text": "nel."
+          }
+        },
+        {
+          "atMs": 662,
+          "event": {
+            "type": "end",
+            "stopReason": "end_turn",
+            "usage": {
+              "inputTokens": 48,
+              "outputTokens": 16,
+              "cacheReadTokens": 1180,
+              "cacheWriteTokens": 0
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Done. The task is now in your list in the side panel."
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "denied": {
+    "events": [
+      {
+        "atMs": 402,
+        "event": {
+          "type": "text",
+          "text": "Unde"
+        }
+      },
+      {
+        "atMs": 424,
+        "event": {
+          "type": "text",
+          "text": "rstoo"
+        }
+      },
+      {
+        "atMs": 446,
+        "event": {
+          "type": "text",
+          "text": "d, I w"
+        }
+      },
+      {
+        "atMs": 468,
+        "event": {
+          "type": "text",
+          "text": "on't"
+        }
+      },
+      {
+        "atMs": 490,
+        "event": {
+          "type": "text",
+          "text": " add "
+        }
+      },
+      {
+        "atMs": 512,
+        "event": {
+          "type": "text",
+          "text": "it. Te"
+        }
+      },
+      {
+        "atMs": 534,
+        "event": {
+          "type": "text",
+          "text": "ll m"
+        }
+      },
+      {
+        "atMs": 556,
+        "event": {
+          "type": "text",
+          "text": "e if "
+        }
+      },
+      {
+        "atMs": 578,
+        "event": {
+          "type": "text",
+          "text": "you wa"
+        }
+      },
+      {
+        "atMs": 600,
+        "event": {
+          "type": "text",
+          "text": "nt a"
+        }
+      },
+      {
+        "atMs": 622,
+        "event": {
+          "type": "text",
+          "text": " diff"
+        }
+      },
+      {
+        "atMs": 644,
+        "event": {
+          "type": "text",
+          "text": "erent "
+        }
+      },
+      {
+        "atMs": 666,
+        "event": {
+          "type": "text",
+          "text": "titl"
+        }
+      },
+      {
+        "atMs": 688,
+        "event": {
+          "type": "text",
+          "text": "e or "
+        }
+      },
+      {
+        "atMs": 710,
+        "event": {
+          "type": "text",
+          "text": "date a"
+        }
+      },
+      {
+        "atMs": 732,
+        "event": {
+          "type": "text",
+          "text": "nd I"
+        }
+      },
+      {
+        "atMs": 754,
+        "event": {
+          "type": "text",
+          "text": "'ll t"
+        }
+      },
+      {
+        "atMs": 776,
+        "event": {
+          "type": "text",
+          "text": "ry aga"
+        }
+      },
+      {
+        "atMs": 798,
+        "event": {
+          "type": "text",
+          "text": "in."
+        }
+      },
+      {
+        "atMs": 838,
+        "event": {
+          "type": "end",
+          "stopReason": "end_turn",
+          "usage": {
+            "inputTokens": 48,
+            "outputTokens": 27,
+            "cacheReadTokens": 1180,
+            "cacheWriteTokens": 0
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "Understood, I won't add it. Tell me if you want a different title or date and I'll try again."
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

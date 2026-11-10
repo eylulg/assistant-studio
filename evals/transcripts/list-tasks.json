@@ -1,0 +1,188 @@
+{
+  "id": "list-tasks",
+  "prompt": "What tasks do I have open?",
+  "model": "claude-sonnet-5-5",
+  "source": "authored",
+  "note": "Recorded against a task list that holds only the sample passport task, so in demo mode the answer is only right after the create-task example.",
+  "rounds": [
+    {
+      "events": [
+        {
+          "atMs": 440,
+          "event": {
+            "type": "tool_start",
+            "id": "toolu_sample_07",
+            "name": "list_tasks"
+          }
+        },
+        {
+          "atMs": 475,
+          "event": {
+            "type": "tool_input",
+            "id": "toolu_sample_07",
+            "delta": "{\"status\":\"op"
+          }
+        },
+        {
+          "atMs": 510,
+          "event": {
+            "type": "tool_input",
+            "id": "toolu_sample_07",
+            "delta": "en\"}"
+          }
+        },
+        {
+          "atMs": 550,
+          "event": {
+            "type": "end",
+            "stopReason": "tool_use",
+            "usage": {
+              "inputTokens": 48,
+              "outputTokens": 14,
+              "cacheReadTokens": 1180,
+              "cacheWriteTokens": 0
+            },
+            "content": [
+              {
+                "type": "tool_use",
+                "id": "toolu_sample_07",
+                "name": "list_tasks",
+                "input": {
+                  "status": "open"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "events": [
+        {
+          "atMs": 402,
+          "event": {
+            "type": "text",
+            "text": "You "
+          }
+        },
+        {
+          "atMs": 424,
+          "event": {
+            "type": "text",
+            "text": "have "
+          }
+        },
+        {
+          "atMs": 446,
+          "event": {
+            "type": "text",
+            "text": "one op"
+          }
+        },
+        {
+          "atMs": 468,
+          "event": {
+            "type": "text",
+            "text": "en t"
+          }
+        },
+        {
+          "atMs": 490,
+          "event": {
+            "type": "text",
+            "text": "ask: "
+          }
+        },
+        {
+          "atMs": 512,
+          "event": {
+            "type": "text",
+            "text": "**Rene"
+          }
+        },
+        {
+          "atMs": 534,
+          "event": {
+            "type": "text",
+            "text": "w pa"
+          }
+        },
+        {
+          "atMs": 556,
+          "event": {
+            "type": "text",
+            "text": "sspor"
+          }
+        },
+        {
+          "atMs": 578,
+          "event": {
+            "type": "text",
+            "text": "t**, d"
+          }
+        },
+        {
+          "atMs": 600,
+          "event": {
+            "type": "text",
+            "text": "ue 2"
+          }
+        },
+        {
+          "atMs": 622,
+          "event": {
+            "type": "text",
+            "text": "026-1"
+          }
+        },
+        {
+          "atMs": 644,
+          "event": {
+            "type": "text",
+            "text": "2-01, "
+          }
+        },
+        {
+          "atMs": 666,
+          "event": {
+            "type": "text",
+            "text": "high"
+          }
+        },
+        {
+          "atMs": 688,
+          "event": {
+            "type": "text",
+            "text": " prio"
+          }
+        },
+        {
+          "atMs": 710,
+          "event": {
+            "type": "text",
+            "text": "rity."
+          }
+        },
+        {
+          "atMs": 750,
+          "event": {
+            "type": "end",
+            "stopReason": "end_turn",
+            "usage": {
+              "inputTokens": 48,
+              "outputTokens": 22,
+              "cacheReadTokens": 1180,
+              "cacheWriteTokens": 0
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "You have one open task: **Renew passport**, due 2026-12-01, high priority."
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

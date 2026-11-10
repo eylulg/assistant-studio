@@ -1,0 +1,1404 @@
+{
+  "id": "interrupted-sse",
+  "prompt": "Explain how server-sent events work, step by step.",
+  "model": "claude-sonnet-5-5",
+  "source": "authored",
+  "suggested": true,
+  "note": "The connection drops after 82 events (409 characters). Resuming streams the remaining 271 characters.",
+  "rounds": [
+    {
+      "events": [
+        {
+          "atMs": 402,
+          "event": {
+            "type": "text",
+            "text": "Serv"
+          }
+        },
+        {
+          "atMs": 424,
+          "event": {
+            "type": "text",
+            "text": "er-se"
+          }
+        },
+        {
+          "atMs": 446,
+          "event": {
+            "type": "text",
+            "text": "nt eve"
+          }
+        },
+        {
+          "atMs": 468,
+          "event": {
+            "type": "text",
+            "text": "nts "
+          }
+        },
+        {
+          "atMs": 490,
+          "event": {
+            "type": "text",
+            "text": "let a"
+          }
+        },
+        {
+          "atMs": 512,
+          "event": {
+            "type": "text",
+            "text": " serve"
+          }
+        },
+        {
+          "atMs": 534,
+          "event": {
+            "type": "text",
+            "text": "r pu"
+          }
+        },
+        {
+          "atMs": 556,
+          "event": {
+            "type": "text",
+            "text": "sh te"
+          }
+        },
+        {
+          "atMs": 578,
+          "event": {
+            "type": "text",
+            "text": "xt to "
+          }
+        },
+        {
+          "atMs": 600,
+          "event": {
+            "type": "text",
+            "text": "the "
+          }
+        },
+        {
+          "atMs": 622,
+          "event": {
+            "type": "text",
+            "text": "brows"
+          }
+        },
+        {
+          "atMs": 644,
+          "event": {
+            "type": "text",
+            "text": "er ove"
+          }
+        },
+        {
+          "atMs": 666,
+          "event": {
+            "type": "text",
+            "text": "r on"
+          }
+        },
+        {
+          "atMs": 688,
+          "event": {
+            "type": "text",
+            "text": "e lon"
+          }
+        },
+        {
+          "atMs": 710,
+          "event": {
+            "type": "text",
+            "text": "g-live"
+          }
+        },
+        {
+          "atMs": 732,
+          "event": {
+            "type": "text",
+            "text": "d HT"
+          }
+        },
+        {
+          "atMs": 754,
+          "event": {
+            "type": "text",
+            "text": "TP re"
+          }
+        },
+        {
+          "atMs": 776,
+          "event": {
+            "type": "text",
+            "text": "sponse"
+          }
+        },
+        {
+          "atMs": 798,
+          "event": {
+            "type": "text",
+            "text": ".\n\n1"
+          }
+        },
+        {
+          "atMs": 820,
+          "event": {
+            "type": "text",
+            "text": ". The"
+          }
+        },
+        {
+          "atMs": 842,
+          "event": {
+            "type": "text",
+            "text": " brows"
+          }
+        },
+        {
+          "atMs": 864,
+          "event": {
+            "type": "text",
+            "text": "er o"
+          }
+        },
+        {
+          "atMs": 886,
+          "event": {
+            "type": "text",
+            "text": "pens "
+          }
+        },
+        {
+          "atMs": 908,
+          "event": {
+            "type": "text",
+            "text": "the co"
+          }
+        },
+        {
+          "atMs": 930,
+          "event": {
+            "type": "text",
+            "text": "nnec"
+          }
+        },
+        {
+          "atMs": 952,
+          "event": {
+            "type": "text",
+            "text": "tion "
+          }
+        },
+        {
+          "atMs": 974,
+          "event": {
+            "type": "text",
+            "text": "with a"
+          }
+        },
+        {
+          "atMs": 996,
+          "event": {
+            "type": "text",
+            "text": " nor"
+          }
+        },
+        {
+          "atMs": 1018,
+          "event": {
+            "type": "text",
+            "text": "mal r"
+          }
+        },
+        {
+          "atMs": 1040,
+          "event": {
+            "type": "text",
+            "text": "equest"
+          }
+        },
+        {
+          "atMs": 1062,
+          "event": {
+            "type": "text",
+            "text": " and"
+          }
+        },
+        {
+          "atMs": 1084,
+          "event": {
+            "type": "text",
+            "text": " the "
+          }
+        },
+        {
+          "atMs": 1106,
+          "event": {
+            "type": "text",
+            "text": "header"
+          }
+        },
+        {
+          "atMs": 1128,
+          "event": {
+            "type": "text",
+            "text": " `Ac"
+          }
+        },
+        {
+          "atMs": 1150,
+          "event": {
+            "type": "text",
+            "text": "cept:"
+          }
+        },
+        {
+          "atMs": 1172,
+          "event": {
+            "type": "text",
+            "text": " text/"
+          }
+        },
+        {
+          "atMs": 1194,
+          "event": {
+            "type": "text",
+            "text": "even"
+          }
+        },
+        {
+          "atMs": 1216,
+          "event": {
+            "type": "text",
+            "text": "t-str"
+          }
+        },
+        {
+          "atMs": 1238,
+          "event": {
+            "type": "text",
+            "text": "eam`.\n"
+          }
+        },
+        {
+          "atMs": 1260,
+          "event": {
+            "type": "text",
+            "text": "2. T"
+          }
+        },
+        {
+          "atMs": 1282,
+          "event": {
+            "type": "text",
+            "text": "he se"
+          }
+        },
+        {
+          "atMs": 1304,
+          "event": {
+            "type": "text",
+            "text": "rver a"
+          }
+        },
+        {
+          "atMs": 1326,
+          "event": {
+            "type": "text",
+            "text": "nswe"
+          }
+        },
+        {
+          "atMs": 1348,
+          "event": {
+            "type": "text",
+            "text": "rs wi"
+          }
+        },
+        {
+          "atMs": 1370,
+          "event": {
+            "type": "text",
+            "text": "th `Co"
+          }
+        },
+        {
+          "atMs": 1392,
+          "event": {
+            "type": "text",
+            "text": "nten"
+          }
+        },
+        {
+          "atMs": 1414,
+          "event": {
+            "type": "text",
+            "text": "t-Typ"
+          }
+        },
+        {
+          "atMs": 1436,
+          "event": {
+            "type": "text",
+            "text": "e: tex"
+          }
+        },
+        {
+          "atMs": 1458,
+          "event": {
+            "type": "text",
+            "text": "t/ev"
+          }
+        },
+        {
+          "atMs": 1480,
+          "event": {
+            "type": "text",
+            "text": "ent-s"
+          }
+        },
+        {
+          "atMs": 1502,
+          "event": {
+            "type": "text",
+            "text": "tream`"
+          }
+        },
+        {
+          "atMs": 1524,
+          "event": {
+            "type": "text",
+            "text": " and"
+          }
+        },
+        {
+          "atMs": 1546,
+          "event": {
+            "type": "text",
+            "text": " keep"
+          }
+        },
+        {
+          "atMs": 1568,
+          "event": {
+            "type": "text",
+            "text": "s the "
+          }
+        },
+        {
+          "atMs": 1590,
+          "event": {
+            "type": "text",
+            "text": "resp"
+          }
+        },
+        {
+          "atMs": 1612,
+          "event": {
+            "type": "text",
+            "text": "onse "
+          }
+        },
+        {
+          "atMs": 1634,
+          "event": {
+            "type": "text",
+            "text": "open i"
+          }
+        },
+        {
+          "atMs": 1656,
+          "event": {
+            "type": "text",
+            "text": "nste"
+          }
+        },
+        {
+          "atMs": 1678,
+          "event": {
+            "type": "text",
+            "text": "ad of"
+          }
+        },
+        {
+          "atMs": 1700,
+          "event": {
+            "type": "text",
+            "text": " closi"
+          }
+        },
+        {
+          "atMs": 1722,
+          "event": {
+            "type": "text",
+            "text": "ng i"
+          }
+        },
+        {
+          "atMs": 1744,
+          "event": {
+            "type": "text",
+            "text": "t.\n3."
+          }
+        },
+        {
+          "atMs": 1766,
+          "event": {
+            "type": "text",
+            "text": " Each "
+          }
+        },
+        {
+          "atMs": 1788,
+          "event": {
+            "type": "text",
+            "text": "mess"
+          }
+        },
+        {
+          "atMs": 1810,
+          "event": {
+            "type": "text",
+            "text": "age i"
+          }
+        },
+        {
+          "atMs": 1832,
+          "event": {
+            "type": "text",
+            "text": "s a fe"
+          }
+        },
+        {
+          "atMs": 1854,
+          "event": {
+            "type": "text",
+            "text": "w li"
+          }
+        },
+        {
+          "atMs": 1876,
+          "event": {
+            "type": "text",
+            "text": "nes o"
+          }
+        },
+        {
+          "atMs": 1898,
+          "event": {
+            "type": "text",
+            "text": "f text"
+          }
+        },
+        {
+          "atMs": 1920,
+          "event": {
+            "type": "text",
+            "text": " suc"
+          }
+        },
+        {
+          "atMs": 1942,
+          "event": {
+            "type": "text",
+            "text": "h as "
+          }
+        },
+        {
+          "atMs": 1964,
+          "event": {
+            "type": "text",
+            "text": "`data:"
+          }
+        },
+        {
+          "atMs": 1986,
+          "event": {
+            "type": "text",
+            "text": " {\"t"
+          }
+        },
+        {
+          "atMs": 2008,
+          "event": {
+            "type": "text",
+            "text": "ext\":"
+          }
+        },
+        {
+          "atMs": 2030,
+          "event": {
+            "type": "text",
+            "text": " \"Hell"
+          }
+        },
+        {
+          "atMs": 2052,
+          "event": {
+            "type": "text",
+            "text": "o\"}`"
+          }
+        },
+        {
+          "atMs": 2074,
+          "event": {
+            "type": "text",
+            "text": ", end"
+          }
+        },
+        {
+          "atMs": 2096,
+          "event": {
+            "type": "text",
+            "text": "ed by "
+          }
+        },
+        {
+          "atMs": 2118,
+          "event": {
+            "type": "text",
+            "text": "a bl"
+          }
+        },
+        {
+          "atMs": 2140,
+          "event": {
+            "type": "text",
+            "text": "ank l"
+          }
+        },
+        {
+          "atMs": 2162,
+          "event": {
+            "type": "text",
+            "text": "ine.\n4"
+          }
+        },
+        {
+          "atMs": 2184,
+          "event": {
+            "type": "text",
+            "text": ". Th"
+          }
+        },
+        {
+          "atMs": 2206,
+          "event": {
+            "type": "text",
+            "text": "e bro"
+          }
+        },
+        {
+          "atMs": 2228,
+          "event": {
+            "type": "text",
+            "text": "wser p"
+          }
+        },
+        {
+          "atMs": 2250,
+          "event": {
+            "type": "text",
+            "text": "arse"
+          }
+        },
+        {
+          "atMs": 2272,
+          "event": {
+            "type": "text",
+            "text": "s eac"
+          }
+        },
+        {
+          "atMs": 2294,
+          "event": {
+            "type": "text",
+            "text": "h mess"
+          }
+        },
+        {
+          "atMs": 2316,
+          "event": {
+            "type": "text",
+            "text": "age "
+          }
+        },
+        {
+          "atMs": 2338,
+          "event": {
+            "type": "text",
+            "text": "as it"
+          }
+        },
+        {
+          "atMs": 2360,
+          "event": {
+            "type": "text",
+            "text": " arriv"
+          }
+        },
+        {
+          "atMs": 2382,
+          "event": {
+            "type": "text",
+            "text": "es, "
+          }
+        },
+        {
+          "atMs": 2404,
+          "event": {
+            "type": "text",
+            "text": "so th"
+          }
+        },
+        {
+          "atMs": 2426,
+          "event": {
+            "type": "text",
+            "text": "e page"
+          }
+        },
+        {
+          "atMs": 2448,
+          "event": {
+            "type": "text",
+            "text": " can"
+          }
+        },
+        {
+          "atMs": 2470,
+          "event": {
+            "type": "text",
+            "text": " rend"
+          }
+        },
+        {
+          "atMs": 2492,
+          "event": {
+            "type": "text",
+            "text": "er a t"
+          }
+        },
+        {
+          "atMs": 2514,
+          "event": {
+            "type": "text",
+            "text": "oken"
+          }
+        },
+        {
+          "atMs": 2536,
+          "event": {
+            "type": "text",
+            "text": " at a"
+          }
+        },
+        {
+          "atMs": 2558,
+          "event": {
+            "type": "text",
+            "text": " time."
+          }
+        },
+        {
+          "atMs": 2580,
+          "event": {
+            "type": "text",
+            "text": "\n5. "
+          }
+        },
+        {
+          "atMs": 2602,
+          "event": {
+            "type": "text",
+            "text": "If th"
+          }
+        },
+        {
+          "atMs": 2624,
+          "event": {
+            "type": "text",
+            "text": "e conn"
+          }
+        },
+        {
+          "atMs": 2646,
+          "event": {
+            "type": "text",
+            "text": "ecti"
+          }
+        },
+        {
+          "atMs": 2668,
+          "event": {
+            "type": "text",
+            "text": "on dr"
+          }
+        },
+        {
+          "atMs": 2690,
+          "event": {
+            "type": "text",
+            "text": "ops, t"
+          }
+        },
+        {
+          "atMs": 2712,
+          "event": {
+            "type": "text",
+            "text": "he p"
+          }
+        },
+        {
+          "atMs": 2734,
+          "event": {
+            "type": "text",
+            "text": "age k"
+          }
+        },
+        {
+          "atMs": 2756,
+          "event": {
+            "type": "text",
+            "text": "eeps w"
+          }
+        },
+        {
+          "atMs": 2778,
+          "event": {
+            "type": "text",
+            "text": "hat "
+          }
+        },
+        {
+          "atMs": 2800,
+          "event": {
+            "type": "text",
+            "text": "it al"
+          }
+        },
+        {
+          "atMs": 2822,
+          "event": {
+            "type": "text",
+            "text": "ready "
+          }
+        },
+        {
+          "atMs": 2844,
+          "event": {
+            "type": "text",
+            "text": "has "
+          }
+        },
+        {
+          "atMs": 2866,
+          "event": {
+            "type": "text",
+            "text": "and c"
+          }
+        },
+        {
+          "atMs": 2888,
+          "event": {
+            "type": "text",
+            "text": "an ask"
+          }
+        },
+        {
+          "atMs": 2910,
+          "event": {
+            "type": "text",
+            "text": " the"
+          }
+        },
+        {
+          "atMs": 2932,
+          "event": {
+            "type": "text",
+            "text": " serv"
+          }
+        },
+        {
+          "atMs": 2954,
+          "event": {
+            "type": "text",
+            "text": "er to "
+          }
+        },
+        {
+          "atMs": 2976,
+          "event": {
+            "type": "text",
+            "text": "cont"
+          }
+        },
+        {
+          "atMs": 2998,
+          "event": {
+            "type": "text",
+            "text": "inue."
+          }
+        },
+        {
+          "atMs": 3020,
+          "event": {
+            "type": "text",
+            "text": "\n\nThat"
+          }
+        },
+        {
+          "atMs": 3042,
+          "event": {
+            "type": "text",
+            "text": " las"
+          }
+        },
+        {
+          "atMs": 3064,
+          "event": {
+            "type": "text",
+            "text": "t poi"
+          }
+        },
+        {
+          "atMs": 3086,
+          "event": {
+            "type": "text",
+            "text": "nt is "
+          }
+        },
+        {
+          "atMs": 3108,
+          "event": {
+            "type": "text",
+            "text": "why "
+          }
+        },
+        {
+          "atMs": 3130,
+          "event": {
+            "type": "text",
+            "text": "a str"
+          }
+        },
+        {
+          "atMs": 3152,
+          "event": {
+            "type": "text",
+            "text": "eam th"
+          }
+        },
+        {
+          "atMs": 3174,
+          "event": {
+            "type": "text",
+            "text": "at s"
+          }
+        },
+        {
+          "atMs": 3196,
+          "event": {
+            "type": "text",
+            "text": "tops "
+          }
+        },
+        {
+          "atMs": 3218,
+          "event": {
+            "type": "text",
+            "text": "halfwa"
+          }
+        },
+        {
+          "atMs": 3240,
+          "event": {
+            "type": "text",
+            "text": "y is"
+          }
+        },
+        {
+          "atMs": 3262,
+          "event": {
+            "type": "text",
+            "text": " an i"
+          }
+        },
+        {
+          "atMs": 3284,
+          "event": {
+            "type": "text",
+            "text": "nterru"
+          }
+        },
+        {
+          "atMs": 3306,
+          "event": {
+            "type": "text",
+            "text": "ptio"
+          }
+        },
+        {
+          "atMs": 3328,
+          "event": {
+            "type": "text",
+            "text": "n, no"
+          }
+        },
+        {
+          "atMs": 3350,
+          "event": {
+            "type": "text",
+            "text": "t an e"
+          }
+        },
+        {
+          "atMs": 3372,
+          "event": {
+            "type": "text",
+            "text": "rror"
+          }
+        },
+        {
+          "atMs": 3394,
+          "event": {
+            "type": "text",
+            "text": "."
+          }
+        },
+        {
+          "atMs": 3434,
+          "event": {
+            "type": "end",
+            "stopReason": "end_turn",
+            "usage": {
+              "inputTokens": 48,
+              "outputTokens": 190,
+              "cacheReadTokens": 1180,
+              "cacheWriteTokens": 0
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Server-sent events let a server push text to the browser over one long-lived HTTP response.\n\n1. The browser opens the connection with a normal request and the header `Accept: text/event-stream`.\n2. The server answers with `Content-Type: text/event-stream` and keeps the response open instead of closing it.\n3. Each message is a few lines of text such as `data: {\"text\": \"Hello\"}`, ended by a blank line.\n4. The browser parses each message as it arrives, so the page can render a token at a time.\n5. If the connection drops, the page keeps what it already has and can ask the server to continue.\n\nThat last point is why a stream that stops halfway is an interruption, not an error."
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "interruption": {
+    "round": 0,
+    "afterEvents": 82,
+    "resume": {
+      "events": [
+        {
+          "atMs": 402,
+          "event": {
+            "type": "text",
+            "text": "e br"
+          }
+        },
+        {
+          "atMs": 424,
+          "event": {
+            "type": "text",
+            "text": "owser"
+          }
+        },
+        {
+          "atMs": 446,
+          "event": {
+            "type": "text",
+            "text": " parse"
+          }
+        },
+        {
+          "atMs": 468,
+          "event": {
+            "type": "text",
+            "text": "s ea"
+          }
+        },
+        {
+          "atMs": 490,
+          "event": {
+            "type": "text",
+            "text": "ch me"
+          }
+        },
+        {
+          "atMs": 512,
+          "event": {
+            "type": "text",
+            "text": "ssage "
+          }
+        },
+        {
+          "atMs": 534,
+          "event": {
+            "type": "text",
+            "text": "as i"
+          }
+        },
+        {
+          "atMs": 556,
+          "event": {
+            "type": "text",
+            "text": "t arr"
+          }
+        },
+        {
+          "atMs": 578,
+          "event": {
+            "type": "text",
+            "text": "ives, "
+          }
+        },
+        {
+          "atMs": 600,
+          "event": {
+            "type": "text",
+            "text": "so t"
+          }
+        },
+        {
+          "atMs": 622,
+          "event": {
+            "type": "text",
+            "text": "he pa"
+          }
+        },
+        {
+          "atMs": 644,
+          "event": {
+            "type": "text",
+            "text": "ge can"
+          }
+        },
+        {
+          "atMs": 666,
+          "event": {
+            "type": "text",
+            "text": " ren"
+          }
+        },
+        {
+          "atMs": 688,
+          "event": {
+            "type": "text",
+            "text": "der a"
+          }
+        },
+        {
+          "atMs": 710,
+          "event": {
+            "type": "text",
+            "text": " token"
+          }
+        },
+        {
+          "atMs": 732,
+          "event": {
+            "type": "text",
+            "text": " at "
+          }
+        },
+        {
+          "atMs": 754,
+          "event": {
+            "type": "text",
+            "text": "a tim"
+          }
+        },
+        {
+          "atMs": 776,
+          "event": {
+            "type": "text",
+            "text": "e.\n5. "
+          }
+        },
+        {
+          "atMs": 798,
+          "event": {
+            "type": "text",
+            "text": "If t"
+          }
+        },
+        {
+          "atMs": 820,
+          "event": {
+            "type": "text",
+            "text": "he co"
+          }
+        },
+        {
+          "atMs": 842,
+          "event": {
+            "type": "text",
+            "text": "nnecti"
+          }
+        },
+        {
+          "atMs": 864,
+          "event": {
+            "type": "text",
+            "text": "on d"
+          }
+        },
+        {
+          "atMs": 886,
+          "event": {
+            "type": "text",
+            "text": "rops,"
+          }
+        },
+        {
+          "atMs": 908,
+          "event": {
+            "type": "text",
+            "text": " the p"
+          }
+        },
+        {
+          "atMs": 930,
+          "event": {
+            "type": "text",
+            "text": "age "
+          }
+        },
+        {
+          "atMs": 952,
+          "event": {
+            "type": "text",
+            "text": "keeps"
+          }
+        },
+        {
+          "atMs": 974,
+          "event": {
+            "type": "text",
+            "text": " what "
+          }
+        },
+        {
+          "atMs": 996,
+          "event": {
+            "type": "text",
+            "text": "it a"
+          }
+        },
+        {
+          "atMs": 1018,
+          "event": {
+            "type": "text",
+            "text": "lread"
+          }
+        },
+        {
+          "atMs": 1040,
+          "event": {
+            "type": "text",
+            "text": "y has "
+          }
+        },
+        {
+          "atMs": 1062,
+          "event": {
+            "type": "text",
+            "text": "and "
+          }
+        },
+        {
+          "atMs": 1084,
+          "event": {
+            "type": "text",
+            "text": "can a"
+          }
+        },
+        {
+          "atMs": 1106,
+          "event": {
+            "type": "text",
+            "text": "sk the"
+          }
+        },
+        {
+          "atMs": 1128,
+          "event": {
+            "type": "text",
+            "text": " ser"
+          }
+        },
+        {
+          "atMs": 1150,
+          "event": {
+            "type": "text",
+            "text": "ver t"
+          }
+        },
+        {
+          "atMs": 1172,
+          "event": {
+            "type": "text",
+            "text": "o cont"
+          }
+        },
+        {
+          "atMs": 1194,
+          "event": {
+            "type": "text",
+            "text": "inue"
+          }
+        },
+        {
+          "atMs": 1216,
+          "event": {
+            "type": "text",
+            "text": ".\n\nTh"
+          }
+        },
+        {
+          "atMs": 1238,
+          "event": {
+            "type": "text",
+            "text": "at las"
+          }
+        },
+        {
+          "atMs": 1260,
+          "event": {
+            "type": "text",
+            "text": "t po"
+          }
+        },
+        {
+          "atMs": 1282,
+          "event": {
+            "type": "text",
+            "text": "int i"
+          }
+        },
+        {
+          "atMs": 1304,
+          "event": {
+            "type": "text",
+            "text": "s why "
+          }
+        },
+        {
+          "atMs": 1326,
+          "event": {
+            "type": "text",
+            "text": "a st"
+          }
+        },
+        {
+          "atMs": 1348,
+          "event": {
+            "type": "text",
+            "text": "ream "
+          }
+        },
+        {
+          "atMs": 1370,
+          "event": {
+            "type": "text",
+            "text": "that s"
+          }
+        },
+        {
+          "atMs": 1392,
+          "event": {
+            "type": "text",
+            "text": "tops"
+          }
+        },
+        {
+          "atMs": 1414,
+          "event": {
+            "type": "text",
+            "text": " half"
+          }
+        },
+        {
+          "atMs": 1436,
+          "event": {
+            "type": "text",
+            "text": "way is"
+          }
+        },
+        {
+          "atMs": 1458,
+          "event": {
+            "type": "text",
+            "text": " an "
+          }
+        },
+        {
+          "atMs": 1480,
+          "event": {
+            "type": "text",
+            "text": "inter"
+          }
+        },
+        {
+          "atMs": 1502,
+          "event": {
+            "type": "text",
+            "text": "ruptio"
+          }
+        },
+        {
+          "atMs": 1524,
+          "event": {
+            "type": "text",
+            "text": "n, n"
+          }
+        },
+        {
+          "atMs": 1546,
+          "event": {
+            "type": "text",
+            "text": "ot an"
+          }
+        },
+        {
+          "atMs": 1568,
+          "event": {
+            "type": "text",
+            "text": " error"
+          }
+        },
+        {
+          "atMs": 1590,
+          "event": {
+            "type": "text",
+            "text": "."
+          }
+        },
+        {
+          "atMs": 1630,
+          "event": {
+            "type": "end",
+            "stopReason": "end_turn",
+            "usage": {
+              "inputTokens": 48,
+              "outputTokens": 76,
+              "cacheReadTokens": 1180,
+              "cacheWriteTokens": 0
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "e browser parses each message as it arrives, so the page can render a token at a time.\n5. If the connection drops, the page keeps what it already has and can ask the server to continue.\n\nThat last point is why a stream that stops halfway is an interruption, not an error."
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
