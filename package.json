@@ -23,7 +23,7 @@
     "eval:live": "EVAL_MODE=live vitest run --config vitest.eval.config.mts",
     "record-fixture": "tsx scripts/record-fixture.ts",
     "knip": "knip",
-    "relink": "rm -rf node_modules/@eylulg/ui && npm install ../ui --install-links",
+    "relink": "rm -rf node_modules/@eylulg/ui && npm install ../ui --install-links && git checkout -- package-lock.json",
     "prepare": "husky"
   },
   "dependencies": {
