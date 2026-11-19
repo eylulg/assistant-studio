@@ -11,6 +11,7 @@ This project exists to show AI-native product UI craft, not a chat box with a mo
 - **Actions with side effects ask first.** The model can read freely, but `create_task` does not run until the user approves it, edits its input, or denies it. The protocol that makes this work with a stateless server is in [docs/protocol.md](./docs/protocol.md).
 - **A conversation is a tree.** Editing an earlier message forks the conversation, regenerating adds a sibling answer, and a version picker steps between branches without losing any.
 - **Honest numbers.** Tokens, cache reads and an estimated cost for every answer, labelled as estimates, and a demo mode that says what it is.
+- **Answers can rest on the user's own documents.** Text, Markdown and PDF files are read in the browser, kept in IndexedDB per conversation, and cited by exact range. Every claim carries a numbered chip that opens the source with the cited text highlighted. Streaming citations go through the same reducer as everything else, and file handling has a specific message for each way it can fail. See [Documents and citations](#documents-and-citations).
 - **Evals are part of the product.** A fixture suite replays recorded model streams through the real engine, store and tools and asserts tool choice, tool input shape and answer constraints. The same cases run against the real API when a key is set.
 
 ## Run it
@@ -50,7 +51,7 @@ Copy `.env.example` to `.env.local`. Every value is optional.
 | `CHAT_EFFORT`               | `medium`            | Effort for chat requests: `low`, `medium`, `high`, `xhigh` or `max`.                         |
 | `MAX_OUTPUT_TOKENS`         | `4096`              | Output tokens across all rounds of one request.                                              |
 | `MAX_ROUNDS`                | `5`                 | Model rounds per request (each round of tool results needs another model call).              |
-| `MAX_BODY_BYTES`            | `200000`            | Largest request body.                                                                        |
+| `MAX_BODY_BYTES`            | `200000`            | Largest request body, not counting documents (live mode adds room for them).                 |
 | `RATE_LIMIT_REQUESTS`       | `20`                | Requests per IP address per window.                                                          |
 | `RATE_LIMIT_WINDOW_SECONDS` | `600`               | Length of the window.                                                                        |
 | `DEMO_PACE`                 | `1`                 | Replay speed in demo mode. `0` replays instantly.                                            |
@@ -90,7 +91,39 @@ conversation tree, tasks, settings      stateless, server-sent events
 
 The full event list, the two-phase protocol, and the semantics of Stop, disconnect and Resume are in [docs/protocol.md](./docs/protocol.md).
 
-Module map: `src/lib/protocol.ts` (zod schemas for requests and events), `src/lib/engine` (the loop, the Anthropic backend, the replay backend), `src/lib/tools` (the seven tools), `src/lib/chat` (reducer, tree, wire builder, persistence, export), `src/store` (zustand store and the turn runner), `src/components` (UI), `evals` (cases, harness, checks, report).
+Module map: `src/lib/protocol.ts` (zod schemas for requests and events), `src/lib/engine` (the loop, the Anthropic backend, the replay backend), `src/lib/tools` (the seven tools), `src/lib/chat` (reducer, tree, wire builder, persistence, export), `src/lib/documents` (reading, chunking, BM25, citation lookup, the extractive answer, IndexedDB), `src/store` (zustand stores: the conversation and the documents), `src/components` (UI), `evals` (cases, harness, checks, report).
+
+## Documents and citations
+
+Add `.txt`, `.md` or `.pdf` files with the attach button next to the message box, by dropping them on the message box, or in the Sources panel. Each file shows reading, ready, or failed with the reason. The refusals each have their own message: wrong type, over 5 MB, empty, not text, a password protected PDF, a PDF with no text layer (a scan), and a conversation over its limits. Retry is offered only where trying again can change the result. Each ready document has a switch for whether the next question uses it, and a remove button.
+
+| Limit                           | Value                   | Why                                                                   |
+| ------------------------------- | ----------------------- | --------------------------------------------------------------------- |
+| File size                       | 5 MB                    | Keeps reading fast and one PDF from filling a request.                |
+| Text per conversation           | 400,000 characters      | About 100,000 tokens, so one live question stays affordable.          |
+| Original files per conversation | 10 MB, at most 10 files | PDFs are sent as files in live mode, so this bounds the request body. |
+
+PDF text is read with `pdfjs-dist`, imported only when a PDF is chosen and parsed in a web worker. It is not in the first load: choosing the first PDF fetches about 137 KB of library code and the 358 KB worker (gzip), and the initial JavaScript of the page is 353 KB against 325 KB before this feature, which is the Sources panel, the drag and drop code and the chips. Documents are stored in IndexedDB with the original file, keyed by conversation, and are removed with the conversation.
+
+### Demo mode: extractive answers, no model
+
+With documents switched on and no API key, a question is answered in the browser and never reaches the server, so the text of the documents does not leave the page. The text is split into passages with exact character offsets (a PDF page by page, so no passage crosses a page), the passages are ranked against the question with BM25, and the answer quotes the best two or three, each with a citation to its range. The answer is streamed through the same events and reducer as a model answer, so there is one rendering path, and the interface labels it: an extractive answer built from your documents, no model was called. Every quoted character is copied from the document at the cited range. If no passage shares a word with the question, the answer says so and cites nothing.
+
+Limits of the demo path: it matches words, not meaning, so a question has to share vocabulary with the document; it cannot combine facts or summarise; and while a document is switched on, questions in that conversation are answered from it instead of the recorded demos (switch it off to use them).
+
+### Live mode: cited model answers
+
+With `ANTHROPIC_API_KEY` set, the switched-on documents travel with the question and the model answers with citations. Text files go as plain text document blocks. PDFs go as the original file in a base64 document block, because the model then reads layout and cites by page; extracted text is only used to find the quote again in the viewer. Citations are enabled on every document (the API takes all or none) and the last document block carries a cache breakpoint. The documents sit in the first user turn, ahead of its text, so for a given set of documents the tools, system prompt and documents are one cached prefix across questions. A second system block tells the model to answer from the documents and say so when they do not contain the answer. Streamed `citations_delta` events become `citation` events: a character range for text files, a page (end page made inclusive) plus the cited text for PDFs, and the browser looks the quoted text up on that page.
+
+What leaves the browser in live mode: the question, the conversation, and every switched-on document (the full text, or the original PDF). Documents are not stored on the server. Limits: request bodies carry up to about 15 MB when documents are attached, a PDF costs tokens for its text and page images, citations cannot be combined with structured outputs (this app does not use them), and a question after a document change does not hit the document cache. Live behaviour is covered by tests of the request shape and the stream mapping, not by a live run: no live eval was run when this was built.
+
+### Citations in the interface
+
+A cited span ends with a numbered chip. Activating it with a click, Enter or Space opens a viewer with the document text scrolled to the cited range and that range highlighted (a character range for text, the page and a text match for a PDF; when the text cannot be matched the page is shown with a note). Chips are named like "Source 2: report.pdf, page 4". The viewer is a modal dialog that closes with Escape and returns focus to the chip. Sources are numbered per answer in order of first use, and a source cited twice keeps its number. If the document was removed, the viewer shows the quoted text and says so.
+
+### Document evals
+
+Three cases run the extractive path with no transcript: a text file, a PDF page, and a question the documents cannot answer. Two cases run a model-shaped stream through the engine from authored transcripts (`evals/transcripts/documents`, marked `"source": "authored"` like the others): a character range citation and a PDF page citation. Every document case checks that each citation points inside a document it was given and that the quoted text equals the source at that range (for a PDF, that the quote is on the cited page). With a key, `npm run eval:live` runs the two model cases against the API with the same checks; the extractive cases never call the model.
 
 ### Tools
 
