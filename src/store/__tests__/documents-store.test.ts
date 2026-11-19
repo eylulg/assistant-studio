@@ -39,7 +39,7 @@ describe("documents store", () => {
             },
         });
         const docx = txt("notes.docx", "x");
-        const pdf = new File(["%PDF"], "flaky.pdf");
+        const pdf = new File(["%PDF-1.4"], "flaky.pdf");
 
         await store.getState().add("c1", [docx, pdf]);
 
@@ -68,9 +68,39 @@ describe("documents store", () => {
             },
         });
 
-        await store.getState().add("c1", [new File(["%PDF"], "a.pdf"), new File(["%PDF"], "b.pdf"), new File(["%PDF"], "c.pdf")]);
+        await store.getState().add("c1", [new File(["%PDF-1.4"], "a.pdf"), new File(["%PDF-1.4"], "b.pdf"), new File(["%PDF-1.4"], "c.pdf")]);
 
         expect(most).toBe(1);
+    });
+
+    it("does not save a document that was removed while it was waiting or being read, so it is gone after a reload", async () => {
+        let release: () => void = () => {};
+        const { store, repository, entries } = setup({
+            readPdf: () =>
+                new Promise((resolve) => {
+                    release = () => resolve(["Slow text"]);
+                }),
+        });
+
+        const adding = store.getState().add("c1", [new File(["%PDF-1.4"], "slow.pdf"), txt("second.txt", "Second text")]);
+        const [pdf, second] = entries();
+        await store.getState().remove("c1", second?.id ?? "");
+        await store.getState().remove("c1", pdf?.id ?? "");
+        release();
+        await adding;
+        await store.getState().load("c1");
+
+        expect(repository.all()).toEqual([]);
+        expect(entries()).toEqual([]);
+    });
+
+    it("refuses a PDF that would pass the page limit of the conversation, counting pages with no text", async () => {
+        const { store, entries } = setup({ readPdf: async () => Array.from({ length: 400 }, (_, index) => (index === 0 ? "Text" : "")) });
+
+        await store.getState().add("c1", [new File(["%PDF-1.4"], "a.pdf"), new File(["%PDF-1.4"], "b.pdf")]);
+
+        expect(entries()[0]).toMatchObject({ status: "ready", pageCount: 400 });
+        expect(entries()[1]).toMatchObject({ status: "failed", retryable: false, error: expect.stringContaining("PDF pages per conversation") });
     });
 
     it("refuses a file that would pass the text limit or the document count, with a reason", async () => {
@@ -147,6 +177,19 @@ describe("documents store", () => {
 
         expect(repository.all().map((document) => document.id)).toEqual(["x2"]);
         expect(entries()).toEqual([]);
+    });
+
+    it("deletes stored documents of conversations that are gone, but not recent ones or the ones kept", async () => {
+        const repository = memoryRepository([
+            textDocument("x1", "kept.txt", "Kept", { conversationId: "c1" }),
+            textDocument("x2", "trimmed.txt", "Trimmed", { conversationId: "gone", createdAt: "2026-11-01T09:30:00.000Z" }),
+            textDocument("x3", "fresh.txt", "Fresh", { conversationId: "other-tab", createdAt: "2026-11-10T09:00:00.000Z" }),
+        ]);
+        const { store } = setup({ repository });
+
+        await store.getState().prune(["c1"]);
+
+        expect(repository.all().map((document) => document.id)).toEqual(["x1", "x3"]);
     });
 
     it("does not lose a file added while the conversation's documents were still loading", async () => {

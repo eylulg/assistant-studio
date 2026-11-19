@@ -118,6 +118,7 @@ export function Studio({ demo }: { demo: boolean }) {
         }
         store.getState().hydrate();
         loadDocuments(store.getState().activeId);
+        documents.getState().prune(Object.keys(store.getState().conversations));
         // Documents belong to a conversation: they load with it and go when it is deleted.
         const unsubscribe = store.subscribe((state, previous) => {
             if (state.activeId !== previous.activeId) loadDocuments(state.activeId);

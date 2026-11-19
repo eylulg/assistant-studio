@@ -27,6 +27,7 @@ describe("extractDocument", () => {
             ],
         });
         expect(result.bytes?.byteLength).toBe(8);
+        expect(result.pageCount).toBe(2);
     });
 
     it.each<{ name: string; make: () => File; reader?: () => Promise<string[]>; code: ExtractionError["code"]; retryable: boolean }>([
@@ -46,10 +47,16 @@ describe("extractDocument", () => {
             code: "binary",
             retryable: false,
         },
-        { name: "a scanned PDF with no text layer", make: () => file("scan.pdf", "%PDF"), reader: async () => ["", "  \n"], code: "scanned", retryable: false },
+        {
+            name: "a scanned PDF with no text layer",
+            make: () => file("scan.pdf", "%PDF-1.4"),
+            reader: async () => ["", "  \n"],
+            code: "scanned",
+            retryable: false,
+        },
         {
             name: "a password protected PDF",
-            make: () => file("locked.pdf", "%PDF"),
+            make: () => file("locked.pdf", "%PDF-1.4"),
             reader: async () => {
                 throw new ExtractionError("encrypted");
             },
@@ -57,8 +64,22 @@ describe("extractDocument", () => {
             retryable: false,
         },
         {
+            name: "a text file renamed to .pdf",
+            make: () => file("report.pdf", "Quarterly numbers"),
+            reader: async () => ["x"],
+            code: "not_a_pdf",
+            retryable: false,
+        },
+        {
+            name: "a PDF with more pages than the model accepts",
+            make: () => file("long.pdf", "%PDF-1.4"),
+            reader: async () => Array.from({ length: 601 }, () => "text"),
+            code: "too_many_pages",
+            retryable: false,
+        },
+        {
             name: "a PDF the reader cannot parse",
-            make: () => file("damaged.pdf", "%PDF"),
+            make: () => file("damaged.pdf", "%PDF-1.4"),
             reader: async () => {
                 throw new ExtractionError("unreadable");
             },
@@ -76,13 +97,13 @@ describe("extractDocument", () => {
     it("gives every refusal a different message", async () => {
         const messages = new Set(
             await Promise.all(
-                ["type", "too_large", "empty", "binary", "encrypted", "scanned", "unreadable", "budget"].map(
+                ["type", "too_large", "empty", "binary", "encrypted", "scanned", "not_a_pdf", "too_many_pages", "unreadable", "budget"].map(
                     async (code) => new ExtractionError(code as ExtractionError["code"]).message,
                 ),
             ),
         );
 
-        expect(messages.size).toBe(8);
+        expect(messages.size).toBe(10);
     });
 });
 

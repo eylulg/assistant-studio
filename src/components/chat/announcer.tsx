@@ -17,15 +17,8 @@ const MESSAGES = {
 export function Announcer() {
     const conversation = useStudio((state) => (state.activeId ? state.conversations[state.activeId] : undefined));
     const last = conversation ? activePath(conversation).at(-1)?.message : undefined;
-    const latestDocument = useDocuments((state) => (state.entries[conversation?.id ?? ""] ?? []).at(-1));
+    const document = useDocuments((state) => state.announcement);
     const answer = last?.role === "assistant" ? MESSAGES[last.status] : "";
-    const document = latestDocument
-        ? latestDocument.status === "reading"
-            ? `Reading ${latestDocument.name}.`
-            : latestDocument.status === "ready"
-              ? `${latestDocument.name} is ready.`
-              : `${latestDocument.name} could not be added. ${latestDocument.error ?? ""}`
-        : "";
 
     return (
         <>

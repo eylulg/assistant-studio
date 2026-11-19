@@ -11,5 +11,8 @@ export const MAX_TOTAL_BYTES = 10 * 1024 * 1024;
 
 export const MAX_DOCUMENTS = 10;
 
+/** The API takes at most this many PDF pages in one request, counted over all the PDFs of the request. */
+export const MAX_PDF_PAGES = 600;
+
 /** The most a request body can carry for documents: base64 grows the bytes by a third, plus a margin for names and JSON. */
 export const MAX_DOCUMENT_BODY_BYTES = Math.ceil((MAX_TOTAL_BYTES * 4) / 3) + MAX_TOTAL_CHARS * 4 + 100_000;

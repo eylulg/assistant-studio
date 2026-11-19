@@ -11,6 +11,8 @@ export interface DocumentRepository {
     setEnabled: (id: string, enabled: boolean) => Promise<void>;
     remove: (id: string) => Promise<void>;
     removeConversation: (conversationId: string) => Promise<void>;
+    /** Deletes every document whose conversation is not in `keep` and that was added before `before` (an ISO time). */
+    removeOrphans: (keep: readonly string[], before: string) => Promise<void>;
 }
 
 function settled<T>(request: IDBRequest<T>): Promise<T> {
@@ -94,6 +96,20 @@ export function createIndexedDbRepository(): DocumentRepository {
             const transaction = db.transaction(STORE, "readwrite");
             const store = transaction.objectStore(STORE);
             for (const key of await idsOf(store, conversationId)) store.delete(key);
+            await finished(transaction);
+        },
+        async removeOrphans(keep, before) {
+            const db = await open();
+            const transaction = db.transaction(STORE, "readwrite");
+            const store = transaction.objectStore(STORE);
+            const kept = new Set(keep);
+            const orphans = await settled(store.getAll()).then((records) =>
+                records.flatMap((record: unknown) => {
+                    const parsed = storedDocumentSchema.pick({ id: true, conversationId: true, createdAt: true }).safeParse(record);
+                    return parsed.success && !kept.has(parsed.data.conversationId) && parsed.data.createdAt < before ? [parsed.data.id] : [];
+                }),
+            );
+            for (const id of orphans) store.delete(id);
             await finished(transaction);
         },
     };

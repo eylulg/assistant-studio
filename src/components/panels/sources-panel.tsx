@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { Button } from "@eylulg/ui/button";
 import { FileDropZone } from "@eylulg/ui/file-drop-zone";
 import { IconButton } from "@eylulg/ui/icon-button";
@@ -20,14 +21,24 @@ function formatSize(bytes: number): string {
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+function plural(count: number): string {
+    return count === 1 ? "1 page" : `${count} pages`;
+}
+
 function describe(entry: DocumentEntry): string {
     const size = formatSize(entry.size);
     if (entry.status !== "ready" || entry.text === undefined) return size;
-    const pages = entry.pages ? ` in ${entry.pages.length === 1 ? "1 page" : `${entry.pages.length} pages`}` : "";
-    return `${size}, ${number.format(entry.text.length)} characters${pages}`;
+    if (!entry.pages) return `${size}, ${number.format(entry.text.length)} characters`;
+    const total = Math.max(entry.pageCount ?? 0, entry.pages.length);
+    const pages = total > entry.pages.length ? `${plural(total)}, ${entry.pages.length} with text` : plural(total);
+    return `${size}, ${number.format(entry.text.length)} characters in ${pages}`;
 }
 
-function DocumentRow({ conversationId, entry }: { conversationId: string; entry: DocumentEntry }) {
+const ADD_LABEL = "Add documents";
+const REMOVE_BUTTONS = 'button[aria-label^="Remove "]';
+
+function DocumentRow({ conversationId, entry, onRemove }: { conversationId: string; entry: DocumentEntry; onRemove: (id: string) => void }) {
+    const nameRef = useRef<HTMLSpanElement>(null);
     const setEnabled = useDocuments((state) => state.setEnabled);
     const remove = useDocuments((state) => state.remove);
     const retry = useDocuments((state) => state.retry);
@@ -37,11 +48,15 @@ function DocumentRow({ conversationId, entry }: { conversationId: string; entry:
     }
 
     async function handleRemove() {
+        onRemove(entry.id);
         await remove(conversationId, entry.id);
     }
 
     async function handleRetry() {
-        await retry(conversationId, entry.id);
+        // The Retry button is replaced by the reading state, so focus moves to the file's name, which stays.
+        const retried = retry(conversationId, entry.id);
+        nameRef.current?.focus();
+        await retried;
     }
 
     return (
@@ -49,7 +64,13 @@ function DocumentRow({ conversationId, entry }: { conversationId: string; entry:
             <div className="flex items-start gap-2">
                 <FileText aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-fg-secondary" />
                 <div className="flex min-w-0 flex-1 flex-col">
-                    <span className="text-sm font-medium break-words text-primary">{entry.name}</span>
+                    <span
+                        ref={nameRef}
+                        tabIndex={-1}
+                        className="text-sm font-medium break-words text-primary outline-none focus-visible:outline-2 focus-visible:outline-focus"
+                    >
+                        {entry.name}
+                    </span>
                     <span className={META_CLASS}>{describe(entry)}</span>
                 </div>
                 <IconButton icon={Trash2} size="sm" variant="tertiary" aria-label={`Remove ${entry.name}`} onPress={handleRemove} />
@@ -83,18 +104,34 @@ export function SourcesPanel({ demo }: { demo: boolean }) {
     const entries = useDocuments((state) => (activeId ? state.entries[activeId] : undefined)) ?? NO_ENTRIES;
     const storage = useDocuments((state) => state.storage);
     const addDocuments = useAddDocuments();
+    const panelRef = useRef<HTMLDivElement>(null);
+    const removedAt = useRef<number | null>(null);
     const used = entries.reduce((sum, entry) => sum + (entry.status === "ready" ? (entry.text?.length ?? 0) : 0), 0);
+
+    // After a removal focus goes to the Remove button that took the row's place, else the one before it, else Add documents.
+    useEffect(() => {
+        const index = removedAt.current;
+        if (index === null) return;
+        removedAt.current = null;
+        const buttons = panelRef.current?.querySelectorAll<HTMLButtonElement>(REMOVE_BUTTONS) ?? [];
+        const add = Array.from(panelRef.current?.querySelectorAll("button") ?? []).find((button) => button.textContent?.trim() === ADD_LABEL);
+        (buttons[Math.min(index, buttons.length - 1)] ?? add)?.focus();
+    }, [entries]);
+
+    function handleRemove(id: string) {
+        removedAt.current = entries.findIndex((entry) => entry.id === id);
+    }
 
     async function handleSelect(files: File[]) {
         await addDocuments(files);
     }
 
     return (
-        <div className="flex flex-col gap-3">
+        <div ref={panelRef} className="flex flex-col gap-3">
             <FileDropZone
                 label="Drop documents here"
                 hint="Text, Markdown or PDF, up to 5 MB each"
-                buttonLabel="Add documents"
+                buttonLabel={ADD_LABEL}
                 acceptedFileTypes={ACCEPTED_FILE_TYPES}
                 allowsMultiple
                 isDisabled={storage === "unavailable"}
@@ -111,7 +148,7 @@ export function SourcesPanel({ demo }: { demo: boolean }) {
             ) : (
                 <ul className="flex flex-col gap-2" aria-label="Documents">
                     {entries.map((entry) => (
-                        <DocumentRow key={entry.id} conversationId={activeId ?? ""} entry={entry} />
+                        <DocumentRow key={entry.id} conversationId={activeId ?? ""} entry={entry} onRemove={handleRemove} />
                     ))}
                 </ul>
             )}

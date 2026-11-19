@@ -17,6 +17,9 @@ export function memoryRepository(initial: StoredDocument[] = []): DocumentReposi
         remove: async (id) => {
             documents.delete(id);
         },
+        removeOrphans: async (keep, before) => {
+            for (const [id, document] of documents) if (!keep.includes(document.conversationId) && document.createdAt < before) documents.delete(id);
+        },
         removeConversation: async (conversationId) => {
             for (const [id, document] of documents) if (document.conversationId === conversationId) documents.delete(id);
         },

@@ -14,8 +14,10 @@ export const storedDocumentSchema = z.object({
     /** Size of the original file in bytes. */
     size: z.number().int().nonnegative(),
     text: z.string(),
-    /** PDFs only: the page boundaries inside `text`. */
+    /** PDFs only: the page boundaries inside `text`. Pages with no text are not in it. */
     pages: z.array(pageSpanSchema).optional(),
+    /** PDFs only: how many pages the file has, with or without text. */
+    pageCount: z.number().int().positive().optional(),
     /** The original PDF, kept so live mode can send it as a file. Text files are sent as `text`. */
     bytes: z.instanceof(ArrayBuffer).optional(),
     enabled: z.boolean(),
@@ -37,4 +39,4 @@ export interface Passage {
 }
 
 /** The result of reading a file, before it is stored. */
-export type ExtractedDocument = Pick<StoredDocument, "kind" | "text" | "pages" | "bytes"> & { name: string; size: number };
+export type ExtractedDocument = Pick<StoredDocument, "kind" | "text" | "pages" | "pageCount" | "bytes"> & { name: string; size: number };
