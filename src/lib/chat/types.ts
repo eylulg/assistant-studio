@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { doneReasonSchema } from "../protocol";
+import { citationSchema, doneReasonSchema } from "../protocol";
 import { taskSchema } from "../tools/types";
 
 const reasoningBlockSchema = z.union([
@@ -7,13 +7,20 @@ const reasoningBlockSchema = z.union([
     z.object({ type: z.literal("redacted_thinking"), data: z.string() }),
 ]);
 
+export const answerModeSchema = z.enum(["model", "replay", "extractive"]);
+export type AnswerMode = z.infer<typeof answerModeSchema>;
+
 const toolStatusSchema = z.enum(["streaming", "awaiting_approval", "running", "done", "error", "denied", "cancelled"]);
 export type ToolStatus = z.infer<typeof toolStatusSchema>;
 
 const inputSchema = z.record(z.string(), z.unknown());
 
+/** A citation placed in a text part: `at` is the offset in the part's text where the cited span ends. */
+const placedCitationSchema = z.object({ at: z.number().int().nonnegative(), citation: citationSchema });
+export type PlacedCitation = z.infer<typeof placedCitationSchema>;
+
 const partSchema = z.discriminatedUnion("type", [
-    z.object({ type: z.literal("text"), round: z.number().int().nonnegative(), text: z.string() }),
+    z.object({ type: z.literal("text"), round: z.number().int().nonnegative(), text: z.string(), citations: z.array(placedCitationSchema).optional() }),
     z.object({ type: z.literal("reasoning"), round: z.number().int().nonnegative(), block: reasoningBlockSchema }),
     z.object({
         type: z.literal("tool"),
@@ -51,6 +58,18 @@ const assistantMessageSchema = z.object({
     resumes: z.array(z.number().int().nonnegative()),
     usage: z.object({ inputTokens: z.number(), outputTokens: z.number(), cacheReadTokens: z.number(), cacheWriteTokens: z.number() }),
     doneReason: doneReasonSchema.optional(),
+    /**
+     * Where the answer came from: `model` (the real API), `replay` (a recording, in demo mode) or `extractive`
+     * (assembled from the user's documents in the browser, no model call). Absent on answers saved before this was recorded.
+     */
+    mode: answerModeSchema.optional(),
+    /**
+     * The documents the first request of this answer was sent with. Every later request of the same answer (after an
+     * approval, or a resume) uses the same set, because changing it would change the prefix the model's reasoning was bound to.
+     */
+    documentIds: z.array(z.string()).optional(),
+    /** Wall-clock timing seen by the browser. Absent on answers saved before timing was recorded; never zero for "unknown". */
+    timing: z.object({ firstTokenMs: z.number().nonnegative().optional(), totalMs: z.number().nonnegative() }).optional(),
     error: z.string().optional(),
 });
 

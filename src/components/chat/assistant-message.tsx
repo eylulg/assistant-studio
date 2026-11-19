@@ -6,6 +6,7 @@ import { IconButton } from "@eylulg/ui/icon-button";
 import { Spinner } from "@eylulg/ui/spinner";
 import { RefreshCw, WifiOff } from "lucide-react";
 import { META_CLASS } from "@/components/styles";
+import { numberCitations } from "@/lib/chat/citations";
 import type { AssistantMessage as AssistantMessageData } from "@/lib/chat/types";
 import { modelLabel } from "@/lib/models";
 import { useFocusComposer, useStudio } from "../studio-context";
@@ -36,6 +37,8 @@ export function AssistantMessage({ message, turn, versions, isLast }: AssistantM
     const focusComposer = useFocusComposer();
 
     const isStreaming = message.status === "streaming";
+    const numbers = numberCitations(message.parts);
+    const isExtractive = message.mode === "extractive";
     const note = message.doneReason ? DONE_NOTES[message.doneReason] : undefined;
 
     async function handleRegenerate() {
@@ -52,7 +55,13 @@ export function AssistantMessage({ message, turn, versions, isLast }: AssistantM
         <article aria-label={`Assistant answer, turn ${turn}`} className="flex flex-col gap-3">
             <header className="flex items-center gap-2">
                 <span className="text-sm font-semibold text-primary">Assistant</span>
-                <span className={META_CLASS}>{modelLabel(message.model)}</span>
+                {isExtractive ? (
+                    <Badge color="blue" size="sm">
+                        Extractive answer
+                    </Badge>
+                ) : (
+                    <span className={META_CLASS}>{modelLabel(message.model)}</span>
+                )}
                 {isStreaming ? (
                     <Badge color="brand" size="sm">
                         Answering
@@ -61,8 +70,15 @@ export function AssistantMessage({ message, turn, versions, isLast }: AssistantM
                 {isStreaming && message.parts.length === 0 ? <Spinner size="sm" /> : null}
             </header>
 
+            {isExtractive ? <p className={META_CLASS}>Built from passages of your documents. No model was called.</p> : null}
+
             {message.parts.map((part, index) => {
-                if (part.type === "text") return <Markdown key={`${part.round}-${index}`}>{part.text}</Markdown>;
+                if (part.type === "text")
+                    return (
+                        <Markdown key={`${part.round}-${index}`} citations={part.citations} numbers={numbers}>
+                            {part.text}
+                        </Markdown>
+                    );
                 if (part.type === "tool") return <ToolCard key={part.id} assistantId={message.id} part={part} />;
                 return null;
             })}

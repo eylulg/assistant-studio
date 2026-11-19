@@ -247,4 +247,39 @@ describe("runChat, limits and failures", () => {
         expect(types(seen)).not.toContain("tool_result");
         expect(client.requests).toHaveLength(1);
     });
+
+    describe("runChat, documents", () => {
+        const documents = [
+            { kind: "text" as const, id: "doc-a", name: "notes.txt", text: "Alpha" },
+            { kind: "pdf" as const, id: "doc-b", name: "report.pdf", data: "JVBERg==" },
+        ];
+
+        it("hands the documents to the model and names a citation's document by the id the browser stored it under", async () => {
+            const round: ModelEvent[] = [
+                { type: "text", text: "Covered." },
+                { type: "citation", documentIndex: 1, citation: { quote: "Meals", startPage: 4, endPage: 4 } },
+                { type: "end", stopReason: "end_turn", usage: usage(), content: [{ type: "text", text: "Covered." }] },
+            ];
+            const client = scriptedClient([round]);
+
+            const events = await collect(runChat(options({ documents }), client));
+
+            expect(client.requests[0]?.documents).toBe(documents);
+            expect(events).toContainEqual({
+                type: "citation",
+                citation: { documentId: "doc-b", documentName: "report.pdf", quote: "Meals", startPage: 4, endPage: 4 },
+            });
+        });
+
+        it("drops a citation to a document that was not sent instead of inventing a source", async () => {
+            const round: ModelEvent[] = [
+                { type: "citation", documentIndex: 5, citation: { quote: "x", start: 0, end: 1 } },
+                { type: "end", stopReason: "end_turn", usage: usage(), content: [] },
+            ];
+
+            const events = await collect(runChat(options({ documents }), scriptedClient([round])));
+
+            expect(types(events)).not.toContain("citation");
+        });
+    });
 });

@@ -96,6 +96,25 @@ describe("POST /api/chat", () => {
         expect([declared.status, actual.status]).toEqual([400, 400]);
     });
 
+    it("stops reading a chunked body that has no declared length once it passes the cap", async () => {
+        vi.stubEnv("MAX_BODY_BYTES", "500000");
+        let pulled = 0;
+        const endless = new ReadableStream<Uint8Array>({
+            pull(controller) {
+                pulled += 1;
+                controller.enqueue(new Uint8Array(100_000));
+            },
+        });
+        const { POST } = await import("../route");
+
+        const response = await POST(
+            new Request("http://localhost/api/chat", { method: "POST", headers: { host: "localhost" }, body: endless, duplex: "half" } as RequestInit),
+        );
+
+        expect(response.status).toBe(400);
+        expect(pulled).toBeLessThan(20);
+    });
+
     it("limits requests per IP address and says when to come back", async () => {
         vi.stubEnv("RATE_LIMIT_REQUESTS", "2");
 
@@ -124,10 +143,69 @@ describe("POST /api/chat", () => {
         expect(events.find((event) => event.type === "tool_result")).toMatchObject({ output: expect.stringContaining("Frozen demo clock") });
     });
 
+    it("never uses documents in demo mode: a body that carries them is refused as too large for demo, and nothing reaches the model", async () => {
+        const documents = [{ kind: "text", id: "a", name: "a.txt", text: "x".repeat(300_000) }];
+
+        const response = await post({ ...goodBody, documents });
+
+        expect(response.status).toBe(400);
+        expect(stream).not.toHaveBeenCalled();
+    });
+
     describe("with an API key", () => {
         beforeEach(() => {
             vi.stubEnv("ANTHROPIC_API_KEY", "sk-test");
             vi.stubEnv("MAX_OUTPUT_TOKENS", "2000");
+        });
+
+        it("sends the documents with the question and streams the citations back", async () => {
+            stream.mockReturnValue({
+                async *[Symbol.asyncIterator]() {
+                    yield { type: "content_block_delta", index: 0, delta: { type: "text_delta", text: "Alpha." } };
+                    yield {
+                        type: "content_block_delta",
+                        index: 0,
+                        delta: {
+                            type: "citations_delta",
+                            citation: {
+                                type: "char_location",
+                                cited_text: "Alpha",
+                                document_index: 0,
+                                document_title: "a.txt",
+                                start_char_index: 0,
+                                end_char_index: 5,
+                            },
+                        },
+                    };
+                },
+                finalMessage: async () => ({
+                    stop_reason: "end_turn",
+                    usage: { input_tokens: 5, output_tokens: 2 },
+                    content: [{ type: "text", text: "Alpha." }],
+                }),
+            });
+            const documents = [{ kind: "text", id: "doc-1", name: "a.txt", text: "Alpha text" }];
+
+            const events = await eventsOf(await post({ ...goodBody, documents }));
+
+            expect(stream.mock.calls[0]?.[0]).toMatchObject({
+                messages: [{ content: [{ type: "document", citations: { enabled: true } }, { type: "text" }] }],
+            });
+            expect(events).toContainEqual({ type: "citation", citation: { documentId: "doc-1", documentName: "a.txt", quote: "Alpha", start: 0, end: 5 } });
+        });
+
+        it.each([
+            [
+                "more documents than a conversation can hold",
+                Array.from({ length: 11 }, (_, index) => ({ kind: "text", id: `d${index}`, name: "a.txt", text: "x" })),
+            ],
+            ["an empty document", [{ kind: "text", id: "d", name: "a.txt", text: "" }]],
+            ["a document of an unknown kind", [{ kind: "docx", id: "d", name: "a.docx", text: "x" }]],
+        ])("rejects %s", async (_name, documents) => {
+            const response = await post({ ...goodBody, documents });
+
+            expect(response.status).toBe(400);
+            expect(stream).not.toHaveBeenCalled();
         });
 
         it("streams the model's answer and sends a cached, bounded request", async () => {

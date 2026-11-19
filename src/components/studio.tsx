@@ -3,9 +3,12 @@
 import { type RefObject, useEffect, useRef, useState } from "react";
 import { Button } from "@eylulg/ui/button";
 import { Drawer, DrawerTrigger } from "@eylulg/ui/drawer";
-import { ListChecks, MessagesSquare } from "lucide-react";
-import { fetchTransport } from "@/lib/chat/transport";
+import { FileText, ListChecks, MessagesSquare } from "lucide-react";
+import { browserStorage } from "@/lib/browser-storage";
+import { createTransport } from "@/lib/chat/transport";
 import { activePath } from "@/lib/chat/tree";
+import { createIndexedDbRepository } from "@/lib/documents/repository";
+import { createDocumentsStore } from "@/store/documents-store";
 import { createStudioStore } from "@/store/studio-store";
 import { Announcer } from "./chat/announcer";
 import { ChatHeader } from "./chat/chat-header";
@@ -14,43 +17,55 @@ import { EmptyChat } from "./chat/empty-chat";
 import { MessageList } from "./chat/message-list";
 import { DemoBanner } from "./demo-banner";
 import { ConversationList } from "./panels/conversation-list";
+import { SourcesPanel } from "./panels/sources-panel";
 import { TaskPanel } from "./panels/task-panel";
-import { StudioProvider, useStudio } from "./studio-context";
+import { StudioProvider, useDemoMode, useDocuments, useStudio } from "./studio-context";
 import { PANEL_CLASS } from "./styles";
 
-function browserStorage(): Storage | null {
-    try {
-        return window.localStorage;
-    } catch {
-        return null;
-    }
-}
-
-function createBrowserStore() {
-    return createStudioStore({
-        transport: fetchTransport,
+function createBrowserStores(demo: boolean) {
+    const documents = createDocumentsStore({
+        repository: createIndexedDbRepository(),
+        newId: () => crypto.randomUUID(),
+        now: () => new Date(),
+    });
+    const store = createStudioStore({
+        transport: createTransport({ demo }),
+        demo,
+        documents: (conversationId, options) => documents.getState().forQuestion(conversationId, options),
         storage: browserStorage,
         now: () => new Date(),
         newId: () => crypto.randomUUID(),
         schedule: (callback) => requestAnimationFrame(callback),
     });
+    return { store, documents };
 }
 
 function MobilePanels() {
     const taskCount = useStudio((state) => state.tasks.length);
+    const activeId = useStudio((state) => state.activeId);
+    const documentCount = useDocuments((state) => (activeId ? (state.entries[activeId]?.length ?? 0) : 0));
+    const demo = useDemoMode();
 
     function renderConversations({ close }: { close: () => void }) {
         return <ConversationList onSelect={close} />;
     }
 
     return (
-        <div className="flex gap-2 lg:hidden">
+        <div className="flex flex-wrap gap-2 lg:hidden">
             <DrawerTrigger>
                 <Button variant="secondary" size="sm" iconLeading={MessagesSquare}>
                     Conversations
                 </Button>
                 <Drawer title="Conversations" side="left" size="sm">
                     {renderConversations}
+                </Drawer>
+            </DrawerTrigger>
+            <DrawerTrigger>
+                <Button variant="secondary" size="sm" iconLeading={FileText}>
+                    {`Sources (${documentCount})`}
+                </Button>
+                <Drawer title="Sources" side="right" size="sm">
+                    <SourcesPanel demo={demo} />
                 </Drawer>
             </DrawerTrigger>
             <DrawerTrigger>
@@ -84,20 +99,35 @@ function Chat({ composerRef }: { composerRef: RefObject<HTMLTextAreaElement | nu
 export function Studio({ demo }: { demo: boolean }) {
     const composerRef = useRef<HTMLTextAreaElement>(null);
     const [value] = useState(() => ({
-        store: createBrowserStore(),
+        ...createBrowserStores(demo),
         demo,
         focusComposer: () => requestAnimationFrame(() => composerRef.current?.focus()),
     }));
-    const { store } = value;
+    const { store, documents } = value;
 
     useEffect(() => {
+        function loadDocuments(conversationId: string | null) {
+            if (conversationId) documents.getState().load(conversationId);
+        }
         store.getState().hydrate();
+        loadDocuments(store.getState().activeId);
+        documents.getState().prune(Object.keys(store.getState().conversations));
+        // Documents belong to a conversation: they load with it and go when it is deleted.
+        const unsubscribe = store.subscribe((state, previous) => {
+            if (state.activeId !== previous.activeId) loadDocuments(state.activeId);
+            for (const id of Object.keys(previous.conversations)) {
+                if (!(id in state.conversations)) documents.getState().removeConversation(id);
+            }
+        });
         function handlePageHide() {
             store.getState().persistNow();
         }
         window.addEventListener("pagehide", handlePageHide);
-        return () => window.removeEventListener("pagehide", handlePageHide);
-    }, [store]);
+        return () => {
+            unsubscribe();
+            window.removeEventListener("pagehide", handlePageHide);
+        };
+    }, [store, documents]);
 
     return (
         <StudioProvider {...value}>
@@ -111,10 +141,16 @@ export function Studio({ demo }: { demo: boolean }) {
                         <ConversationList />
                     </aside>
                     <Chat composerRef={composerRef} />
-                    <aside aria-label="Task list" className={`${PANEL_CLASS} hidden h-fit p-4 lg:block`}>
-                        <h2 className="pb-3 text-sm font-semibold text-primary">Tasks</h2>
-                        <TaskPanel />
-                    </aside>
+                    <div className="hidden h-fit flex-col gap-6 lg:flex">
+                        <aside aria-label="Sources" className={`${PANEL_CLASS} p-4`}>
+                            <h2 className="pb-3 text-sm font-semibold text-primary">Sources</h2>
+                            <SourcesPanel demo={demo} />
+                        </aside>
+                        <aside aria-label="Task list" className={`${PANEL_CLASS} p-4`}>
+                            <h2 className="pb-3 text-sm font-semibold text-primary">Tasks</h2>
+                            <TaskPanel />
+                        </aside>
+                    </div>
                 </div>
                 <Announcer />
             </div>

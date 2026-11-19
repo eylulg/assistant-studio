@@ -1,11 +1,12 @@
 import { z } from "zod";
 import { type StoreApi, createStore } from "zustand/vanilla";
 import { emptyState, loadState, saveState } from "@/lib/chat/persistence";
-import { applyStreamEvent, failMessage, interruptMessage, newAssistantMessage, stopMessage } from "@/lib/chat/reducer";
+import { applyStreamEvent, failMessage, interruptMessage, newAssistantMessage, recordFirstToken, recordRequestTime, stopMessage } from "@/lib/chat/reducer";
 import { type ChatTransport, TransportError } from "@/lib/chat/transport";
 import { activePath, appendMessage, createConversation, forkUserMessage, pathTo, selectVersion as selectVersionIn, updateAssistant } from "@/lib/chat/tree";
 import type { AssistantMessage, Conversation, PersistedState, Settings, ToolPart } from "@/lib/chat/types";
 import { toWireMessages } from "@/lib/chat/wire";
+import type { QuestionDocument } from "@/lib/documents/types";
 import { DEFAULT_MODEL } from "@/lib/models";
 import { type StreamEvent } from "@/lib/protocol";
 import { findTool, runTool } from "@/lib/tools";
@@ -17,6 +18,13 @@ const SKIPPED_OUTPUT = "Skipped: the user sent a new message instead.";
 
 export interface StudioDeps {
     transport: ChatTransport;
+    /** No API key on the server, so answers replay recordings. Stamped on each new answer. */
+    demo: boolean;
+    /**
+     * The documents of a conversation that are ready and switched on, or with `only`, exactly those that are ready,
+     * switched on or not. `withBytes` asks for the original files, which only live mode sends.
+     */
+    documents: (conversationId: string, options: { only?: readonly string[]; withBytes: boolean }) => Promise<QuestionDocument[]>;
     storage: () => Storage | null;
     now: () => Date;
     newId: () => string;
@@ -122,6 +130,7 @@ export function createStudioStore(deps: StudioDeps): StoreApi<StudioState> {
             controller = abort;
             set({ streaming: { conversationId, nodeId } });
 
+            const startedAt = deps.now().getTime();
             let queue: StreamEvent[] = [];
             let scheduled = false;
             const flush = () => {
@@ -129,13 +138,20 @@ export function createStudioStore(deps: StudioDeps): StoreApi<StudioState> {
                 if (queue.length === 0) return;
                 const batch = queue;
                 queue = [];
-                patchAssistant(conversationId, nodeId, (message) => batch.reduce(applyStreamEvent, message));
+                patchAssistant(conversationId, nodeId, (message) =>
+                    recordFirstToken(batch.reduce(applyStreamEvent, message), batch, deps.now().getTime() - startedAt),
+                );
             };
 
             try {
+                const documents = await deps.documents(conversationId, { only: node.message.documentIds, withBytes: !deps.demo }).catch(() => {
+                    throw new TransportError("unavailable", "Your documents could not be read from this browser's storage. Remove them and add them again.");
+                });
+                if (!continuing) patchAssistant(conversationId, nodeId, (message) => ({ ...message, documentIds: documents.map((document) => document.id) }));
                 const events = await deps.transport(
-                    { model: node.message.model, system: settings.systemPrompt.trim() || undefined, messages: wire, tasks, resume },
+                    { model: node.message.model, system: settings.systemPrompt.trim() || undefined, messages: wire, tasks, documents: [], resume },
                     abort.signal,
+                    documents,
                 );
                 for await (const event of events) {
                     queue.push(event);
@@ -153,6 +169,7 @@ export function createStudioStore(deps: StudioDeps): StoreApi<StudioState> {
                 else if (error instanceof TransportError) patchAssistant(conversationId, nodeId, (message) => failMessage(message, error.message));
                 else patchAssistant(conversationId, nodeId, interruptMessage);
             } finally {
+                patchAssistant(conversationId, nodeId, (message) => recordRequestTime(message, deps.now().getTime() - startedAt));
                 controller = null;
                 set({ streaming: null });
             }
@@ -168,7 +185,7 @@ export function createStudioStore(deps: StudioDeps): StoreApi<StudioState> {
         function startAnswer(conversationId: string, parentId: string): string {
             const id = deps.newId();
             patchConversation(conversationId, (conversation) =>
-                appendMessage(conversation, parentId, newAssistantMessage(id, get().settings.model, stamp()), stamp()),
+                appendMessage(conversation, parentId, newAssistantMessage(id, get().settings.model, stamp(), deps.demo ? "replay" : "model"), stamp()),
             );
             return id;
         }
@@ -275,6 +292,8 @@ export function createStudioStore(deps: StudioDeps): StoreApi<StudioState> {
                 const { activeId, streaming } = get();
                 const message = activeId ? readAssistant(activeId, assistantId) : null;
                 if (!activeId || streaming || message?.status !== "interrupted") return;
+                // A cut-off answer made from the user's documents is made again, in the browser: the server never sees its text.
+                if (message.mode === "extractive") return get().regenerate(assistantId);
                 patchAssistant(activeId, assistantId, (current) => ({ ...current, status: "streaming", resumes: [...current.resumes, current.rounds] }));
                 await runTurn(activeId, assistantId, true);
             },

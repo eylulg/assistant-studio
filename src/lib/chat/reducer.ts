@@ -1,12 +1,13 @@
 import type { StreamEvent } from "../protocol";
-import type { AssistantMessage, Part, ToolPart } from "./types";
+import type { AnswerMode, AssistantMessage, Part, ToolPart } from "./types";
 
-export function newAssistantMessage(id: string, model: string, createdAt: string): AssistantMessage {
+export function newAssistantMessage(id: string, model: string, createdAt: string, mode?: AnswerMode): AssistantMessage {
     return {
         role: "assistant",
         id,
         model,
         createdAt,
+        mode,
         status: "streaming",
         parts: [],
         rounds: 0,
@@ -24,6 +25,19 @@ function settleOpenTools(parts: Part[], output: string): Part[] {
     return parts.map((part) =>
         part.type === "tool" && (part.status === "streaming" || part.status === "running") ? { ...part, status: "cancelled", output } : part,
     );
+}
+
+const CONTENT_EVENTS: ReadonlySet<StreamEvent["type"]> = new Set(["text", "reasoning", "tool_start", "citation"]);
+
+/** Notes the time to the first piece of the answer, once. `elapsedMs` counts from the start of the request. */
+export function recordFirstToken(message: AssistantMessage, events: readonly StreamEvent[], elapsedMs: number): AssistantMessage {
+    if (message.timing?.firstTokenMs !== undefined || !events.some((event) => CONTENT_EVENTS.has(event.type))) return message;
+    return { ...message, timing: { firstTokenMs: elapsedMs, totalMs: message.timing?.totalMs ?? 0 } };
+}
+
+/** Adds the time one request took. An answer that continues after an approval sums its requests and leaves out the wait. */
+export function recordRequestTime(message: AssistantMessage, elapsedMs: number): AssistantMessage {
+    return { ...message, timing: { ...message.timing, totalMs: (message.timing?.totalMs ?? 0) + elapsedMs } };
 }
 
 /** The user pressed Stop. Whatever streamed so far stays. */
@@ -54,6 +68,16 @@ export function applyStreamEvent(message: AssistantMessage, event: StreamEvent):
             }
             return { ...message, parts: [...message.parts, { type: "text", round, text: event.text }] };
         }
+        case "citation": {
+            const last = message.parts[message.parts.length - 1];
+            if (last?.type === "text" && last.round === round) {
+                const citations = [...(last.citations ?? []), { at: last.text.length, citation: event.citation }];
+                return { ...message, parts: [...message.parts.slice(0, -1), { ...last, citations }] };
+            }
+            return { ...message, parts: [...message.parts, { type: "text", round, text: "", citations: [{ at: 0, citation: event.citation }] }] };
+        }
+        case "answer_mode":
+            return { ...message, mode: event.mode };
         case "reasoning":
             return { ...message, parts: [...message.parts, { type: "reasoning", round, block: event.block }] };
         case "tool_start":

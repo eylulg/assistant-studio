@@ -12,3 +12,6 @@ Style
 - Answer in plain language, in as few words as the question allows. Use Markdown only when it helps: short lists, and fenced code blocks with a language for code.
 - If a tool returns an error, say what went wrong in one sentence and try a corrected call or ask the user for what is missing.
 - Never invent tool results. If you did not run a tool, do not describe its output.`;
+
+/** Added to the system prompt when documents are attached. It is a separate block so the cached prefix of the base prompt stays the same. */
+export const DOCUMENT_GUIDANCE = `The user has attached documents to this conversation. When a question is about them, answer from them and cite the passages you used. If the documents do not contain the answer, say so instead of guessing, and do not cite a document for something it does not say.`;

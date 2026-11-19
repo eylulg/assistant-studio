@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
-import type { AssistantBlock, ModelEvent } from "../protocol";
+import { DOCUMENT_GUIDANCE } from "../prompt";
+import type { AssistantBlock, ModelEvent, WireDocument, WireMessage } from "../protocol";
 import { toolDefinitions } from "../tools";
 import { type ModelClient, ModelFailure, type RoundRequest, UpstreamInterrupted } from "./model-client";
 
@@ -14,6 +15,54 @@ function toolsForRequest() {
         eager_input_streaming: true,
         ...(index === definitions.length - 1 ? { cache_control: { type: "ephemeral" as const } } : {}),
     }));
+}
+
+/**
+ * The documents go into the first user turn, ahead of its text, so they stay in the same place for every question and
+ * every round. The cache breakpoint on the last one caches the tools, system prompt and all documents as one prefix.
+ * Citations are on for every document: the API requires all or none.
+ */
+function withDocuments(messages: WireMessage[], documents: readonly WireDocument[]): Anthropic.Beta.BetaMessageParam[] {
+    if (documents.length === 0) return messages;
+    const blocks: Anthropic.Beta.BetaContentBlockParam[] = documents.map((document, index) => ({
+        type: "document",
+        title: document.name,
+        source:
+            document.kind === "pdf"
+                ? { type: "base64", media_type: "application/pdf", data: document.data }
+                : { type: "text", media_type: "text/plain", data: document.text },
+        citations: { enabled: true },
+        ...(index === documents.length - 1 ? { cache_control: { type: "ephemeral" as const } } : {}),
+    }));
+    return messages.map((message, index) => {
+        if (index !== 0 || message.role !== "user") return message;
+        const existing: Anthropic.Beta.BetaContentBlockParam[] =
+            typeof message.content === "string" ? [{ type: "text", text: message.content }] : message.content;
+        return { role: "user", content: [...blocks, ...existing] };
+    });
+}
+
+function citationEvent(citation: Anthropic.Beta.BetaCitationsDelta["citation"]): ModelEvent | null {
+    if (citation.type === "char_location") {
+        return {
+            type: "citation",
+            documentIndex: citation.document_index,
+            citation: { quote: citation.cited_text, start: citation.start_char_index, end: citation.end_char_index },
+        };
+    }
+    if (citation.type === "page_location") {
+        // The API counts pages from 1 and its end page is exclusive.
+        return {
+            type: "citation",
+            documentIndex: citation.document_index,
+            citation: {
+                quote: citation.cited_text,
+                startPage: citation.start_page_number,
+                endPage: Math.max(citation.start_page_number, citation.end_page_number - 1),
+            },
+        };
+    }
+    return null;
 }
 
 function contentOf(message: Anthropic.Beta.BetaMessage): AssistantBlock[] {
@@ -51,8 +100,11 @@ function failureFor(error: unknown): ModelFailure | null {
  */
 export function createAnthropicClient(client: Anthropic, effort: Effort): ModelClient {
     return {
-        async *streamRound({ model, system, messages, maxTokens, signal }: RoundRequest): AsyncGenerator<ModelEvent> {
+        async *streamRound({ model, system, messages, documents = [], maxTokens, signal }: RoundRequest): AsyncGenerator<ModelEvent> {
             const toolIds = new Map<number, string>();
+            // The API adds a citation to the text block that is open, without promising it arrives after that block's text.
+            // Holding each one until its block closes places it at the end of the cited text whatever the order was.
+            const citations = new Map<number, ModelEvent[]>();
             let started = false;
             try {
                 const stream = client.beta.messages.stream(
@@ -62,9 +114,12 @@ export function createAnthropicClient(client: Anthropic, effort: Effort): ModelC
                         betas: ["server-side-fallback-2026-07-01"],
                         fallbacks: "default",
                         output_config: { effort },
-                        system: [{ type: "text", text: system, cache_control: { type: "ephemeral" } }],
+                        system: [
+                            { type: "text", text: system, cache_control: { type: "ephemeral" } },
+                            ...(documents.length > 0 ? [{ type: "text" as const, text: DOCUMENT_GUIDANCE }] : []),
+                        ],
                         tools: toolsForRequest(),
-                        messages,
+                        messages: withDocuments(messages, documents),
                     },
                     { signal },
                 );
@@ -77,12 +132,19 @@ export function createAnthropicClient(client: Anthropic, effort: Effort): ModelC
                     } else if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
                         started = true;
                         yield { type: "text", text: event.delta.text };
+                    } else if (event.type === "content_block_delta" && event.delta.type === "citations_delta") {
+                        const cited = citationEvent(event.delta.citation);
+                        if (cited) citations.set(event.index, [...(citations.get(event.index) ?? []), cited]);
+                    } else if (event.type === "content_block_stop") {
+                        yield* citations.get(event.index) ?? [];
+                        citations.delete(event.index);
                     } else if (event.type === "content_block_delta" && event.delta.type === "input_json_delta") {
                         const id = toolIds.get(event.index);
                         if (id) yield { type: "tool_input", id, delta: event.delta.partial_json };
                     }
                 }
 
+                for (const pending of citations.values()) yield* pending;
                 const message = await stream.finalMessage();
                 const usage = message.usage;
                 yield {

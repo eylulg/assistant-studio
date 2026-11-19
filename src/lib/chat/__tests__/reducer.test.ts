@@ -130,4 +130,49 @@ describe("ending a message early", () => {
 
         expect(toolParts(stopMessage(finished))[0]).toMatchObject({ status: "done", output: "2" });
     });
+
+    describe("citations", () => {
+        const citation = { documentId: "d1", documentName: "report.pdf", quote: "Meals are reimbursed.", startPage: 4, endPage: 4 };
+
+        it("places each citation at the end of the text streamed so far, so a chip follows the span it supports", () => {
+            const message = play([
+                { type: "round_start" },
+                { type: "text", text: "Meals are covered." },
+                { type: "citation", citation },
+                { type: "text", text: " Receipts are due in 14 days." },
+                { type: "citation", citation: { ...citation, quote: "Receipts", startPage: 5, endPage: 5 } },
+            ]);
+
+            expect(message.parts).toEqual([
+                {
+                    type: "text",
+                    round: 0,
+                    text: "Meals are covered. Receipts are due in 14 days.",
+                    citations: [
+                        { at: 18, citation },
+                        { at: 47, citation: { ...citation, quote: "Receipts", startPage: 5, endPage: 5 } },
+                    ],
+                },
+            ]);
+        });
+
+        it("starts a text part for a citation that arrives before any text, and one per round", () => {
+            const message = play([
+                { type: "round_start" },
+                { type: "citation", citation },
+                { type: "round_start" },
+                { type: "text", text: "More." },
+                { type: "citation", citation },
+            ]);
+
+            expect(message.parts).toMatchObject([
+                { round: 0, text: "", citations: [{ at: 0 }] },
+                { round: 1, text: "More.", citations: [{ at: 5 }] },
+            ]);
+        });
+
+        it("records that an answer was built from the documents without a model", () => {
+            expect(play([{ type: "answer_mode", mode: "extractive" }]).mode).toBe("extractive");
+        });
+    });
 });

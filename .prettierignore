@@ -6,3 +6,7 @@ test-results
 package-lock.json
 evals/transcripts/*.json
 .husky/_
+
+# Written by npm run eval, formatted by JSON.stringify
+evals/reports
+results.sarif

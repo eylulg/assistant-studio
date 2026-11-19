@@ -1,9 +1,11 @@
-import type { ErrorCode, ModelEvent, WireMessage } from "../protocol";
+import type { ErrorCode, ModelEvent, WireDocument, WireMessage } from "../protocol";
 
 export interface RoundRequest {
     model: string;
     system: string;
     messages: WireMessage[];
+    /** Documents the conversation is about, attached to the first user turn. Empty when there are none. */
+    documents?: readonly WireDocument[];
     maxTokens: number;
     /** True for the first round of a request that carries on from an interrupted answer. */
     resume: boolean;

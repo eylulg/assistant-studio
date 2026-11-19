@@ -10,6 +10,7 @@ One endpoint, `POST /api/chat`, answers with server-sent events. The server keep
   "system": "optional, up to 4000 characters",
   "messages": [/* wire messages, see below */],
   "tasks": [/* the client's task list, at most 100 */],
+  "documents": [], // live mode only, see Documents and citations; at most 10
   "resume": false, // true when the last assistant turn was cut off
 }
 ```
@@ -32,12 +33,21 @@ Each event is `data: <json>` followed by a blank line. The browser validates eve
 | `tool_call` `{id, name, input}`              | The input is complete and valid. The server is running this tool now (no side effects).                                            |
 | `tool_pending` `{id, name, input}`           | The input is complete and valid, the tool has side effects, and it has not run. Waiting for the user.                              |
 | `tool_result` `{id, ok, output, durationMs}` | A tool finished, or its input was rejected. `output` is the JSON string the model sees, or the error message.                      |
+| `citation` `{citation}`                      | The text streamed so far is supported by a place in a document. The browser attaches it at the end of the current text part.       |
+| `answer_mode` `{mode}`                       | `extractive`: the answer is built from the user's documents in the browser, with no model call. Never sent by the server.          |
 | `usage` `{usage}`                            | Token counts for the round: input, output, cache reads, cache writes.                                                              |
 | `done` `{reason}`                            | The request is finished: `end_turn`, `awaiting_approval`, `max_tokens`, `max_rounds`, `budget` or `refusal`.                       |
 | `interrupted` `{reason}`                     | The connection to the model dropped after the answer had started.                                                                  |
 | `error` `{code, message}`                    | The request failed in a way the user can read about (`rate_limited`, `model_error`, `unavailable`, ...).                           |
 
 Failures that happen before the stream starts (bad body, wrong origin, rate limit) are plain JSON responses with `{code, message}` and a 4xx status.
+
+## Fields the browser adds to an answer
+
+These never travel over the wire. The browser stores them with the answer and the Insights page reads them.
+
+- `mode`: where the answer came from. `model` for the real API, `replay` for a recording in demo mode, `extractive` for an answer built from documents in the browser (set by the `answer_mode` event). Answers saved before this field existed have none, and Insights shows them as "mode not recorded".
+- `timing`: `{firstTokenMs?, totalMs}` measured with the browser clock. `firstTokenMs` runs from sending the request to the first text, reasoning, tool or citation event. `totalMs` is the sum of the requests the answer took, so the wait for an approval is not counted. Answers saved before this field existed have none, and Insights shows "no timing recorded" for them, never zero. Timing of a `replay` answer is the pace of the recording, not model speed.
 
 ## The two-phase tool protocol
 
@@ -79,6 +89,16 @@ browser                                   server                                
 When the last pending call of the message is resolved, the browser sends the whole conversation again. With several parallel side-effect calls it waits for all of them. If the user types a new message instead, open approvals are marked skipped, and the next request carries them as error results ("did not run: the conversation moved on") so the history stays valid.
 
 Why the browser runs the side-effect tool: the task list lives in the browser, so the browser is the only place that can write to it. The server never executes a side-effect tool, so a forged request can do nothing worse than put a made-up result into the user's own context. `list_tasks` runs on the server against the `tasks` snapshot in the request.
+
+## Documents and citations
+
+A `citation` is `{documentId, documentName, quote, start?, end?, startPage?, endPage?}`. `start` and `end` are a character range in the document text, end exclusive, and `text.slice(start, end)` equals `quote`. A PDF citation from the model has pages only (`startPage` to `endPage`, both included, counted from 1); the browser finds `quote` on those pages. The extractive answer gives both the range and the page.
+
+In the browser, a `citation` event adds `{at, citation}` to the current text part of the message, where `at` is the length of the text so far, so the chip follows the span it supports. A citation that arrives before any text starts an empty text part. The `answer_mode` event sets `mode: "extractive"` on the message. Both are validated with zod, like every event, and stored with the conversation.
+
+**Live mode.** The request carries `documents`, in this order, which is the `document_index` the API cites by: `{kind: "text", id, name, text}` or `{kind: "pdf", id, name, data}` with `data` the original file in base64. The server puts them in the first user turn as document blocks with citations enabled and a cache breakpoint on the last, adds a system block about them, and maps each streamed `citations_delta` (`char_location` or `page_location`) to a `citation` event, replacing the index with the document id. A citation to an index that was not sent is dropped. The model backend emits `citation` model events with `documentIndex`, and the engine does the mapping, so replayed recordings and the real API share one path.
+
+**Demo mode.** The server ignores `documents` and rejects a body large enough to carry any, and the browser does not send them: a question about documents is answered by the client's own transport, which emits the same events (`answer_mode`, `round_start`, `text`, `citation`, `done`) from BM25 ranked passages. A turn that continues after a tool result, or a resume, still goes to the server.
 
 ## Interruption and resume
 

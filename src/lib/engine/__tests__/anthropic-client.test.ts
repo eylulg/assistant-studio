@@ -7,7 +7,7 @@ import { ModelFailure, UpstreamInterrupted } from "../model-client";
 
 function clientWith(stream: unknown) {
     const real = new Anthropic({ apiKey: "sk-test" });
-    const streamMethod = vi.fn(() => stream);
+    const streamMethod = vi.fn((..._args: unknown[]) => stream);
     Object.defineProperty(real, "beta", { value: { messages: { stream: streamMethod } } });
     return { client: createAnthropicClient(real, "medium"), streamMethod };
 }
@@ -21,6 +21,10 @@ function streaming(events: unknown[], final: unknown) {
         },
         finalMessage: async () => final,
     };
+}
+
+function citationOf(quote: string) {
+    return { type: "char_location", cited_text: quote, document_index: 0, document_title: "notes.txt", start_char_index: 0, end_char_index: quote.length };
 }
 
 describe("createAnthropicClient", () => {
@@ -119,5 +123,132 @@ describe("createAnthropicClient", () => {
         });
 
         await expect(collect(client.streamRound({ ...request, signal: controller.signal }))).rejects.toBeInstanceOf(Anthropic.APIUserAbortError);
+    });
+
+    describe("documents", () => {
+        const finalMessage = { stop_reason: "end_turn", usage: { input_tokens: 1, output_tokens: 1 }, content: [] };
+        const documents = [
+            { kind: "text" as const, id: "a", name: "notes.txt", text: "Alpha text" },
+            { kind: "pdf" as const, id: "b", name: "report.pdf", data: "JVBERi0xLjQ=" },
+        ];
+
+        it("puts every document ahead of the first question with citations on, caches the documents as one prefix and tells the model about them", async () => {
+            const { client, streamMethod } = clientWith(streaming([], finalMessage));
+            const messages = [
+                { role: "user" as const, content: "First question" },
+                { role: "assistant" as const, content: [{ type: "text" as const, text: "An answer" }] },
+                { role: "user" as const, content: "Second question" },
+            ];
+
+            await collect(client.streamRound({ ...request, messages, documents }));
+
+            const params: unknown = streamMethod.mock.calls[0]?.[0];
+            expect(params).toMatchObject({
+                system: [
+                    expect.objectContaining({ cache_control: { type: "ephemeral" } }),
+                    { type: "text", text: expect.stringContaining("attached documents") },
+                ],
+                messages: [
+                    {
+                        role: "user",
+                        content: [
+                            {
+                                type: "document",
+                                title: "notes.txt",
+                                source: { type: "text", media_type: "text/plain", data: "Alpha text" },
+                                citations: { enabled: true },
+                            },
+                            {
+                                type: "document",
+                                title: "report.pdf",
+                                source: { type: "base64", media_type: "application/pdf", data: "JVBERi0xLjQ=" },
+                                citations: { enabled: true },
+                                cache_control: { type: "ephemeral" },
+                            },
+                            { type: "text", text: "First question" },
+                        ],
+                    },
+                    { role: "assistant" },
+                    { role: "user", content: "Second question" },
+                ],
+            });
+            const first: unknown = (params as { messages: { content: unknown[] }[] }).messages[0]?.content[0];
+            expect(first).not.toHaveProperty("cache_control");
+        });
+
+        it("sends the request exactly as before when there are no documents", async () => {
+            const { client, streamMethod } = clientWith(streaming([], finalMessage));
+
+            await collect(client.streamRound({ ...request, messages: [{ role: "user", content: "Hi" }], documents: [] }));
+
+            const params: unknown = streamMethod.mock.calls[0]?.[0];
+            expect(params).toMatchObject({ system: [{ type: "text", text: "s" }], messages: [{ role: "user", content: "Hi" }] });
+        });
+
+        it("places a citation after the text of its own block, even when it arrives before that text", async () => {
+            const cite = { type: "content_block_delta", index: 1, delta: { type: "citations_delta", citation: citationOf("Alpha") } };
+            const { client } = clientWith(
+                streaming(
+                    [
+                        { type: "content_block_delta", index: 0, delta: { type: "text_delta", text: "Plain." } },
+                        { type: "content_block_stop", index: 0 },
+                        cite,
+                        { type: "content_block_delta", index: 1, delta: { type: "text_delta", text: "Cited." } },
+                        { type: "content_block_stop", index: 1 },
+                    ],
+                    finalMessage,
+                ),
+            );
+
+            const events = await collect(client.streamRound({ ...request, documents }));
+
+            expect(events.map((event) => (event.type === "text" ? event.text : event.type)).slice(0, 3)).toEqual(["Plain.", "Cited.", "citation"]);
+        });
+
+        it("turns streamed citations into citation events, with the end page of a page citation made inclusive", async () => {
+            const cite = (citation: unknown) => ({ type: "content_block_delta", index: 0, delta: { type: "citations_delta", citation } });
+            const { client } = clientWith(
+                streaming(
+                    [
+                        { type: "content_block_delta", index: 0, delta: { type: "text_delta", text: "Meals are covered." } },
+                        cite({
+                            type: "char_location",
+                            cited_text: "Alpha",
+                            document_index: 0,
+                            document_title: "notes.txt",
+                            start_char_index: 0,
+                            end_char_index: 5,
+                        }),
+                        { type: "content_block_stop", index: 0 },
+                        cite({
+                            type: "page_location",
+                            cited_text: "Meals",
+                            document_index: 1,
+                            document_title: "report.pdf",
+                            start_page_number: 4,
+                            end_page_number: 5,
+                        }),
+                        cite({
+                            type: "page_location",
+                            cited_text: "Span",
+                            document_index: 1,
+                            document_title: "report.pdf",
+                            start_page_number: 4,
+                            end_page_number: 7,
+                        }),
+                        cite({ type: "web_search_result_location", cited_text: "x", encrypted_index: "e", title: null, url: "https://example.com" }),
+                    ],
+                    finalMessage,
+                ),
+            );
+
+            const events = await collect(client.streamRound({ ...request, documents }));
+
+            expect(events.filter((event) => event.type === "citation")).toEqual([
+                { type: "citation", documentIndex: 0, citation: { quote: "Alpha", start: 0, end: 5 } },
+                { type: "citation", documentIndex: 1, citation: { quote: "Meals", startPage: 4, endPage: 4 } },
+                { type: "citation", documentIndex: 1, citation: { quote: "Span", startPage: 4, endPage: 6 } },
+            ]);
+        });
     });
 });

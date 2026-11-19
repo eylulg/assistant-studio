@@ -2,10 +2,9 @@
 
 import { META_CLASS } from "@/components/styles";
 import type { AssistantMessage } from "@/lib/chat/types";
+import { formatNumber } from "@/lib/format";
 import { estimateCostUsd, formatCost, modelLabel } from "@/lib/models";
 import { useDemoMode } from "../studio-context";
-
-const number = new Intl.NumberFormat("en");
 
 /** Tokens and an estimated cost for one answer, summed over every model round it took. */
 export function UsageLine({ message }: { message: AssistantMessage }) {
@@ -16,8 +15,8 @@ export function UsageLine({ message }: { message: AssistantMessage }) {
 
     return (
         <p className={META_CLASS}>
-            {modelLabel(message.model)}, {number.format(input)} tokens in
-            {usage.cacheReadTokens > 0 ? ` (${number.format(usage.cacheReadTokens)} cached)` : ""}, {number.format(usage.outputTokens)} out, about{" "}
+            {modelLabel(message.model)}, {formatNumber(input)} tokens in
+            {usage.cacheReadTokens > 0 ? ` (${formatNumber(usage.cacheReadTokens)} cached)` : ""}, {formatNumber(usage.outputTokens)} out, about{" "}
             {formatCost(estimateCostUsd(message.model, usage))}
             {demo ? ", sample usage from the recording" : ""}
         </p>
