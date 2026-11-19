@@ -23,7 +23,7 @@ export function evalOptions(report: EvalReport): { tools: string[]; checkTypes: 
     };
 }
 
-export interface GridCell {
+interface GridCell {
     row: string;
     column: string;
     state: "pass" | "fail" | "skipped";

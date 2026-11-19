@@ -18,7 +18,7 @@ const OTHER_CONVERSATIONS = "Other conversations";
 const MAX_CONVERSATIONS_SHOWN = 12;
 
 /** Upper edges of the latency bins in milliseconds. The last bin has no upper edge. */
-export const LATENCY_EDGES_MS = [250, 500, 1000, 2000, 4000, 8000] as const;
+const LATENCY_EDGES_MS = [250, 500, 1000, 2000, 4000, 8000] as const;
 
 function sum(records: readonly AnswerRecord[], pick: (record: AnswerRecord) => number): number {
     let total = 0;
@@ -48,6 +48,16 @@ export const filterAnswers = memoLast((records: readonly AnswerRecord[], filters
     );
 });
 
+/** Equal titles get a counter, so two checkboxes never read the same. */
+function tellApart(entries: { id: string; title: string }[]): { id: string; title: string }[] {
+    const seen = new Map<string, number>();
+    return entries.map((entry) => {
+        const count = (seen.get(entry.title) ?? 0) + 1;
+        seen.set(entry.title, count);
+        return count === 1 ? entry : { ...entry, title: `${entry.title} (${count})` };
+    });
+}
+
 /** What the filter controls can offer: the values that occur in the saved answers. */
 export const filterOptions = memoLast((records: readonly AnswerRecord[]) => {
     const conversations = new Map<string, string>();
@@ -55,7 +65,9 @@ export const filterOptions = memoLast((records: readonly AnswerRecord[]) => {
     return {
         models: [...new Set(records.map((record) => record.model))].sort(),
         tools: [...new Set(records.flatMap((record) => record.tools))].sort(),
-        conversations: [...conversations].map(([id, title]) => ({ id, title })).sort((a, b) => a.title.localeCompare(b.title) || a.id.localeCompare(b.id)),
+        conversations: tellApart(
+            [...conversations].map(([id, title]) => ({ id, title })).sort((a, b) => a.title.localeCompare(b.title) || a.id.localeCompare(b.id)),
+        ),
         modes: MODES.filter((mode) => records.some((record) => record.mode === mode)),
     };
 });
@@ -157,12 +169,7 @@ export const costByConversation = memoLast((records: readonly AnswerRecord[]): {
     const hasOther = ranked.length > shown.length;
     const shownIds = new Set(shown.map(([id]) => id));
 
-    const seen = new Map<string, number>();
-    const categories = shown.map(([, entry]) => {
-        const count = (seen.get(entry.title) ?? 0) + 1;
-        seen.set(entry.title, count);
-        return count === 1 ? entry.title : `${entry.title} (${count})`;
-    });
+    const categories = tellApart(shown.map(([id, entry]) => ({ id, title: entry.title }))).map((entry) => entry.title);
     if (hasOther) categories.push(OTHER_CONVERSATIONS);
 
     const series = modesIn(records).map((mode) => {
@@ -186,11 +193,11 @@ export const toolCallCounts = memoLast((records: readonly AnswerRecord[], onlyTo
 });
 
 function binLabel(index: number): string {
-    const seconds = (ms: number) => `${ms / 1000} s`;
+    const seconds = (ms: number) => String(ms / 1000);
     const upper = LATENCY_EDGES_MS[index];
     const lower = LATENCY_EDGES_MS[index - 1];
-    if (upper === undefined) return `Over ${seconds(lower ?? 0)}`;
-    return lower === undefined ? `Under ${seconds(upper)}` : `${seconds(lower)} to ${seconds(upper)}`;
+    if (upper === undefined) return `Over ${seconds(lower ?? 0)} s`;
+    return lower === undefined ? `Under ${seconds(upper)} s` : `${seconds(lower)} to ${seconds(upper)} s`;
 }
 
 function binOf(ms: number): number {

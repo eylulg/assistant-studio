@@ -33,8 +33,8 @@ Without `ANTHROPIC_API_KEY` the app starts in demo mode. With one in `.env.local
 | --------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
 | `npm run dev`                                       | Development server.                                                                                   |
 | `npm test`                                          | Unit and component tests (Vitest, Testing Library).                                                   |
-| `npm run eval`                                      | The eval suite on recorded transcripts, with a table report. No key, no network.                      |
-| `npm run eval:live`                                 | The same cases against the real API. Skipped without `ANTHROPIC_API_KEY`. Stops at `EVAL_BUDGET_USD`. |
+| `npm run eval`                                      | The eval suite on recorded transcripts, with a table report and `evals/reports/fixture.json`. No key. |
+| `npm run eval:live`                                 | The same cases against the real API, written to `evals/reports/live-<timestamp>.json`. Needs a key.   |
 | `npm run record-fixture`                            | Records a real answer for a prompt into `evals/transcripts`. Needs a key and spends tokens.           |
 | `npm run test:e2e`                                  | One Playwright run in demo mode with an axe check in light and dark, at 375 and 1280 pixels.          |
 | `npm run typecheck`, `lint`, `format:check`, `knip` | The static gates. ESLint 9 flat config with zero warnings, Prettier, unused code and dependencies.    |
@@ -186,6 +186,22 @@ tool-error-recovery      pass    convert_units                             6/6  
 ```
 
 Passing on authored transcripts shows that the pipeline and the assertions work. It says nothing yet about the model. That is what `npm run eval:live` is for.
+
+## Insights
+
+`/insights` charts two things, each from data the app really produced. Nothing is seeded, simulated or backfilled.
+
+**Usage** reads the conversations the studio saved in this browser (`localStorage`, the same key and schema the chat uses). It shows answers over time, tokens by model (uncached input, output, cache reads and writes), the cache-read share, estimated cost per conversation, tool calls by tool, and latency as a distribution of time to first token and total time, plus summary tiles. Filters: date range, model, answer mode, tool and conversation. A conversation that has been deleted, or is older than the 30 most recent that the browser keeps, is not counted.
+
+- **Answer modes.** Each answer is stamped when it is made as `model` (the real API), `replay` (a recording in demo mode) or `extractive` (built from your documents in the browser, no model call). Replay numbers are labelled demo everywhere and are grouped apart from the model they imitate, because their usage is a sample from the recording and their timing is the pace of the recording. Answers saved before the stamp existed show as "mode not recorded".
+- **Timing.** The store measures time to first token and total request time for new answers. Older answers have no timing. They are left out of the latency bins and tiles and counted in a note, never shown as zero. A day with no input tokens is a gap in the cache chart, not 0 percent.
+- **Cost** is an estimate from list prices, as it is under each answer.
+
+**Evals** reads the reports the eval suite writes to `evals/reports` and imports them when the page is built, so the browser fetches no report. `npm run eval` writes `fixture.json`, which has no timestamp, so it only changes when the results change. `npm run eval:live` writes `live-<timestamp>.json`. The page shows a heat grid of case by check type (pass, fail or skipped, with an icon as well as a colour), tokens and estimated cost per case, and a report picker. Fixture tokens and cost are the usage stored in the recordings, and the page says so. With no live report it says that live runs happen on your own machine with your own key, and shows `npm run eval:live`. A unit test fails when `fixture.json` no longer matches the cases in `evals/cases.ts`; run `npm run eval` and commit the file to fix it.
+
+**Views.** Every filter and the list of hidden widgets live in the URL, so a view can be linked. Named views, which hold the same state, are stored in `localStorage` under their own key; every read and write is guarded, and a refused write is reported. Widgets are laid out in a grid that works from 320 px. A hidden widget is not rendered, so it computes nothing.
+
+**Performance.** Aggregation is in pure selectors (`src/lib/insights`) that remember their last result for equal inputs, tested for correctness against 1,000 generated answers. All selectors over 1,000 answers take about 6 ms cold on a laptop and nothing when the inputs are unchanged. The chart code loads only with the `/insights` route.
 
 ## What is sent to the model
 

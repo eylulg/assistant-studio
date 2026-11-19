@@ -128,7 +128,7 @@ describe("the charts' data", () => {
         expect(histogram.total).toEqual([0, 1, 1, 0, 0, 0, 1]);
         expect(histogram.timedByMode).toEqual({ model: 2, replay: 1 });
         expect(histogram.bins[0]).toBe("Under 0.25 s");
-        expect(histogram.bins[2]).toBe("0.5 s to 1 s");
+        expect(histogram.bins[2]).toBe("0.5 to 1 s");
         expect(histogram.bins[6]).toBe("Over 8 s");
     });
 

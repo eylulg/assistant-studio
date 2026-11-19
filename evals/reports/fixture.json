@@ -7,7 +7,9 @@
       "id": "calc-basic",
       "prompt": "What is 18% of 2,450, plus 75?",
       "status": "pass",
-      "tools": ["calculate"],
+      "tools": [
+        "calculate"
+      ],
       "checks": [
         {
           "type": "tools",
@@ -42,7 +44,10 @@
       "id": "convert-units-parallel",
       "prompt": "How many miles is a 10 km run, and how many pounds is 72 kg?",
       "status": "pass",
-      "tools": ["convert_units", "convert_units"],
+      "tools": [
+        "convert_units",
+        "convert_units"
+      ],
       "checks": [
         {
           "type": "tools",
@@ -95,7 +100,9 @@
       "id": "time-zone",
       "prompt": "What time is it in Tokyo right now?",
       "status": "pass",
-      "tools": ["get_time"],
+      "tools": [
+        "get_time"
+      ],
       "checks": [
         {
           "type": "tools",
@@ -136,7 +143,9 @@
       "id": "notes-search-cites",
       "prompt": "Do I have a lentil soup recipe in my notes? What goes in it?",
       "status": "pass",
-      "tools": ["search_notes"],
+      "tools": [
+        "search_notes"
+      ],
       "checks": [
         {
           "type": "tools",
@@ -177,7 +186,9 @@
       "id": "create-task-approved",
       "prompt": "Add a task to renew my passport by 2026-12-01, high priority.",
       "status": "pass",
-      "tools": ["create_task"],
+      "tools": [
+        "create_task"
+      ],
       "checks": [
         {
           "type": "tools",
@@ -218,7 +229,9 @@
       "id": "create-task-denied",
       "prompt": "Add a task to renew my passport by 2026-12-01, high priority.",
       "status": "pass",
-      "tools": ["create_task"],
+      "tools": [
+        "create_task"
+      ],
       "checks": [
         {
           "type": "tools",
@@ -265,7 +278,9 @@
       "id": "list-tasks",
       "prompt": "What tasks do I have open?",
       "status": "pass",
-      "tools": ["list_tasks"],
+      "tools": [
+        "list_tasks"
+      ],
       "checks": [
         {
           "type": "tools",
@@ -306,7 +321,10 @@
       "id": "weather-sample-parallel",
       "prompt": "What's the weather like in Oslo and Lisbon?",
       "status": "pass",
-      "tools": ["lookup_weather", "lookup_weather"],
+      "tools": [
+        "lookup_weather",
+        "lookup_weather"
+      ],
       "checks": [
         {
           "type": "tools",
@@ -365,7 +383,11 @@
       "id": "parallel-mixed",
       "prompt": "Is it warmer in Istanbul or Amsterdam right now, and what time is it in Istanbul?",
       "status": "pass",
-      "tools": ["lookup_weather", "lookup_weather", "get_time"],
+      "tools": [
+        "lookup_weather",
+        "lookup_weather",
+        "get_time"
+      ],
       "checks": [
         {
           "type": "tools",
@@ -482,7 +504,10 @@
       "id": "chain-search-then-task",
       "prompt": "Find my Kyoto notes and add a task to book the tea ceremony.",
       "status": "pass",
-      "tools": ["search_notes", "create_task"],
+      "tools": [
+        "search_notes",
+        "create_task"
+      ],
       "checks": [
         {
           "type": "tools",
@@ -535,7 +560,9 @@
       "id": "tool-error-recovery",
       "prompt": "How many cups is 3 kilometres?",
       "status": "pass",
-      "tools": ["convert_units"],
+      "tools": [
+        "convert_units"
+      ],
       "checks": [
         {
           "type": "tools",
