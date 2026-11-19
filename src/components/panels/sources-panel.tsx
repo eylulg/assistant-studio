@@ -9,11 +9,11 @@ import { Switch } from "@eylulg/ui/switch";
 import { FileText, Trash2 } from "lucide-react";
 import { META_CLASS } from "@/components/styles";
 import { ACCEPTED_FILE_TYPES, MAX_TOTAL_CHARS } from "@/lib/documents/limits";
+import { formatNumber } from "@/lib/format";
 import type { DocumentEntry } from "@/store/documents-store";
 import { useAddDocuments, useDocuments, useStudio } from "../studio-context";
 
 const NO_ENTRIES: DocumentEntry[] = [];
-const number = new Intl.NumberFormat("en");
 
 function formatSize(bytes: number): string {
     if (bytes < 1024) return `${bytes} B`;
@@ -28,10 +28,10 @@ function plural(count: number): string {
 function describe(entry: DocumentEntry): string {
     const size = formatSize(entry.size);
     if (entry.status !== "ready" || entry.text === undefined) return size;
-    if (!entry.pages) return `${size}, ${number.format(entry.text.length)} characters`;
+    if (!entry.pages) return `${size}, ${formatNumber(entry.text.length)} characters`;
     const total = Math.max(entry.pageCount ?? 0, entry.pages.length);
     const pages = total > entry.pages.length ? `${plural(total)}, ${entry.pages.length} with text` : plural(total);
-    return `${size}, ${number.format(entry.text.length)} characters in ${pages}`;
+    return `${size}, ${formatNumber(entry.text.length)} characters in ${pages}`;
 }
 
 const ADD_LABEL = "Add documents";
@@ -154,7 +154,7 @@ export function SourcesPanel({ demo }: { demo: boolean }) {
             )}
             {entries.length > 0 ? (
                 <p className={META_CLASS}>
-                    {number.format(used)} of {number.format(MAX_TOTAL_CHARS)} characters used. Documents that are switched on are used for the next question.
+                    {formatNumber(used)} of {formatNumber(MAX_TOTAL_CHARS)} characters used. Documents that are switched on are used for the next question.
                 </p>
             ) : null}
             <p className={META_CLASS}>

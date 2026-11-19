@@ -2,6 +2,11 @@ import type { ReactNode } from "react";
 import { Card, CardBody, CardHeader } from "@eylulg/ui/card";
 import { META_CLASS } from "@/components/styles";
 
+/** Every chart has its own table button name, because nine buttons that all say "Show table" cannot be told apart in a list of controls. */
+export function tableLabels(title: string): { showTable: string; hideTable: string } {
+    return { showTable: `Show table: ${title}`, hideTable: `Hide table: ${title}` };
+}
+
 interface WidgetCardProps {
     title: string;
     description?: string;

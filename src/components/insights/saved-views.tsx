@@ -5,23 +5,16 @@ import { Button } from "@eylulg/ui/button";
 import { Input } from "@eylulg/ui/input";
 import { Select, SelectItem } from "@eylulg/ui/select";
 import { Save, Trash2 } from "lucide-react";
-import { CONTROLS_PANEL_CLASS, SR_ONLY_CLASS } from "@/components/styles";
-import type { ViewState } from "@/lib/insights/filters";
-import { MAX_NAME_LENGTH, VIEWS_KEY, loadViews, removeView, saveViews, upsertView } from "@/lib/insights/saved-views";
+import { CONTROLS_PANEL_CLASS, META_CLASS, SR_ONLY_CLASS } from "@/components/styles";
+import { browserStorage } from "@/lib/browser-storage";
+import { type ViewState, serializeView } from "@/lib/insights/filters";
+import { MAX_NAME_LENGTH, VIEWS_KEY, backUpViews, readViews, removeView, saveViews, upsertView } from "@/lib/insights/saved-views";
 
 const CHANGED = "assistant-studio:insight-views";
 
 interface SavedViewsProps {
     view: ViewState;
     onApply: (view: ViewState) => void;
-}
-
-function browserStorage(): Storage | null {
-    try {
-        return window.localStorage;
-    } catch {
-        return null;
-    }
 }
 
 function subscribe(onChange: () => void): () => void {
@@ -48,15 +41,19 @@ function readOnServer(): string | null {
 /** Named views kept in this browser: the filters and which widgets are on. Applying one rewrites the URL, so it can still be linked. */
 export function SavedViews({ view, onApply }: SavedViewsProps) {
     const raw = useSyncExternalStore(subscribe, readRaw, readOnServer);
-    const views = useMemo(() => loadViews({ getItem: () => raw }), [raw]);
+    const { views, lost } = useMemo(() => readViews(raw), [raw]);
     const [name, setName] = useState("");
-    const [selectedId, setSelectedId] = useState<string | null>(null);
     const [status, setStatus] = useState("");
     const [error, setError] = useState<string | undefined>(undefined);
     const triggerRef = useRef<HTMLButtonElement>(null);
     const nameRef = useRef<HTMLInputElement>(null);
 
+    // The select shows the saved view the current filters equal, and nothing once they have changed.
+    const current = serializeView(view).toString();
+    const selectedId = views.find((entry) => serializeView(entry.view).toString() === current)?.id ?? null;
+
     function store(next: typeof views): boolean {
+        if (lost) backUpViews(browserStorage());
         if (!saveViews(browserStorage(), next)) return false;
         window.dispatchEvent(new Event(CHANGED));
         return true;
@@ -71,15 +68,15 @@ export function SavedViews({ view, onApply }: SavedViewsProps) {
         }
         const saved = next.find((entry) => entry.name.toLowerCase() === name.trim().toLowerCase());
         setError(undefined);
-        setSelectedId(saved?.id ?? null);
         setStatus(`Saved the view ${saved?.name ?? name.trim()}.`);
         setName("");
+        // Save view is disabled now that the name is empty, so focus stays in the name field instead of falling to the page.
+        nameRef.current?.focus();
     }
 
     function handleSelect(key: string | number | null) {
         const chosen = views.find((entry) => entry.id === key);
         if (!chosen) return;
-        setSelectedId(chosen.id);
         setStatus(`Applied the view ${chosen.name}.`);
         onApply(chosen.view);
     }
@@ -92,7 +89,6 @@ export function SavedViews({ view, onApply }: SavedViewsProps) {
             return;
         }
         setError(undefined);
-        setSelectedId(null);
         setStatus(`Deleted the view ${doomed.name}.`);
         // The button that was pressed is now disabled. Focus goes to the list of views, or to the name field when none are left.
         (views.length > 1 ? triggerRef : nameRef).current?.focus();
@@ -136,6 +132,9 @@ export function SavedViews({ view, onApply }: SavedViewsProps) {
                     Save view
                 </Button>
             </form>
+            {lost ? (
+                <p className={META_CLASS}>Some saved views could not be read and are not listed. Saving a view keeps a copy of the old list in this browser.</p>
+            ) : null}
             <p role="status" className={SR_ONLY_CLASS}>
                 {status}
             </p>

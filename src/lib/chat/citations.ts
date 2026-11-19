@@ -26,15 +26,18 @@ export function numberCitations(parts: readonly Part[]): Map<string, number> {
     return numbers;
 }
 
+/** "page 3" or "pages 3 to 4" for a PDF citation, null for a text file. */
+export function pagePlace(citation: Citation): string | null {
+    if (citation.startPage === undefined) return null;
+    return citation.endPage !== undefined && citation.endPage !== citation.startPage
+        ? `pages ${citation.startPage} to ${citation.endPage}`
+        : `page ${citation.startPage}`;
+}
+
 /** The accessible name of a chip: the number, the document and, for a PDF, the page. */
 export function citationLabel(number: number, citation: Citation): string {
-    const place =
-        citation.startPage === undefined
-            ? ""
-            : citation.endPage !== undefined && citation.endPage !== citation.startPage
-              ? `, pages ${citation.startPage} to ${citation.endPage}`
-              : `, page ${citation.startPage}`;
-    return `Source ${number}: ${citation.documentName}${place}`;
+    const place = pagePlace(citation);
+    return `Source ${number}: ${citation.documentName}${place ? `, ${place}` : ""}`;
 }
 
 /** Inserts a marker into text at each citation's position. Later positions go first so earlier offsets stay valid. */

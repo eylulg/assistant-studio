@@ -7,7 +7,7 @@ import { BarChart3, FilterX } from "lucide-react";
 import { FIELDSET_CLASS, LEGEND_CLASS, META_CLASS, WIDGET_GRID_CLASS } from "@/components/styles";
 import { type UsageFilters, type ViewState, WIDGET_IDS, WIDGET_META, type WidgetId } from "@/lib/insights/filters";
 import type { AnswerRecord } from "@/lib/insights/records";
-import { MODE_LABEL, filterAnswers, filterOptions } from "@/lib/insights/usage-select";
+import { MODE_LABEL, filterAnswers, filterOptions, rangeIsBackwards } from "@/lib/insights/usage-select";
 import { modelLabel } from "@/lib/models";
 import { CheckboxFilter } from "./checkbox-filter";
 import { FilterPanel } from "./filter-panel";
@@ -30,6 +30,7 @@ export function UsageSection({ records, view, onChange }: UsageSectionProps) {
     const { usage } = view;
     const options = filterOptions(records);
     const filtered = filterAnswers(records, usage);
+    const backwards = rangeIsBackwards(usage);
     const shown = (id: WidgetId) => !view.hidden.includes(id);
 
     function update(patch: Partial<UsageFilters>) {
@@ -70,7 +71,13 @@ export function UsageSection({ records, view, onChange }: UsageSectionProps) {
                 <fieldset className={FIELDSET_CLASS}>
                     <legend className={LEGEND_CLASS}>Date range</legend>
                     <Input type="date" label="From date" value={usage.from ?? ""} onChange={handleFrom} />
-                    <Input type="date" label="To date" value={usage.to ?? ""} onChange={handleTo} />
+                    <Input
+                        type="date"
+                        label="To date"
+                        value={usage.to ?? ""}
+                        onChange={handleTo}
+                        errorMessage={backwards ? "The start date is after the end date." : undefined}
+                    />
                 </fieldset>
                 <CheckboxFilter
                     legend="Model"
@@ -106,7 +113,7 @@ export function UsageSection({ records, view, onChange }: UsageSectionProps) {
                     size="sm"
                     headingLevel={3}
                     title="No answers match these filters"
-                    description={`${records.length} saved answers are outside the date range, model, mode, tool or conversation you chose.`}
+                    description={`${records.length} saved answers are outside the date range, model, mode, tool or conversation you chose.${backwards ? " The start date is after the end date." : ""}`}
                     primaryAction={
                         <Button variant="secondary" size="sm" onPress={handleReset}>
                             Clear usage filters
@@ -116,7 +123,7 @@ export function UsageSection({ records, view, onChange }: UsageSectionProps) {
             ) : (
                 <>
                     <p className={META_CLASS}>
-                        {`${filtered.length} of ${records.length} answers. Cost is an estimate from list prices. Demo replay numbers are samples from the recordings and are labelled demo.`}
+                        {`${filtered.length} of ${records.length} answers. Cost, cache share and latency are about answers a model produced. Demo replay answers carry sample numbers and extractive answers called no model, so both are counted apart.`}
                     </p>
                     <div className={WIDGET_GRID_CLASS}>
                         {shown("kpis") ? <KpiWidget records={filtered} /> : null}

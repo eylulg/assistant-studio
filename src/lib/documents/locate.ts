@@ -25,6 +25,14 @@ function compact(text: string, from: number, to: number): Compact {
     return { text: squeezed, offsets };
 }
 
+/** The text of the cited pages of a PDF, as a range. Null for a citation without pages, or pages the document does not have. */
+export function citedPages(pages: StoredDocument["pages"], citation: Pick<Citation, "startPage" | "endPage">): Located | null {
+    if (citation.startPage === undefined || !pages) return null;
+    const first = pages.find((span) => span.page === citation.startPage);
+    const last = pages.find((span) => span.page === (citation.endPage ?? citation.startPage)) ?? first;
+    return first && last ? { start: first.start, end: last.end } : null;
+}
+
 /** Finds a quote inside `text[from, to)` ignoring whitespace differences. When only the beginning of a long quote matches, the range runs for the quote's length. */
 export function findQuote(text: string, quote: string, from = 0, to = text.length): Located | null {
     const haystack = compact(text, from, to);
@@ -83,10 +91,7 @@ export function locateCitation(
         if (asCharacters.start < asCharacters.end && squeeze(text.slice(asCharacters.start, asCharacters.end)) === wanted) return asCharacters;
     }
 
-    if (citation.startPage !== undefined && document.pages) {
-        const first = document.pages.find((span) => span.page === citation.startPage);
-        const last = document.pages.find((span) => span.page === (citation.endPage ?? citation.startPage)) ?? first;
-        if (first && last) return findQuote(text, citation.quote, first.start, last.end);
-    }
+    const range = citedPages(document.pages, citation);
+    if (range) return findQuote(text, citation.quote, range.start, range.end);
     return findQuote(text, citation.quote);
 }

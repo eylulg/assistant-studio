@@ -3,6 +3,7 @@ import { ExtractionError, type PdfPageReader, extractDocument } from "@/lib/docu
 import { MAX_DOCUMENTS, MAX_PDF_PAGES, MAX_TOTAL_BYTES, MAX_TOTAL_CHARS } from "@/lib/documents/limits";
 import type { DocumentRepository } from "@/lib/documents/repository";
 import type { PageSpan, QuestionDocument, StoredDocument } from "@/lib/documents/types";
+import { formatNumber } from "@/lib/format";
 
 /** What the Sources panel and the source viewer need to know about one document. */
 export interface DocumentEntry {
@@ -49,7 +50,6 @@ export interface DocumentsState {
     forQuestion: (conversationId: string, options?: { only?: readonly string[]; withBytes?: boolean }) => Promise<QuestionDocument[]>;
 }
 
-const number = new Intl.NumberFormat("en");
 const ORPHAN_GRACE_MS = 24 * 60 * 60 * 1000;
 
 function budgetError(existing: DocumentEntry[], text: string, size: number, pageCount = 0): ExtractionError | null {
@@ -59,7 +59,7 @@ function budgetError(existing: DocumentEntry[], text: string, size: number, page
     if (chars + text.length > MAX_TOTAL_CHARS)
         return new ExtractionError(
             "budget",
-            `This would pass the limit of ${number.format(MAX_TOTAL_CHARS)} characters of text per conversation (${number.format(chars)} are used). Remove a document first.`,
+            `This would pass the limit of ${formatNumber(MAX_TOTAL_CHARS)} characters of text per conversation (${formatNumber(chars)} are used). Remove a document first.`,
         );
     const pagesUsed = ready.reduce((sum, entry) => sum + (entry.pageCount ?? 0), 0);
     if (pagesUsed + pageCount > MAX_PDF_PAGES)

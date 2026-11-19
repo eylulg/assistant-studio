@@ -4,6 +4,7 @@ import { type RefObject, useEffect, useRef, useState } from "react";
 import { Button } from "@eylulg/ui/button";
 import { Drawer, DrawerTrigger } from "@eylulg/ui/drawer";
 import { FileText, ListChecks, MessagesSquare } from "lucide-react";
+import { browserStorage } from "@/lib/browser-storage";
 import { createTransport } from "@/lib/chat/transport";
 import { activePath } from "@/lib/chat/tree";
 import { createIndexedDbRepository } from "@/lib/documents/repository";
@@ -20,14 +21,6 @@ import { SourcesPanel } from "./panels/sources-panel";
 import { TaskPanel } from "./panels/task-panel";
 import { StudioProvider, useDemoMode, useDocuments, useStudio } from "./studio-context";
 import { PANEL_CLASS } from "./styles";
-
-function browserStorage(): Storage | null {
-    try {
-        return window.localStorage;
-    } catch {
-        return null;
-    }
-}
 
 function createBrowserStores(demo: boolean) {
     const documents = createDocumentsStore({

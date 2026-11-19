@@ -30,15 +30,22 @@ function inputTokens(record: AnswerRecord): number {
     return record.inputTokens + record.cacheReadTokens + record.cacheWriteTokens;
 }
 
+/** A start after the end matches nothing. The dates are never swapped, because the user may still be typing one of them. */
+export function rangeIsBackwards(filters: Pick<UsageFilters, "from" | "to">): boolean {
+    return filters.from !== null && filters.to !== null && filters.from > filters.to;
+}
+
 /** The answers that match every filter. Filters that are empty match everything. */
 export const filterAnswers = memoLast((records: readonly AnswerRecord[], filters: UsageFilters): AnswerRecord[] => {
     const models = new Set(filters.models);
     const tools = new Set(filters.tools);
     const conversations = new Set(filters.conversations);
     const modes = new Set<string>(filters.modes);
+    const backwards = rangeIsBackwards(filters);
 
     return records.filter(
         (record) =>
+            !backwards &&
             (!filters.from || record.day >= filters.from) &&
             (!filters.to || record.day <= filters.to) &&
             (models.size === 0 || models.has(record.model)) &&
@@ -105,8 +112,13 @@ function byDay(records: readonly AnswerRecord[], value: (group: AnswerRecord[]) 
     return { days, series };
 }
 
-/** Answers per day, one series per mode. A day with no answers is a real zero. Records must be oldest first. */
-export const answersByDay = memoLast((records: readonly AnswerRecord[]) => byDay(records, (group) => group.length));
+/** Finished answers per day, one series per mode. A day with no answers is a real zero. Records must be oldest first. */
+export const answersByDay = memoLast((records: readonly AnswerRecord[]) =>
+    byDay(
+        records.filter((record) => record.finished),
+        (group) => group.length,
+    ),
+);
 
 /** The share of input tokens served from the cache, per day. A day without input tokens is a gap, not zero. */
 export const cacheShareByDay = memoLast((records: readonly AnswerRecord[]) => {
@@ -209,25 +221,34 @@ export interface LatencyHistogram {
     bins: string[];
     firstToken: number[];
     total: number[];
-    /** Answers with no timing recorded. They are left out of the bins, not counted as fast. */
+    /** Model answers with no timing recorded. They are left out of the bins, not counted as fast. */
     untimed: number;
-    /** Timed answers by mode, so the chart can say how much of it is demo playback. */
-    timedByMode: Partial<Record<RecordMode, number>>;
+    /** Answers that are not from the model, by mode. Their timing is the pace of a recording or of the browser, so they are not in the bins. */
+    leftOut: Partial<Record<RecordMode, number>>;
+    /** Model answers in the bins. */
+    timed: number;
 }
 
+/** Latency of answers a model produced. Demo replay and extractive answers are left out: no model was timed. */
 export const latencyHistogram = memoLast((records: readonly AnswerRecord[]): LatencyHistogram => {
     const bins = Array.from({ length: LATENCY_EDGES_MS.length + 1 }, (_, index) => binLabel(index));
     const firstToken = bins.map(() => 0);
     const total = bins.map(() => 0);
-    const timedByMode: Partial<Record<RecordMode, number>> = {};
+    const leftOut: Partial<Record<RecordMode, number>> = {};
     let untimed = 0;
+    let timed = 0;
 
     for (const record of records) {
+        if (!record.finished) continue;
+        if (record.mode !== "model") {
+            leftOut[record.mode] = (leftOut[record.mode] ?? 0) + 1;
+            continue;
+        }
         if (record.totalMs === null) {
             untimed += 1;
             continue;
         }
-        timedByMode[record.mode] = (timedByMode[record.mode] ?? 0) + 1;
+        timed += 1;
         const slot = binOf(record.totalMs);
         total[slot] = (total[slot] ?? 0) + 1;
         if (record.firstTokenMs !== null) {
@@ -235,7 +256,7 @@ export const latencyHistogram = memoLast((records: readonly AnswerRecord[]): Lat
             firstToken[first] = (firstToken[first] ?? 0) + 1;
         }
     }
-    return { bins, firstToken, total, untimed, timedByMode };
+    return { bins, firstToken, total, untimed, leftOut, timed };
 });
 
 function median(values: number[]): number | null {
@@ -245,33 +266,48 @@ function median(values: number[]): number | null {
     return sorted.length % 2 === 1 ? (sorted[middle] ?? null) : ((sorted[middle - 1] ?? 0) + (sorted[middle] ?? 0)) / 2;
 }
 
-export interface Summary {
+/** Numbers that describe the model itself. They come from answers with `mode` "model" only. */
+interface ModelSummary {
+    /** Finished answers a model produced. */
     answers: number;
-    byMode: Partial<Record<RecordMode, number>>;
+    /** Estimated cost of every model answer, failed and waiting ones included, because they were billed. */
     costUsd: number;
-    toolCalls: number;
-    /** Cache reads over all input tokens. `null` when no answer had input tokens. */
+    /** Cache reads over all input tokens. `null` when no model answer had input tokens. */
     cacheShare: number | null;
     medianFirstTokenMs: number | null;
-    medianTotalMs: number | null;
-    /** Answers with timing recorded. */
+    /** Finished model answers with a time to first token. */
     timed: number;
 }
 
+export interface Summary {
+    /** Finished answers of every mode. */
+    answers: number;
+    byMode: Partial<Record<RecordMode, number>>;
+    toolCalls: number;
+    model: ModelSummary;
+}
+
+/**
+ * The headline numbers. Cost, cache share and latency are about the model, so a demo replay, which carries sample numbers from
+ * a recording, and an extractive answer, which called no model, are counted in `answers` and left out of `model`.
+ */
 export const summarize = memoLast((records: readonly AnswerRecord[]): Summary => {
     const byMode: Partial<Record<RecordMode, number>> = {};
-    for (const record of records) byMode[record.mode] = (byMode[record.mode] ?? 0) + 1;
-    const input = sum(records, inputTokens);
-    const first = records.flatMap((record) => (record.firstTokenMs === null ? [] : [record.firstTokenMs]));
-    const totals = records.flatMap((record) => (record.totalMs === null ? [] : [record.totalMs]));
+    for (const record of records) if (record.finished) byMode[record.mode] = (byMode[record.mode] ?? 0) + 1;
+    const model = records.filter((record) => record.mode === "model");
+    const input = sum(model, inputTokens);
+    const finished = model.filter((record) => record.finished);
+    const first = finished.flatMap((record) => (record.firstTokenMs === null ? [] : [record.firstTokenMs]));
     return {
-        answers: records.length,
+        answers: records.filter((record) => record.finished).length,
         byMode,
-        costUsd: sum(records, (record) => record.costUsd),
         toolCalls: sum(records, (record) => record.tools.length),
-        cacheShare: input > 0 ? sum(records, (record) => record.cacheReadTokens) / input : null,
-        medianFirstTokenMs: median(first),
-        medianTotalMs: median(totals),
-        timed: totals.length,
+        model: {
+            answers: finished.length,
+            costUsd: sum(model, (record) => record.costUsd),
+            cacheShare: input > 0 ? sum(model, (record) => record.cacheReadTokens) / input : null,
+            medianFirstTokenMs: median(first),
+            timed: first.length,
+        },
     };
 });

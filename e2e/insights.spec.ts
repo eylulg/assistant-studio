@@ -37,7 +37,7 @@ test("filters by keyboard, keeps the filters in the URL, hides a widget and rest
 
     // The chart keeps its table.
     const answers = page.getByRole("figure", { name: "Answers over time" });
-    await answers.getByRole("button", { name: "Show table" }).click();
+    await answers.getByRole("button", { name: "Show table: Answers over time" }).click();
     await expect(answers.getByRole("table")).toBeVisible();
 
     // A filter is a real checkbox: reach it with Tab and set it with Space.

@@ -70,12 +70,12 @@ function pick<T extends string>(values: string[], allowed: readonly T[]): T[] {
 
 /**
  * Reads a view from the query string. Anything it does not understand is dropped, so a hand-edited or outdated link
- * shows the default view instead of an error. A range given backwards is turned around.
+ * shows the default view instead of an error.
  */
 export function parseView(params: URLSearchParams): ViewState {
-    const first = parseDay(params.get("from"));
-    const second = parseDay(params.get("to"));
-    const [from, to] = first && second && first > second ? [second, first] : [first, second];
+    // A range that is backwards is kept as typed: the filter shows nothing and the page says why, so a date being typed is never rewritten.
+    const from = parseDay(params.get("from"));
+    const to = parseDay(params.get("to"));
     const report = params.get("report");
 
     return {
@@ -112,6 +112,11 @@ export function serializeView(view: ViewState): URLSearchParams {
     return params;
 }
 
+/** A list of ids from storage, keeping the ones this version knows. A view saved before a widget was renamed still opens. */
+function known<T extends string>(allowed: readonly T[]) {
+    return z.array(z.string()).transform((values) => pick(values, allowed));
+}
+
 /** The shape saved views are stored in. It is the same view, checked with zod on the way out of storage. */
 export const viewStateSchema = z.object({
     usage: z.object({
@@ -120,8 +125,8 @@ export const viewStateSchema = z.object({
         models: z.array(z.string()),
         tools: z.array(z.string()),
         conversations: z.array(z.string()),
-        modes: z.array(z.enum(MODES)),
+        modes: known(MODES),
     }),
-    evals: z.object({ tools: z.array(z.string()), checkTypes: z.array(z.enum(CHECK_TYPES)), report: z.string().nullable() }),
-    hidden: z.array(z.enum(WIDGET_IDS)),
+    evals: z.object({ tools: z.array(z.string()), checkTypes: known(CHECK_TYPES), report: z.string().nullable() }),
+    hidden: known(WIDGET_IDS),
 });

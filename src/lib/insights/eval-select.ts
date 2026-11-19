@@ -1,6 +1,5 @@
 import { CHECK_TYPES, type CaseResult, type CheckType, type EvalReport } from "./eval-report";
 import type { EvalFilters } from "./filters";
-import { memoLast } from "./memo";
 
 export const CHECK_TYPE_LABEL: Record<CheckType, string> = {
     tools: "Tool calls",
@@ -10,11 +9,11 @@ export const CHECK_TYPE_LABEL: Record<CheckType, string> = {
 };
 
 /** The cases that used at least one of the chosen tools. With no tool chosen, every case. */
-export const filterCases = memoLast((report: EvalReport, tools: readonly string[]): CaseResult[] => {
+export function filterCases(report: EvalReport, tools: readonly string[]): CaseResult[] {
     if (tools.length === 0) return report.cases;
     const wanted = new Set(tools);
     return report.cases.filter((result) => result.tools.some((tool) => wanted.has(tool)));
-});
+}
 
 export function evalOptions(report: EvalReport): { tools: string[]; checkTypes: CheckType[] } {
     return {
@@ -34,7 +33,7 @@ interface GridCell {
  * One cell per case and check type: `fail` if any check of that type failed, `pass` if all passed. A case with no check
  * of a type has no cell there. A skipped case is skipped in every column, because nothing was checked.
  */
-export const checkGrid = memoLast((cases: readonly CaseResult[], types: readonly CheckType[]) => {
+export function checkGrid(cases: readonly CaseResult[], types: readonly CheckType[]) {
     const columns =
         types.length > 0
             ? CHECK_TYPES.filter((type) => types.includes(type))
@@ -62,7 +61,7 @@ export const checkGrid = memoLast((cases: readonly CaseResult[], types: readonly
         }
     }
     return { columns, cells };
-});
+}
 
 export interface EvalSummary {
     cases: number;
@@ -73,7 +72,7 @@ export interface EvalSummary {
     costUsd: number;
 }
 
-export const summarizeEvals = memoLast((cases: readonly CaseResult[], types: readonly CheckType[]): EvalSummary => {
+export function summarizeEvals(cases: readonly CaseResult[], types: readonly CheckType[]): EvalSummary {
     const ran = cases.filter((result) => result.status !== "skipped");
     const checks = ran.flatMap((result) => result.checks.filter((check) => types.length === 0 || types.includes(check.type)));
     return {
@@ -84,7 +83,7 @@ export const summarizeEvals = memoLast((cases: readonly CaseResult[], types: rea
         tokens: ran.reduce((total, result) => total + result.tokens, 0),
         costUsd: ran.reduce((total, result) => total + result.costUsd, 0),
     };
-});
+}
 
 /** Which report to show: the one in the link when it exists, else the first (the fixture). */
 export function chooseReport<T extends { id: string }>(reports: readonly T[], filters: Pick<EvalFilters, "report">): T | null {

@@ -45,6 +45,27 @@ describe("toRecords", () => {
         expect(toRecords({ c1: conversation([done]) }, "UTC")[0]?.day).toBe("2026-11-10");
     });
 
+    it("also keeps a failed or waiting answer that used tokens, marked unfinished, because those tokens were billed", () => {
+        const used = { inputTokens: 500, outputTokens: 20, cacheReadTokens: 0, cacheWriteTokens: 0 };
+
+        const records = toRecords(
+            {
+                c1: conversation([
+                    assistant("failed", { status: "error", usage: used }),
+                    assistant("waiting", { status: "awaiting_approval", usage: used }),
+                    assistant("empty", { status: "error" }),
+                    assistant("busy", { status: "streaming", usage: used }),
+                ]),
+            },
+            "UTC",
+        );
+
+        expect(records.map((record) => [record.id, record.finished]).sort()).toEqual([
+            ["failed", false],
+            ["waiting", false],
+        ]);
+    });
+
     it("reports a missing mode as unknown and missing timing as null, never zero", () => {
         const old = assistant("old", { mode: undefined, timing: undefined });
         const timed = assistant("new", { mode: "replay", timing: { firstTokenMs: 120, totalMs: 900 } });

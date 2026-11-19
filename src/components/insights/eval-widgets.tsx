@@ -4,7 +4,7 @@ import { BarChart, HeatGrid } from "@eylulg/ui/chart";
 import { WIDGET_WIDE_CLASS } from "@/components/styles";
 import type { CaseResult, CheckType } from "@/lib/insights/eval-report";
 import { CHECK_TYPE_LABEL, checkGrid } from "@/lib/insights/eval-select";
-import { WidgetCard } from "./widget-card";
+import { WidgetCard, tableLabels } from "./widget-card";
 
 interface EvalWidgetProps {
     cases: readonly CaseResult[];
@@ -30,6 +30,7 @@ export function EvalGridWidget({ cases, types }: { cases: readonly CaseResult[];
         >
             <HeatGrid
                 title="Checks by case"
+                labels={tableLabels("Checks by case")}
                 hideTitle
                 rowLabel="Case"
                 rows={cases.map((result) => ({ id: result.id, label: result.id }))}
@@ -48,6 +49,7 @@ export function EvalTokensWidget({ cases, sampleNote }: EvalWidgetProps) {
         <WidgetCard title="Tokens per case" description="Input, cache and output tokens of each answer." note={sampleNote ?? undefined}>
             <BarChart
                 title="Tokens per case"
+                labels={tableLabels("Tokens per case")}
                 hideTitle
                 locale="en"
                 orientation="horizontal"
@@ -67,6 +69,7 @@ export function EvalCostWidget({ cases, sampleNote }: EvalWidgetProps) {
         <WidgetCard title="Estimated cost per case" description="An estimate from list prices." note={sampleNote ?? undefined}>
             <BarChart
                 title="Estimated cost per case"
+                labels={tableLabels("Estimated cost per case")}
                 hideTitle
                 locale="en"
                 orientation="horizontal"

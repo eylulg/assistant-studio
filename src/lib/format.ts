@@ -1,6 +1,7 @@
 const NUMBER = new Intl.NumberFormat("en");
 const PERCENT = new Intl.NumberFormat("en", { style: "percent", maximumFractionDigits: 0 });
 
+/** A count with thousands separators. */
 export function formatNumber(value: number): string {
     return NUMBER.format(value);
 }

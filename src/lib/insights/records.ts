@@ -26,16 +26,22 @@ export interface AnswerRecord {
     /** `null` when the answer was saved before timing was recorded, or produced nothing to time. Never zero for "unknown". */
     firstTokenMs: number | null;
     totalMs: number | null;
+    /**
+     * False for an answer that failed or is waiting for an approval. It still spent tokens, so tokens and cost count it,
+     * but it is not an answer to count and its timing says nothing about speed.
+     */
+    finished: boolean;
 }
 
-/** Answers that are still being written, waiting for an approval or failed have nothing finished to measure. */
 const FINISHED = new Set(["complete", "stopped", "interrupted"]);
+/** Failed and waiting answers are kept when they used tokens, because those tokens were billed. An answer still streaming is not read yet. */
+const SPENT = new Set(["error", "awaiting_approval"]);
 
 function dayFormatter(timeZone: string): Intl.DateTimeFormat {
     return new Intl.DateTimeFormat("en-CA", { timeZone, year: "numeric", month: "2-digit", day: "2-digit" });
 }
 
-/** Every finished answer in every version of every conversation, oldest first. A regenerated answer counts, because it was one. */
+/** Every finished answer in every version of every conversation, and every failed or waiting one that used tokens, oldest first. A regenerated answer counts, because it was one. */
 export function toRecords(conversations: Record<string, Conversation>, timeZone: string): AnswerRecord[] {
     const format = dayFormatter(timeZone);
     const records: AnswerRecord[] = [];
@@ -43,7 +49,10 @@ export function toRecords(conversations: Record<string, Conversation>, timeZone:
     for (const conversation of Object.values(conversations)) {
         for (const node of Object.values(conversation.nodes)) {
             const message = node.message;
-            if (message.role !== "assistant" || !FINISHED.has(message.status)) continue;
+            if (message.role !== "assistant") continue;
+            const finished = FINISHED.has(message.status);
+            const spent = Object.values(message.usage).some((tokens) => tokens > 0);
+            if (!finished && !(SPENT.has(message.status) && spent)) continue;
             const at = Date.parse(message.createdAt);
             if (Number.isNaN(at)) continue;
             records.push({
@@ -62,6 +71,7 @@ export function toRecords(conversations: Record<string, Conversation>, timeZone:
                 tools: message.parts.flatMap((part) => (part.type === "tool" && (part.status === "done" || part.status === "error") ? [part.name] : [])),
                 firstTokenMs: message.timing?.firstTokenMs ?? null,
                 totalMs: message.timing?.totalMs ?? null,
+                finished,
             });
         }
     }

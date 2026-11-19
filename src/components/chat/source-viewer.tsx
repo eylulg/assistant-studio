@@ -2,29 +2,17 @@
 
 import { useEffect, useRef } from "react";
 import { HIGHLIGHT_CLASS, META_CLASS } from "@/components/styles";
-import { locateCitation } from "@/lib/documents/locate";
+import { pagePlace } from "@/lib/chat/citations";
+import { type Located, citedPages, locateCitation } from "@/lib/documents/locate";
+import { formatNumber } from "@/lib/format";
 import type { Citation } from "@/lib/protocol";
 import { useDocuments, useStudio } from "../studio-context";
 
-const number = new Intl.NumberFormat("en");
-
-/** Where the viewer reads from: the cited pages of a PDF, or the whole text of a text file. */
-function visibleRange(text: string, pages: { page: number; start: number; end: number }[] | undefined, citation: Citation): { start: number; end: number } {
-    if (citation.startPage === undefined || !pages) return { start: 0, end: text.length };
-    const first = pages.find((span) => span.page === citation.startPage);
-    const last = pages.find((span) => span.page === (citation.endPage ?? citation.startPage)) ?? first;
-    return first && last ? { start: first.start, end: last.end } : { start: 0, end: text.length };
-}
-
-function describePlace(citation: Citation, located: { start: number; end: number } | null): string {
-    const page =
-        citation.startPage === undefined
-            ? ""
-            : citation.endPage !== undefined && citation.endPage !== citation.startPage
-              ? `Pages ${citation.startPage} to ${citation.endPage}. `
-              : `Page ${citation.startPage}. `;
-    if (!located) return `${page}The quoted text could not be matched exactly, so no range is highlighted.`;
-    return `${page}Characters ${number.format(located.start)} to ${number.format(located.end)} are highlighted.`;
+function describePlace(citation: Citation, located: Located | null): string {
+    const page = pagePlace(citation);
+    const prefix = page ? `${page.charAt(0).toUpperCase()}${page.slice(1)}. ` : "";
+    if (!located) return `${prefix}The quoted text could not be matched exactly, so no range is highlighted.`;
+    return `${prefix}Characters ${formatNumber(located.start)} to ${formatNumber(located.end)} are highlighted.`;
 }
 
 /** The text of a cited document with the cited range highlighted and scrolled into view. */
@@ -50,7 +38,7 @@ export function SourceViewer({ citation }: { citation: Citation }) {
     }
 
     const located = locateCitation({ text: entry.text, pages: entry.pages }, citation);
-    const visible = visibleRange(entry.text, entry.pages, citation);
+    const visible = citedPages(entry.pages, citation) ?? { start: 0, end: entry.text.length };
     const before = entry.text.slice(visible.start, located ? Math.max(visible.start, located.start) : visible.end);
     const cited = located ? entry.text.slice(located.start, located.end) : "";
     const after = located ? entry.text.slice(located.end, visible.end) : "";

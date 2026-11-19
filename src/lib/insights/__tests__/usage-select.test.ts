@@ -32,6 +32,7 @@ function answer(overrides: Partial<AnswerRecord> = {}): AnswerRecord {
         tools: [],
         firstTokenMs: null,
         totalMs: null,
+        finished: true,
         ...overrides,
     };
 }
@@ -50,6 +51,11 @@ describe("filterAnswers", () => {
         { name: "a conversation", filters: { ...NO_FILTERS, conversations: ["c2"] }, ids: ["2"] },
         { name: "a mode", filters: { ...NO_FILTERS, modes: ["replay" as const] }, ids: ["3"] },
         { name: "any of several tools", filters: { ...NO_FILTERS, tools: ["get_time", "nothing"] }, ids: ["3"] },
+        {
+            name: "a range that is backwards, which matches nothing and is never turned around",
+            filters: { ...NO_FILTERS, from: "2026-11-11", to: "2026-11-09" },
+            ids: [],
+        },
         { name: "filters that must all hold", filters: { ...NO_FILTERS, tools: ["calculate"], modes: ["replay" as const] }, ids: ["3"] },
     ])("keeps the answers for $name", ({ filters, ids }) => {
         expect(filterAnswers(records, filters).map((record) => record.id)).toEqual(ids);
@@ -113,7 +119,7 @@ describe("the charts' data", () => {
         expect(toolCallCounts(records, ["get_time"])).toEqual([{ name: "get_time", count: 1 }]);
     });
 
-    it("bins latency and leaves answers with no timing out of the bins instead of counting them as fast", () => {
+    it("bins the latency of model answers only, and leaves answers with no timing out of the bins instead of counting them as fast", () => {
         const records = [
             answer({ id: "1", firstTokenMs: 100, totalMs: 900 }),
             answer({ id: "2", firstTokenMs: 600, totalMs: 9000, mode: "replay" }),
@@ -124,18 +130,44 @@ describe("the charts' data", () => {
         const histogram = latencyHistogram(records);
 
         expect(histogram.untimed).toBe(1);
-        expect(histogram.firstToken).toEqual([1, 0, 1, 0, 0, 0, 0]);
-        expect(histogram.total).toEqual([0, 1, 1, 0, 0, 0, 1]);
-        expect(histogram.timedByMode).toEqual({ model: 2, replay: 1 });
+        expect(histogram.firstToken).toEqual([1, 0, 0, 0, 0, 0, 0]);
+        expect(histogram.total).toEqual([0, 1, 1, 0, 0, 0, 0]);
+        expect(histogram.timed).toBe(2);
+        expect(histogram.leftOut).toEqual({ replay: 1 });
         expect(histogram.bins[0]).toBe("Under 0.25 s");
         expect(histogram.bins[2]).toBe("0.5 to 1 s");
         expect(histogram.bins[6]).toBe("Over 8 s");
     });
 
-    it("summarises with no timing and no cache as unknown, not zero", () => {
-        const summary = summarize([answer({ inputTokens: 0, outputTokens: 0, costUsd: 0 })]);
+    it("computes cost, cache share and latency from model answers only, so a replay or an extractive answer never reads as model performance", () => {
+        const records = [
+            answer({ id: "1", inputTokens: 100, cacheReadTokens: 100, costUsd: 0.5, firstTokenMs: 400, totalMs: 900 }),
+            answer({ id: "2", mode: "replay", inputTokens: 100, cacheReadTokens: 900, costUsd: 7, firstTokenMs: 10, totalMs: 40 }),
+            answer({ id: "3", mode: "extractive", inputTokens: 0, outputTokens: 0, costUsd: 0, firstTokenMs: 12, totalMs: 30 }),
+        ];
 
-        expect(summary).toMatchObject({ answers: 1, cacheShare: null, medianFirstTokenMs: null, medianTotalMs: null, timed: 0 });
+        expect(summarize(records)).toEqual({
+            answers: 3,
+            byMode: { model: 1, replay: 1, extractive: 1 },
+            toolCalls: 0,
+            model: { answers: 1, costUsd: 0.5, cacheShare: 0.5, medianFirstTokenMs: 400, timed: 1 },
+        });
+    });
+
+    it("has no model numbers when there are no model answers, instead of numbers from a recording", () => {
+        const summary = summarize([answer({ mode: "replay", costUsd: 3, firstTokenMs: 12, totalMs: 40 })]);
+
+        expect(summary.model).toEqual({ answers: 0, costUsd: 0, cacheShare: null, medianFirstTokenMs: null, timed: 0 });
+    });
+
+    it("counts the tokens of an answer that failed, but not as an answer and not in its timing", () => {
+        const records = [answer({ id: "1", costUsd: 1 }), answer({ id: "2", finished: false, costUsd: 2, firstTokenMs: 50, totalMs: 60 })];
+
+        const summary = summarize(records);
+
+        expect(summary).toMatchObject({ answers: 1, model: { answers: 1, costUsd: 3, medianFirstTokenMs: null } });
+        expect(answersByDay(records).series[0]?.values).toEqual([1]);
+        expect(latencyHistogram(records).total.every((count) => count === 0)).toBe(true);
     });
 
     it("lists only values that occur", () => {
@@ -195,17 +227,20 @@ describe("selectors on a large history", () => {
         expect(tokensByModel(records).reduce((total, group) => total + group.output, 0)).toBe(
             records.reduce((total, record) => total + record.outputTokens, 0),
         );
-        expect(summarize(records).costUsd).toBeCloseTo(
-            records.reduce((total, record) => total + record.costUsd, 0),
+        expect(summarize(records).model.costUsd).toBeCloseTo(
+            records.filter((record) => record.mode === "model").reduce((total, record) => total + record.costUsd, 0),
             9,
         );
         expect(toolCallCounts(records, []).reduce((total, entry) => total + entry.count, 0)).toBe(
             records.reduce((total, record) => total + record.tools.length, 0),
         );
         const histogram = latencyHistogram(records);
-        expect(histogram.total.reduce((total, value) => total + value, 0) + histogram.untimed).toBe(1000);
+        expect(histogram.total.reduce((total, value) => total + value, 0) + histogram.untimed).toBe(records.filter((record) => record.mode === "model").length);
         const cost = costByConversation(records);
-        expect(cost.series.flatMap((entry) => entry.values).reduce((total, value) => total + value, 0)).toBeCloseTo(summarize(records).costUsd, 9);
+        expect(cost.series.flatMap((entry) => entry.values).reduce((total, value) => total + value, 0)).toBeCloseTo(
+            records.reduce((total, record) => total + record.costUsd, 0),
+            9,
+        );
         expect(cost.categories).toHaveLength(13);
     });
 

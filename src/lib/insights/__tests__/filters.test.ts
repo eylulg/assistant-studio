@@ -33,7 +33,10 @@ describe("the view in the URL", () => {
         expect(parsed).toEqual({ ...EMPTY_VIEW, usage: { ...EMPTY_VIEW.usage, modes: ["replay"] }, hidden: ["cost"] });
     });
 
-    it("turns a backwards date range around", () => {
-        expect(parseView(new URLSearchParams("from=2026-11-19&to=2026-11-01")).usage).toMatchObject({ from: "2026-11-01", to: "2026-11-19" });
+    it("keeps a backwards date range as it was typed instead of swapping the fields", () => {
+        const typed = parseView(new URLSearchParams("from=2026-11-01&to=0002-11-30"));
+
+        expect(typed.usage).toMatchObject({ from: "2026-11-01", to: "0002-11-30" });
+        expect(serializeView(typed).toString()).toBe("from=2026-11-01&to=0002-11-30");
     });
 });
