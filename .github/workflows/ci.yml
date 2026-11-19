@@ -18,8 +18,8 @@ jobs:
     timeout-minutes: 20
     env:
       # Tests, fixture evals and the end-to-end run never call the model; demo mode needs no key.
-      ANTHROPIC_API_KEY: ""
-      NEXT_TELEMETRY_DISABLED: "1"
+      ANTHROPIC_API_KEY: ''
+      NEXT_TELEMETRY_DISABLED: '1'
       # Only used to decide whether the live eval step runs; it is empty when the secret does not exist.
       LIVE_EVALS_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
     steps:
@@ -78,7 +78,7 @@ jobs:
         run: npm run eval:live
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          EVAL_BUDGET_USD: "0.50"
+          EVAL_BUDGET_USD: '0.50'
 
       - uses: actions/upload-artifact@v7
         if: failure()
