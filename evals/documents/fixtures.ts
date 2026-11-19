@@ -30,7 +30,7 @@ function document(id: string, name: string, kind: StoredDocument["kind"], text: 
 
 const handbook = assemblePages(HANDBOOK_PAGES);
 
-export const FIXTURES: Record<string, StoredDocument> = {
+const FIXTURES: Record<string, StoredDocument> = {
     "refund-policy": document("refund-policy", "refund-policy.txt", "text", REFUND_POLICY),
     "travel-handbook": document("travel-handbook", "travel-handbook.pdf", "pdf", handbook.text, handbook.pages),
 };
