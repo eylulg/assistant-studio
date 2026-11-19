@@ -9,3 +9,4 @@ evals/transcripts/*.json
 
 # Written by npm run eval, formatted by JSON.stringify
 evals/reports
+results.sarif
