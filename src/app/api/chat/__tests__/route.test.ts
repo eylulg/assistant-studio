@@ -96,6 +96,25 @@ describe("POST /api/chat", () => {
         expect([declared.status, actual.status]).toEqual([400, 400]);
     });
 
+    it("stops reading a chunked body that has no declared length once it passes the cap", async () => {
+        vi.stubEnv("MAX_BODY_BYTES", "500000");
+        let pulled = 0;
+        const endless = new ReadableStream<Uint8Array>({
+            pull(controller) {
+                pulled += 1;
+                controller.enqueue(new Uint8Array(100_000));
+            },
+        });
+        const { POST } = await import("../route");
+
+        const response = await POST(
+            new Request("http://localhost/api/chat", { method: "POST", headers: { host: "localhost" }, body: endless, duplex: "half" } as RequestInit),
+        );
+
+        expect(response.status).toBe(400);
+        expect(pulled).toBeLessThan(20);
+    });
+
     it("limits requests per IP address and says when to come back", async () => {
         vi.stubEnv("RATE_LIMIT_REQUESTS", "2");
 

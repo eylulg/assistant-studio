@@ -33,13 +33,24 @@ function isSameOrigin(request: Request): boolean {
     }
 }
 
+/** Reads at most `maxBytes` of the body. A chunked body has no declared length, so the count is kept while reading and the read stops at the cap. */
 async function readBody(request: Request, maxBytes: number): Promise<ChatRequest | null> {
-    const declared = Number(request.headers.get("content-length") ?? 0);
-    if (declared > maxBytes) return null;
-    const text = await request.text();
-    if (new TextEncoder().encode(text).length > maxBytes) return null;
+    if (Number(request.headers.get("content-length") ?? 0) > maxBytes || !request.body) return null;
+    const reader = request.body.getReader();
+    const chunks: Uint8Array[] = [];
+    let received = 0;
+    for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        received += value.byteLength;
+        if (received > maxBytes) {
+            await reader.cancel();
+            return null;
+        }
+        chunks.push(value);
+    }
     try {
-        const parsed = chatRequestSchema.safeParse(JSON.parse(text));
+        const parsed = chatRequestSchema.safeParse(JSON.parse(new TextDecoder().decode(Buffer.concat(chunks))));
         return parsed.success ? parsed.data : null;
     } catch {
         return null;
@@ -51,13 +62,6 @@ export async function POST(request: Request): Promise<Response> {
 
     if (!isSameOrigin(request)) return jsonError(403, "forbidden", "Chat requests can only be sent from this site.");
 
-    // Documents are only ever read in live mode, so the demo keeps the small cap.
-    const body = await readBody(request, config.apiKey ? config.maxBodyBytes + MAX_DOCUMENT_BODY_BYTES : config.maxBodyBytes);
-    if (!body) return jsonError(400, "bad_request", "That request was not valid or was too large. Start a new conversation or shorten it.");
-    if (!isKnownModel(body.model)) return jsonError(400, "bad_request", "That model is not available here.");
-    if (body.messages[body.messages.length - 1]?.role !== "user")
-        return jsonError(400, "bad_request", "The conversation must end with a message from the user.");
-
     limiter ??= createRateLimiter(config.rateLimitPerWindow, config.rateLimitWindowMs);
     const limit = limiter(clientIp(request.headers));
     if (!limit.allowed) {
@@ -65,6 +69,13 @@ export async function POST(request: Request): Promise<Response> {
             "Retry-After": String(limit.retryAfterSeconds),
         });
     }
+
+    // Documents are only ever read in live mode, so the demo keeps the small cap.
+    const body = await readBody(request, config.apiKey ? config.maxBodyBytes + MAX_DOCUMENT_BODY_BYTES : config.maxBodyBytes);
+    if (!body) return jsonError(400, "bad_request", "That request was not valid or was too large. Start a new conversation or shorten it.");
+    if (!isKnownModel(body.model)) return jsonError(400, "bad_request", "That model is not available here.");
+    if (body.messages[body.messages.length - 1]?.role !== "user")
+        return jsonError(400, "bad_request", "The conversation must end with a message from the user.");
 
     const demo = !config.apiKey;
     const client = demo
