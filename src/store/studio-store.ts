@@ -288,6 +288,8 @@ export function createStudioStore(deps: StudioDeps): StoreApi<StudioState> {
                 const { activeId, streaming } = get();
                 const message = activeId ? readAssistant(activeId, assistantId) : null;
                 if (!activeId || streaming || message?.status !== "interrupted") return;
+                // A cut-off answer made from the user's documents is made again, in the browser: the server never sees its text.
+                if (message.mode === "extractive") return get().regenerate(assistantId);
                 patchAssistant(activeId, assistantId, (current) => ({ ...current, status: "streaming", resumes: [...current.resumes, current.rounds] }));
                 await runTurn(activeId, assistantId, true);
             },

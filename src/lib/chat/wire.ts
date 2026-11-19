@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { type AssistantBlock, DENIED_RESULT, RESUME_PROMPT, type WireMessage } from "../protocol";
+import { type AssistantBlock, DENIED_RESULT, OMITTED_ANSWER, RESUME_PROMPT, type WireMessage } from "../protocol";
 import type { AssistantMessage, Message, ToolPart } from "./types";
 
 type UserBlock = Extract<Extract<WireMessage, { role: "user" }>["content"], unknown[]>[number];
@@ -35,9 +35,14 @@ function pushUser(wire: WireMessage[], blocks: UserBlock[]) {
 /**
  * Turns one assistant message into the API turns it was made of: per model round, an assistant turn and,
  * when the round called tools, a user turn with their results. A call the stream cut off before its input
- * finished is left out, because the model never completed it.
+ * finished is left out, because the model never completed it. An extractive answer is a quote of the user's documents,
+ * so every request carries a placeholder in its place: this is the one place request history is built.
  */
 function assistantTurns(message: AssistantMessage, keepReasoning: boolean, wire: WireMessage[]) {
+    if (message.mode === "extractive") {
+        wire.push({ role: "assistant", content: [{ type: "text", text: OMITTED_ANSWER }] });
+        return;
+    }
     const rounds = Math.max(message.rounds, ...message.parts.map((part) => part.round + 1));
     for (let round = 0; round < rounds; round += 1) {
         const parts = message.parts.filter((part) => part.round === round);

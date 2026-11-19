@@ -1,11 +1,13 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import type { StoreApi } from "zustand/vanilla";
 import { STORAGE_KEY } from "@/lib/chat/persistence";
-import { TransportError } from "@/lib/chat/transport";
+import { TransportError, createTransport } from "@/lib/chat/transport";
 import { activePath } from "@/lib/chat/tree";
-import { RESUME_PROMPT, type StreamEvent } from "@/lib/protocol";
-import { textDocument } from "@/test-utils/documents";
+import { OMITTED_ANSWER, RESUME_PROMPT, type StreamEvent } from "@/lib/protocol";
+import { toSseStream } from "@/lib/sse";
+import { memoryRepository, textDocument } from "@/test-utils/documents";
 import { memoryStorage, scriptedTransport, testStore, untilAborted } from "@/test-utils/store";
+import { createDocumentsStore } from "../documents-store";
 import type { StudioState } from "../studio-store";
 
 const usage = { inputTokens: 100, outputTokens: 10, cacheReadTokens: 0, cacheWriteTokens: 0 };
@@ -35,6 +37,23 @@ function lastAssistant(store: StoreApi<StudioState>) {
     const message = visible(store).at(-1);
     if (message?.role !== "assistant") throw new Error("expected an assistant message");
     return message;
+}
+
+function patchStatus(conversations: StudioState["conversations"], id: string, status: "interrupted"): StudioState["conversations"] {
+    return Object.fromEntries(
+        Object.entries(conversations).map(([key, conversation]) => [
+            key,
+            {
+                ...conversation,
+                nodes: Object.fromEntries(
+                    Object.entries(conversation.nodes).map(([nodeId, node]) => [
+                        nodeId,
+                        nodeId === id && node.message.role === "assistant" ? { ...node, message: { ...node.message, status } } : node,
+                    ]),
+                ),
+            },
+        ]),
+    );
 }
 
 function textOf(store: StoreApi<StudioState>): string {
@@ -166,6 +185,50 @@ describe("asking about documents", () => {
 
         expect(requests).toEqual([]);
         expect(visible(store)[1]).toMatchObject({ status: "error", error: expect.stringContaining("documents could not be read") });
+    });
+});
+
+describe("demo mode and the text of documents", () => {
+    afterEach(() => {
+        vi.unstubAllGlobals();
+    });
+
+    it("sends no text of a document in any request after the document was used, switched off and removed", async () => {
+        const bodies: string[] = [];
+        vi.stubGlobal(
+            "fetch",
+            vi.fn(async (_url: unknown, init?: RequestInit) => {
+                bodies.push(String(init?.body));
+                const events: StreamEvent[] = [{ type: "round_start" }, { type: "text", text: "From a recording." }, { type: "done", reason: "end_turn" }];
+                return new Response(
+                    toSseStream(
+                        (async function* () {
+                            for (const event of events) yield event;
+                        })(),
+                    ),
+                );
+            }),
+        );
+        const documents = createDocumentsStore({ repository: memoryRepository(), newId: () => "d1", now: () => new Date("2026-11-10T09:30:00.000Z") });
+        const store = testStore(createTransport({ demo: true }), { demo: true, documents: (id) => documents.getState().forQuestion(id) });
+        store.getState().newConversation();
+        const conversationId = store.getState().activeId ?? "";
+        await documents.getState().add(conversationId, [new File(["Visitors sign in at the front desk before nine."], "handbook.txt")]);
+
+        await store.getState().send("Where do visitors sign in?");
+        const quoted = lastAssistant(store);
+        await documents.getState().setEnabled(conversationId, "d1", false);
+        await store.getState().send("What can you do?");
+        await documents.getState().remove(conversationId, "d1");
+        await store.getState().send("Show me an example");
+        await store.getState().regenerate(lastAssistant(store).id);
+        store.setState((state) => ({ ...state, conversations: patchStatus(state.conversations, quoted.id, "interrupted") }));
+        await store.getState().resume(quoted.id);
+
+        expect(quoted.mode).toBe("extractive");
+        expect(bodies).toHaveLength(4);
+        expect(bodies.some((body) => body.includes(OMITTED_ANSWER))).toBe(true);
+        for (const body of bodies) expect(body).not.toMatch(/Visitors sign in|front desk|before nine|handbook/);
     });
 });
 

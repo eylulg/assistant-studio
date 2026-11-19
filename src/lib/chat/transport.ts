@@ -63,13 +63,14 @@ function freshQuestion(request: ChatRequest): string | null {
 /**
  * Chooses where an answer comes from. Without documents, or in live mode, the server answers; in live mode the documents
  * travel with the request. In demo mode a question about documents is answered here, in the browser, by quoting them,
- * so their text never leaves the page and no model is called.
+ * so their text never leaves the page and no model is called. What a demo request may carry is decided in two places:
+ * here, where it never holds documents, and in `toWireMessages`, where answers that quoted documents become a placeholder.
  */
 export function createTransport({ demo }: { demo: boolean }): ChatTransport {
     return async (request, signal, documents) => {
-        if (documents.length === 0) return fetchTransport(request, signal, documents);
+        if (documents.length === 0) return fetchTransport(demo ? { ...request, documents: [] } : request, signal, documents);
         if (!demo) return fetchTransport({ ...request, documents: documents.map(toWireDocument) }, signal, documents);
         const question = freshQuestion(request);
-        return question ? streamExtractiveAnswer(question, documents, { signal }) : fetchTransport(request, signal, documents);
+        return question ? streamExtractiveAnswer(question, documents, { signal }) : fetchTransport({ ...request, documents: [] }, signal, documents);
     };
 }

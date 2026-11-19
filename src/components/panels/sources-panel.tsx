@@ -122,7 +122,7 @@ export function SourcesPanel({ demo }: { demo: boolean }) {
             ) : null}
             <p className={META_CLASS}>
                 {demo
-                    ? "Demo mode: answers quote your documents. They are read in this browser and nothing is uploaded."
+                    ? "Demo mode: while a document is switched on, answers quote it and the question stays in this browser. The text of a document is never sent to the server, and earlier answers that quoted it are left out of what is sent."
                     : "Documents that are switched on are sent to the model with your question."}{" "}
                 Stored in this browser only.
             </p>

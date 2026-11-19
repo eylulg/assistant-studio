@@ -9,6 +9,9 @@ export const DENIED_RESULT = "The user denied this action. Do not try it again u
 
 /** Sent as a user turn after a cut-off answer. The API does not accept a prefilled assistant turn, so the partial answer stays in the history and this asks for the rest. */
 export const RESUME_PROMPT = "Your previous answer was interrupted. Continue exactly where it stopped, without repeating anything you already wrote.";
+
+/** Stands in for an answer that quotes the user's documents when the history is sent to the server. Those answers never leave the browser as written. */
+export const OMITTED_ANSWER = "[This answer quoted the user's documents. The text is not sent to the server.]";
 const MAX_MESSAGES = 120;
 const MAX_TEXT_CHARS = 60_000;
 
@@ -66,7 +69,7 @@ export const chatRequestSchema = z.object({
     system: z.string().max(MAX_SYSTEM_CHARS).optional(),
     messages: z.array(wireMessageSchema).min(1).max(MAX_MESSAGES),
     tasks: z.array(taskSchema).max(100).default([]),
-    /** Documents the question is about. Ignored in demo mode, where answers are built in the browser and nothing is uploaded. */
+    /** Documents the question is about. Never filled in demo mode, where answers are built in the browser and no document text is sent. */
     documents: z.array(wireDocumentSchema).max(MAX_DOCUMENTS).default([]),
     /** The last assistant message was cut off; ask the model to carry on from it. */
     resume: z.boolean().optional(),
