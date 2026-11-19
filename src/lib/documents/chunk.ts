@@ -1,9 +1,9 @@
 import type { PageSpan, Passage, StoredDocument } from "./types";
 
 /** Passages grow by whole paragraphs up to this size, so a quote stays short enough to read in an answer. */
-const TARGET_CHARS = 500;
+const TARGET_CHARS = 300;
 /** A paragraph longer than this is split at sentence ends. */
-const MAX_CHARS = 800;
+const MAX_CHARS = 600;
 
 interface Range {
     start: number;

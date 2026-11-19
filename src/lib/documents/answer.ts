@@ -20,10 +20,13 @@ function escapeMarkdown(text: string): string {
 }
 
 function quoteBlock(text: string): string {
-    return text
-        .split("\n")
-        .map((line) => `> ${escapeMarkdown(line)}`)
-        .join("\n");
+    return (
+        text
+            .split("\n")
+            .map((line) => `> ${escapeMarkdown(line)}`)
+            // Two trailing spaces make Markdown keep the line breaks of the source instead of running the lines together.
+            .join("  \n")
+    );
 }
 
 function citationFor(passage: Passage, document: AnswerDocument): Citation {
