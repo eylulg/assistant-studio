@@ -34,11 +34,24 @@ function escapeMarkdown(text: string): string {
     return text.replace(/[\\`*_{}[\]<>#|~]/g, "\\$&");
 }
 
+/**
+ * One line of a quote that Markdown shows as it is written: markers that start a list, a heading underline or an
+ * entity are escaped, and indentation becomes no-break spaces, because four plain spaces would turn the line into code.
+ */
+function literalLine(line: string): string {
+    const indent = /^[ \t]*/.exec(line)?.[0] ?? "";
+    const body = escapeMarkdown(line.slice(indent.length))
+        .replace(/&/g, "\\&")
+        .replace(/^([-+=])/, "\\$1")
+        .replace(/^(\d+)([.)])/, "$1\\$2");
+    return `${"\u00a0".repeat(indent.replace(/\t/g, "    ").length)}${body}`;
+}
+
 function quoteBlock(text: string): string {
     return (
         text
             .split("\n")
-            .map((line) => `> ${escapeMarkdown(line)}`)
+            .map((line) => `> ${literalLine(line)}`)
             // Two trailing spaces make Markdown keep the line breaks of the source instead of running the lines together.
             .join("  \n")
     );
@@ -70,7 +83,7 @@ export function composeExtractiveAnswer(question: string, documents: readonly An
         return [
             {
                 type: "text",
-                text: `Nothing in your documents matches this question. The search compares the words you used with the words in the documents, so try other words from the document. Searched: ${names}.`,
+                text: `Nothing in your documents matches this question. The search compares the words you used with the words in the documents, so try other words from the document. To try the recorded examples, switch your documents off in Sources. Searched: ${names}.`,
             },
         ];
     }
