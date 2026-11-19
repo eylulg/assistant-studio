@@ -6,6 +6,7 @@ import { createReplayClient, findTranscript } from "@/lib/engine/replay-client";
 import { DEFAULT_MODEL, estimateCostUsd } from "@/lib/models";
 import { CASES } from "./cases";
 import { evaluateCase } from "./checks";
+import { documentTranscripts } from "./documents/transcripts";
 import { runCase } from "./harness";
 import { type ReportRow, formatReport } from "./report";
 
@@ -28,7 +29,10 @@ describe.skipIf(live && !hasKey)(`assistant evals (${live ? `live, ${model}` : "
 
     if (!live) {
         it("has a recording for every case", () => {
-            const missing = CASES.filter((testCase) => !findTranscript(demoTranscripts, testCase.prompt)).map((testCase) => testCase.id);
+            const missing = CASES.filter((testCase) => {
+                if (testCase.documents?.via === "extractive") return false;
+                return !findTranscript(testCase.documents ? documentTranscripts : demoTranscripts, testCase.prompt);
+            }).map((testCase) => testCase.id);
 
             expect(missing).toEqual([]);
         });
@@ -49,7 +53,8 @@ describe.skipIf(live && !hasKey)(`assistant evals (${live ? `live, ${model}` : "
             return;
         }
 
-        const client = live ? createAnthropicClient(new Anthropic(), "medium") : createReplayClient(demoTranscripts, { paceScale: 0 });
+        const recorded = createReplayClient(testCase.documents ? documentTranscripts : demoTranscripts, { paceScale: 0 });
+        const client = live ? createAnthropicClient(new Anthropic(), "medium") : recorded;
         const run = await runCase(testCase, { client, model, clock: live ? "system" : "frozen", maxOutputTokens: live ? 2048 : 4096 });
         const costUsd = estimateCostUsd(model, run.message.usage);
         spent += costUsd;

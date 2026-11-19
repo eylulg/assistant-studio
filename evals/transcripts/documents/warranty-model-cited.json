@@ -1,0 +1,119 @@
+{
+  "id": "docs-warranty-model-cited",
+  "prompt": "What does the warranty cover, and what does it leave out?",
+  "model": "claude-sonnet-5-5",
+  "source": "authored",
+  "note": "Authored in the recorded format to exercise citation streaming through the engine. The quoted ranges are computed from the eval document, so an edit to the document breaks the case on purpose. Re-record it with a key.",
+  "rounds": [
+    {
+      "events": [
+        {
+          "atMs": 400,
+          "event": {
+            "type": "text",
+            "text": "The warranty l"
+          }
+        },
+        {
+          "atMs": 420,
+          "event": {
+            "type": "text",
+            "text": "asts two years"
+          }
+        },
+        {
+          "atMs": 440,
+          "event": {
+            "type": "text",
+            "text": " and covers ma"
+          }
+        },
+        {
+          "atMs": 460,
+          "event": {
+            "type": "text",
+            "text": "nufacturing de"
+          }
+        },
+        {
+          "atMs": 480,
+          "event": {
+            "type": "text",
+            "text": "fects."
+          }
+        },
+        {
+          "atMs": 900,
+          "event": {
+            "type": "citation",
+            "documentIndex": 0,
+            "citation": {
+              "quote": "All hardware carries a two year warranty covering manufacturing defects.",
+              "start": 282,
+              "end": 354
+            }
+          }
+        },
+        {
+          "atMs": 920,
+          "event": {
+            "type": "text",
+            "text": " Water damage "
+          }
+        },
+        {
+          "atMs": 940,
+          "event": {
+            "type": "text",
+            "text": "and accidental"
+          }
+        },
+        {
+          "atMs": 960,
+          "event": {
+            "type": "text",
+            "text": " drops are not"
+          }
+        },
+        {
+          "atMs": 980,
+          "event": {
+            "type": "text",
+            "text": " covered."
+          }
+        },
+        {
+          "atMs": 1300,
+          "event": {
+            "type": "citation",
+            "documentIndex": 0,
+            "citation": {
+              "quote": "Water damage and accidental drops are not covered.",
+              "start": 355,
+              "end": 405
+            }
+          }
+        },
+        {
+          "atMs": 1320,
+          "event": {
+            "type": "end",
+            "stopReason": "end_turn",
+            "usage": {
+              "inputTokens": 1500,
+              "outputTokens": 48,
+              "cacheReadTokens": 0,
+              "cacheWriteTokens": 1400
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "The warranty lasts two years and covers manufacturing defects. Water damage and accidental drops are not covered."
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

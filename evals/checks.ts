@@ -1,4 +1,6 @@
+import { locateCitation } from "@/lib/documents/locate";
 import type { EvalCase, ToolExpectation } from "./cases";
+import { fixture } from "./documents/fixtures";
 import type { RunResult } from "./harness";
 
 export interface Check {
@@ -93,6 +95,77 @@ function answerChecks(testCase: EvalCase, run: RunResult): Check[] {
     return checks;
 }
 
+function squeeze(text: string): string {
+    return text.replace(/\\/g, "").replace(/^> ?/gm, "").replace(/\s+/g, " ").trim();
+}
+
+/** What every answer built from documents has to satisfy, whatever it says: its citations point at real text in the documents it was given. */
+function documentChecks(testCase: EvalCase, run: RunResult): Check[] {
+    if (!testCase.documents) return [];
+    const supplied = testCase.documents.ids.map(fixture);
+    const wanted = testCase.expect.citations;
+    const checks: Check[] = [];
+
+    const outside: string[] = [];
+    const mismatched: string[] = [];
+    for (const citation of run.citations) {
+        const document = supplied.find((candidate) => candidate.id === citation.documentId);
+        if (!document) {
+            outside.push(`${citation.documentName} was not supplied`);
+            continue;
+        }
+        const { start, end, startPage, endPage } = citation;
+        const pagesOk = startPage === undefined || (document.pages ?? []).some((span) => span.page === startPage) || false;
+        const rangeOk = start === undefined || end === undefined || (start >= 0 && start < end && end <= document.text.length);
+        if (!pagesOk || !rangeOk || (endPage !== undefined && startPage !== undefined && endPage < startPage))
+            outside.push(`${citation.documentName} ${start === undefined ? `page ${startPage}` : `${start} to ${end}`}`);
+        else if (start !== undefined && end !== undefined && document.text.slice(start, end) !== citation.quote)
+            mismatched.push(`${citation.documentName} ${start} to ${end}`);
+        else if (start === undefined && !locateCitation(document, citation)) mismatched.push(`${citation.documentName} page ${startPage}`);
+    }
+    checks.push({
+        name: "every citation points inside its document",
+        passed: outside.length === 0,
+        detail: outside.length ? outside.join("; ") : `${run.citations.length} checked`,
+    });
+    checks.push({
+        name: "every quote matches the source at its range",
+        passed: mismatched.length === 0,
+        detail: mismatched.length ? mismatched.join("; ") : `${run.citations.length} checked`,
+    });
+
+    if (testCase.documents.via === "extractive") {
+        const answer = squeeze(run.text);
+        const missing = run.citations.filter((citation) => !answer.includes(squeeze(citation.quote)));
+        checks.push({
+            name: "the answer shows each quote it cites",
+            passed: missing.length === 0,
+            detail: missing.length ? `${missing.length} not in the answer text` : "",
+        });
+        checks.push({
+            name: "answered without a model",
+            passed: run.message.mode === "extractive" && run.message.usage.inputTokens + run.message.usage.outputTokens === 0,
+            detail: `mode ${run.message.mode ?? "model"}`,
+        });
+    }
+
+    if (wanted?.none) checks.push({ name: "cites nothing", passed: run.citations.length === 0, detail: `${run.citations.length} citations` });
+    else if (wanted) checks.push({ name: "cites something", passed: run.citations.length > 0, detail: "no citations" });
+    for (const id of wanted?.documents ?? []) {
+        const name = fixture(id).name;
+        checks.push({ name: `cites ${name}`, passed: run.citations.some((citation) => citation.documentId === id), detail: "" });
+    }
+    for (const pattern of wanted?.quotes ?? [])
+        checks.push({ name: `a quote matches ${label(pattern)}`, passed: run.citations.some((citation) => matches(citation.quote, pattern)), detail: "" });
+    if (wanted?.page !== undefined)
+        checks.push({
+            name: `cites page ${wanted.page}`,
+            passed: run.citations.some((citation) => citation.startPage === wanted.page),
+            detail: `pages cited: ${run.citations.map((citation) => citation.startPage ?? "-").join(", ")}`,
+        });
+    return checks;
+}
+
 export function evaluateCase(testCase: EvalCase, run: RunResult): Check[] {
-    return [...toolChecks(testCase, run), ...answerChecks(testCase, run)];
+    return [...toolChecks(testCase, run), ...answerChecks(testCase, run), ...documentChecks(testCase, run)];
 }

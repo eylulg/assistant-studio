@@ -19,7 +19,7 @@ export type ChatTransport = (request: ChatRequest, signal: AbortSignal, document
 const errorBodySchema = z.object({ code: errorCodeSchema, message: z.string() });
 
 /** POSTs the conversation and returns the event stream. Failures before the stream starts are TransportErrors. */
-export const fetchTransport: ChatTransport = async (request, signal) => {
+const fetchTransport: ChatTransport = async (request, signal) => {
     let response: Response;
     try {
         response = await fetch("/api/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(request), signal });
@@ -45,7 +45,7 @@ function toBase64(bytes: ArrayBuffer): string {
     return btoa(binary);
 }
 
-function toWireDocument(document: StoredDocument): WireDocument {
+export function toWireDocument(document: StoredDocument): WireDocument {
     if (document.kind === "pdf" && document.bytes) return { kind: "pdf", id: document.id, name: document.name, data: toBase64(document.bytes) };
     return { kind: "text", id: document.id, name: document.name, text: document.text };
 }

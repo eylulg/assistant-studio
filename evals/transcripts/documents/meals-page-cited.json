@@ -1,0 +1,112 @@
+{
+  "id": "docs-meals-page-cited",
+  "prompt": "How much are meals reimbursed per day, and by when are receipts due?",
+  "model": "claude-sonnet-5-5",
+  "source": "authored",
+  "note": "Authored like the one above. A PDF citation from the API carries pages and the cited text, not a character range, so the quote is what the browser has to find on page 2.",
+  "rounds": [
+    {
+      "events": [
+        {
+          "atMs": 400,
+          "event": {
+            "type": "text",
+            "text": "Meals are reim"
+          }
+        },
+        {
+          "atMs": 420,
+          "event": {
+            "type": "text",
+            "text": "bursed up to 4"
+          }
+        },
+        {
+          "atMs": 440,
+          "event": {
+            "type": "text",
+            "text": "0 euros per da"
+          }
+        },
+        {
+          "atMs": 460,
+          "event": {
+            "type": "text",
+            "text": "y while travel"
+          }
+        },
+        {
+          "atMs": 480,
+          "event": {
+            "type": "text",
+            "text": "ling."
+          }
+        },
+        {
+          "atMs": 900,
+          "event": {
+            "type": "citation",
+            "documentIndex": 0,
+            "citation": {
+              "quote": "Meals are reimbursed up to 40 euros per day while travelling.",
+              "startPage": 2,
+              "endPage": 2
+            }
+          }
+        },
+        {
+          "atMs": 920,
+          "event": {
+            "type": "text",
+            "text": " Receipts are "
+          }
+        },
+        {
+          "atMs": 940,
+          "event": {
+            "type": "text",
+            "text": "due within 14 "
+          }
+        },
+        {
+          "atMs": 960,
+          "event": {
+            "type": "text",
+            "text": "days."
+          }
+        },
+        {
+          "atMs": 1300,
+          "event": {
+            "type": "citation",
+            "documentIndex": 0,
+            "citation": {
+              "quote": "Receipts must be uploaded within 14 days of the trip.",
+              "startPage": 2,
+              "endPage": 2
+            }
+          }
+        },
+        {
+          "atMs": 1320,
+          "event": {
+            "type": "end",
+            "stopReason": "end_turn",
+            "usage": {
+              "inputTokens": 1800,
+              "outputTokens": 40,
+              "cacheReadTokens": 0,
+              "cacheWriteTokens": 1600
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Meals are reimbursed up to 40 euros per day while travelling. Receipts are due within 14 days."
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

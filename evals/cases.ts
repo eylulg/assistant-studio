@@ -16,6 +16,11 @@ export interface EvalCase {
     tasks?: Task[];
     /** What the simulated user does at an approval step. Defaults to approve. */
     approval?: "approve" | "deny";
+    /**
+     * Documents the question is about, by eval fixture id. `extractive` runs the browser-side answer, which needs no
+     * transcript and no key. `model` runs through the engine: an authored transcript when replaying, the API when live.
+     */
+    documents?: { ids: string[]; via: "extractive" | "model" };
     expect: {
         /** Every expectation must be matched by a different call. Any call outside this list fails the case. */
         tools: ToolExpectation[];
@@ -32,6 +37,17 @@ export interface EvalCase {
         };
         /** Tasks in the list at the end. */
         taskCount?: number;
+        /** For document cases. Every citation is also checked against its document, whatever is listed here. */
+        citations?: {
+            /** Each of these documents is cited at least once. */
+            documents?: string[];
+            /** Each pattern matches the text of at least one cited quote. */
+            quotes?: (string | RegExp)[];
+            /** Some citation is on this page of a PDF. */
+            page?: number;
+            /** The answer cites nothing, because the documents do not contain it. */
+            none?: boolean;
+        };
     };
 }
 
@@ -170,6 +186,56 @@ export const CASES: EvalCase[] = [
         expect: {
             tools: [{ name: "convert_units", status: "error" }],
             answer: { contains: [/length|distance/i, /volume/i], notContains: [/\d[\d,.]*\s*cups/i], maxChars: 500 },
+        },
+    },
+    {
+        id: "docs-refund-window",
+        prompt: "How many days do customers have to return a product?",
+        documents: { ids: ["refund-policy"], via: "extractive" },
+        expect: {
+            tools: [],
+            citations: { documents: ["refund-policy"], quotes: [/within 30 days of delivery/] },
+            answer: { contains: ["30 days"] },
+        },
+    },
+    {
+        id: "docs-pdf-page",
+        prompt: "How much are meals reimbursed per day while travelling?",
+        documents: { ids: ["refund-policy", "travel-handbook"], via: "extractive" },
+        expect: {
+            tools: [],
+            citations: { documents: ["travel-handbook"], quotes: [/40 euros per day/], page: 2 },
+            answer: { contains: ["travel-handbook.pdf, page 2"] },
+        },
+    },
+    {
+        id: "docs-not-in-documents",
+        prompt: "Who won the 1998 World Cup?",
+        documents: { ids: ["refund-policy", "travel-handbook"], via: "extractive" },
+        expect: {
+            tools: [],
+            citations: { none: true },
+            answer: { contains: ["Nothing in your documents matches"], notContains: [/France|Brazil/] },
+        },
+    },
+    {
+        id: "docs-warranty-model-cited",
+        prompt: "What does the warranty cover, and what does it leave out?",
+        documents: { ids: ["refund-policy"], via: "model" },
+        expect: {
+            tools: [],
+            citations: { documents: ["refund-policy"], quotes: [/two year warranty/, /Water damage/] },
+            answer: { contains: [/two years/i, /water damage/i], maxChars: 400 },
+        },
+    },
+    {
+        id: "docs-meals-page-cited",
+        prompt: "How much are meals reimbursed per day, and by when are receipts due?",
+        documents: { ids: ["travel-handbook"], via: "model" },
+        expect: {
+            tools: [],
+            citations: { documents: ["travel-handbook"], quotes: [/40 euros/, /14 days/], page: 2 },
+            answer: { contains: ["40 euros", "14 days"], maxChars: 300 },
         },
     },
 ];

@@ -2,8 +2,10 @@ import { describe, expect, it } from "vitest";
 import { z } from "zod";
 import { newAssistantMessage } from "@/lib/chat/reducer";
 import type { ToolPart } from "@/lib/chat/types";
+import type { Citation } from "@/lib/protocol";
 import type { EvalCase } from "./cases";
 import { evaluateCase } from "./checks";
+import { fixture } from "./documents/fixtures";
 import type { RunResult } from "./harness";
 
 const testCase: EvalCase = {
@@ -28,7 +30,7 @@ function run(overrides: { tools?: Partial<ToolPart>[]; text?: string }): RunResu
         output: FOUND,
         ...tool,
     }));
-    return { message: newAssistantMessage("a", "m", "t"), tools, text: overrides.text ?? "Cumin [note-06]", tasks: [] };
+    return { message: newAssistantMessage("a", "m", "t"), tools, text: overrides.text ?? "Cumin [note-06]", tasks: [], citations: [] };
 }
 
 function failures(result: RunResult) {
@@ -54,5 +56,52 @@ describe("the eval checks catch what they are meant to catch", () => {
         ["no citation", run({ text: "Cumin" }), ["cites note-06"]],
     ])("fail %s", (_name, result, expected) => {
         expect(failures(result)).toEqual(expected);
+    });
+});
+
+describe("the document checks catch citations that do not hold up", () => {
+    const documentCase: EvalCase = {
+        id: "docs",
+        prompt: "p",
+        documents: { ids: ["refund-policy", "travel-handbook"], via: "model" },
+        expect: { tools: [], citations: { documents: ["refund-policy"] }, answer: {} },
+    };
+    const text = fixture("refund-policy").text;
+    const quote = "Customers can return any product within 30 days of delivery for a full refund.";
+    const start = text.indexOf(quote);
+    const good: Citation = { documentId: "refund-policy", documentName: "refund-policy.txt", quote, start, end: start + quote.length };
+
+    function documentFailures(citations: Citation[]) {
+        const result = { ...run({ tools: [] }), citations };
+        return evaluateCase(documentCase, result)
+            .filter((check) => !check.passed)
+            .map((check) => check.name);
+    }
+
+    it("pass a citation whose range holds exactly the quote", () => {
+        expect(documentFailures([good])).toEqual([]);
+    });
+
+    it.each<[string, Citation[], string[]]>([
+        ["a range past the end of the document", [{ ...good, end: text.length + 5 }], ["every citation points inside its document"]],
+        [
+            "a quote that differs from the text at its range",
+            [{ ...good, start: start + 1, end: start + 1 + quote.length }],
+            ["every quote matches the source at its range"],
+        ],
+        ["a document that was not supplied", [{ ...good, documentId: "other" }], ["every citation points inside its document", "cites refund-policy.txt"]],
+        [
+            "a page the PDF does not have",
+            [good, { documentId: "travel-handbook", documentName: "travel-handbook.pdf", quote: "x", startPage: 9, endPage: 9 }],
+            ["every citation points inside its document"],
+        ],
+        [
+            "a PDF quote that is not on the cited page",
+            [good, { documentId: "travel-handbook", documentName: "travel-handbook.pdf", quote: "Meals are reimbursed", startPage: 1, endPage: 1 }],
+            ["every quote matches the source at its range"],
+        ],
+        ["no citations at all", [], ["cites something", "cites refund-policy.txt"]],
+    ])("fail %s", (_name, citations, expected) => {
+        expect(documentFailures(citations)).toEqual(expected);
     });
 });

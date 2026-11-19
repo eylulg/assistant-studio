@@ -22,7 +22,7 @@ function toolsForRequest() {
  * every round. The cache breakpoint on the last one caches the tools, system prompt and all documents as one prefix.
  * Citations are on for every document: the API requires all or none.
  */
-export function withDocuments(messages: WireMessage[], documents: readonly WireDocument[]): Anthropic.Beta.BetaMessageParam[] {
+function withDocuments(messages: WireMessage[], documents: readonly WireDocument[]): Anthropic.Beta.BetaMessageParam[] {
     if (documents.length === 0) return messages;
     const blocks: Anthropic.Beta.BetaContentBlockParam[] = documents.map((document, index) => ({
         type: "document",
