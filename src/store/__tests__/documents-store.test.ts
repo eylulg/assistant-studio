@@ -114,6 +114,23 @@ describe("documents store", () => {
         expect(await store.getState().forQuestion("other")).toEqual([]);
     });
 
+    it("hands over the text without reading storage unless the original files are asked for, and an answer can name the documents it was started with", async () => {
+        const repository = memoryRepository();
+        const { store } = setup({ repository });
+        await store.getState().add("c1", [txt("a.txt", "Alpha"), txt("b.txt", "Bravo")]);
+        const [first, second] = store.getState().entries["c1"] ?? [];
+        await store.getState().setEnabled("c1", second?.id ?? "", false);
+        repository.list = async () => {
+            throw new Error("storage must not be read");
+        };
+
+        const switchedOn = await store.getState().forQuestion("c1", { withBytes: false });
+        const named = await store.getState().forQuestion("c1", { only: [second?.id ?? ""], withBytes: false });
+
+        expect(switchedOn.map((document) => document.id)).toEqual([first?.id]);
+        expect(named).toMatchObject([{ id: second?.id, text: "Bravo" }]);
+    });
+
     it("keeps documents per conversation: loading restores them with their switch, and deleting a conversation removes its documents", async () => {
         const repository = memoryRepository([
             textDocument("x1", "kept.txt", "Kept", { enabled: false }),

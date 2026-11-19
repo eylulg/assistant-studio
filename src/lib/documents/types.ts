@@ -24,6 +24,9 @@ export const storedDocumentSchema = z.object({
 
 export type StoredDocument = z.infer<typeof storedDocumentSchema>;
 
+/** What answering a question needs of a document. `bytes` is read only where the original file is sent, which is live mode. */
+export type QuestionDocument = Omit<StoredDocument, "conversationId" | "enabled" | "createdAt">;
+
 /** A piece of a document with its exact place: `text.slice(start, end)` of the document equals `text`. */
 export interface Passage {
     documentId: string;

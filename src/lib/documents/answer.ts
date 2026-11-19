@@ -11,6 +11,21 @@ const MAX_QUOTES = 3;
 const MIN_RELATIVE_SCORE = 0.4;
 const CHUNK_CHARS = 14;
 const CHUNK_DELAY_MS = 12;
+const CACHED_DOCUMENTS = 30;
+
+/** Passages per document id, reused while the text is the same string, so a question does not chunk every document again. */
+const passageCache = new Map<string, { text: string; passages: Passage[] }>();
+
+function passagesOf(document: AnswerDocument): Passage[] {
+    const cached = passageCache.get(document.id);
+    if (cached?.text === document.text) return cached.passages;
+    const passages = chunkDocument(document);
+    passageCache.delete(document.id);
+    passageCache.set(document.id, { text: document.text, passages });
+    const oldest = passageCache.keys().next().value;
+    if (passageCache.size > CACHED_DOCUMENTS && oldest !== undefined) passageCache.delete(oldest);
+    return passages;
+}
 
 type Piece = { type: "text"; text: string } | { type: "citation"; citation: Citation };
 
@@ -46,7 +61,7 @@ function citationFor(passage: Passage, document: AnswerDocument): Citation {
  */
 export function composeExtractiveAnswer(question: string, documents: readonly AnswerDocument[]): Piece[] {
     const byId = new Map(documents.map((document) => [document.id, document]));
-    const ranked = rankPassages(question, documents.flatMap(chunkDocument));
+    const ranked = rankPassages(question, documents.flatMap(passagesOf));
     const best = ranked[0]?.score ?? 0;
     const chosen = ranked.filter((entry) => entry.score >= best * MIN_RELATIVE_SCORE).slice(0, MAX_QUOTES);
 

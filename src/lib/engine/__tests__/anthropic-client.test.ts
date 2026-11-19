@@ -23,6 +23,10 @@ function streaming(events: unknown[], final: unknown) {
     };
 }
 
+function citationOf(quote: string) {
+    return { type: "char_location", cited_text: quote, document_index: 0, document_title: "notes.txt", start_char_index: 0, end_char_index: quote.length };
+}
+
 describe("createAnthropicClient", () => {
     it("turns the API stream into text and tool-input deltas, then one end event with the complete content", async () => {
         const { client } = clientWith(
@@ -181,6 +185,26 @@ describe("createAnthropicClient", () => {
             expect(params).toMatchObject({ system: [{ type: "text", text: "s" }], messages: [{ role: "user", content: "Hi" }] });
         });
 
+        it("places a citation after the text of its own block, even when it arrives before that text", async () => {
+            const cite = { type: "content_block_delta", index: 1, delta: { type: "citations_delta", citation: citationOf("Alpha") } };
+            const { client } = clientWith(
+                streaming(
+                    [
+                        { type: "content_block_delta", index: 0, delta: { type: "text_delta", text: "Plain." } },
+                        { type: "content_block_stop", index: 0 },
+                        cite,
+                        { type: "content_block_delta", index: 1, delta: { type: "text_delta", text: "Cited." } },
+                        { type: "content_block_stop", index: 1 },
+                    ],
+                    finalMessage,
+                ),
+            );
+
+            const events = await collect(client.streamRound({ ...request, documents }));
+
+            expect(events.map((event) => (event.type === "text" ? event.text : event.type)).slice(0, 3)).toEqual(["Plain.", "Cited.", "citation"]);
+        });
+
         it("turns streamed citations into citation events, with the end page of a page citation made inclusive", async () => {
             const cite = (citation: unknown) => ({ type: "content_block_delta", index: 0, delta: { type: "citations_delta", citation } });
             const { client } = clientWith(
@@ -195,6 +219,7 @@ describe("createAnthropicClient", () => {
                             start_char_index: 0,
                             end_char_index: 5,
                         }),
+                        { type: "content_block_stop", index: 0 },
                         cite({
                             type: "page_location",
                             cited_text: "Meals",

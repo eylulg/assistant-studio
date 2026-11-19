@@ -38,7 +38,7 @@ function createBrowserStores(demo: boolean) {
     const store = createStudioStore({
         transport: createTransport({ demo }),
         demo,
-        documents: (conversationId) => documents.getState().forQuestion(conversationId),
+        documents: (conversationId, options) => documents.getState().forQuestion(conversationId, options),
         storage: browserStorage,
         now: () => new Date(),
         newId: () => crypto.randomUUID(),

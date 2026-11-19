@@ -63,6 +63,11 @@ const assistantMessageSchema = z.object({
      * (assembled from the user's documents in the browser, no model call). Absent on answers saved before this was recorded.
      */
     mode: answerModeSchema.optional(),
+    /**
+     * The documents the first request of this answer was sent with. Every later request of the same answer (after an
+     * approval, or a resume) uses the same set, because changing it would change the prefix the model's reasoning was bound to.
+     */
+    documentIds: z.array(z.string()).optional(),
     /** Wall-clock timing seen by the browser. Absent on answers saved before timing was recorded; never zero for "unknown". */
     timing: z.object({ firstTokenMs: z.number().nonnegative().optional(), totalMs: z.number().nonnegative() }).optional(),
     error: z.string().optional(),

@@ -173,6 +173,26 @@ describe("asking about documents", () => {
         expect(visible(store)[1]).toMatchObject({ status: "complete" });
     });
 
+    it("keeps the documents of one answer the same across an approval, even when one is switched off meanwhile", async () => {
+        const refunds = textDocument("d1", "refunds.txt", "Refund within 30 days.");
+        const handed: string[][] = [];
+        let enabled = true;
+        const { transport } = scriptedTransport([createTaskRound, answer("Done.")]);
+        const store = testStore(
+            async (request, signal, documents) => {
+                handed.push(documents.map((document) => document.id));
+                return transport(request, signal, documents);
+            },
+            { documents: async (_id, { only }) => (only ? (only.includes("d1") ? [refunds] : []) : enabled ? [refunds] : []) },
+        );
+
+        await store.getState().send("Add a task");
+        enabled = false;
+        await store.getState().approveTool(lastAssistant(store).id, "t1");
+
+        expect(handed).toEqual([["d1"], ["d1"]]);
+    });
+
     it("shows an error the user can act on when the stored documents cannot be read, and sends nothing", async () => {
         const { transport, requests } = scriptedTransport([answer("Never sent.")]);
         const store = testStore(transport, {
@@ -210,7 +230,7 @@ describe("demo mode and the text of documents", () => {
             }),
         );
         const documents = createDocumentsStore({ repository: memoryRepository(), newId: () => "d1", now: () => new Date("2026-11-10T09:30:00.000Z") });
-        const store = testStore(createTransport({ demo: true }), { demo: true, documents: (id) => documents.getState().forQuestion(id) });
+        const store = testStore(createTransport({ demo: true }), { demo: true, documents: (id, options) => documents.getState().forQuestion(id, options) });
         store.getState().newConversation();
         const conversationId = store.getState().activeId ?? "";
         await documents.getState().add(conversationId, [new File(["Visitors sign in at the front desk before nine."], "handbook.txt")]);

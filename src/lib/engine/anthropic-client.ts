@@ -102,6 +102,9 @@ export function createAnthropicClient(client: Anthropic, effort: Effort): ModelC
     return {
         async *streamRound({ model, system, messages, documents = [], maxTokens, signal }: RoundRequest): AsyncGenerator<ModelEvent> {
             const toolIds = new Map<number, string>();
+            // The API adds a citation to the text block that is open, without promising it arrives after that block's text.
+            // Holding each one until its block closes places it at the end of the cited text whatever the order was.
+            const citations = new Map<number, ModelEvent[]>();
             let started = false;
             try {
                 const stream = client.beta.messages.stream(
@@ -131,13 +134,17 @@ export function createAnthropicClient(client: Anthropic, effort: Effort): ModelC
                         yield { type: "text", text: event.delta.text };
                     } else if (event.type === "content_block_delta" && event.delta.type === "citations_delta") {
                         const cited = citationEvent(event.delta.citation);
-                        if (cited) yield cited;
+                        if (cited) citations.set(event.index, [...(citations.get(event.index) ?? []), cited]);
+                    } else if (event.type === "content_block_stop") {
+                        yield* citations.get(event.index) ?? [];
+                        citations.delete(event.index);
                     } else if (event.type === "content_block_delta" && event.delta.type === "input_json_delta") {
                         const id = toolIds.get(event.index);
                         if (id) yield { type: "tool_input", id, delta: event.delta.partial_json };
                     }
                 }
 
+                for (const pending of citations.values()) yield* pending;
                 const message = await stream.finalMessage();
                 const usage = message.usage;
                 yield {

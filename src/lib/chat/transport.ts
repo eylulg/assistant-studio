@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { streamExtractiveAnswer } from "../documents/answer";
-import type { StoredDocument } from "../documents/types";
+import type { QuestionDocument } from "../documents/types";
 import { type ChatRequest, type ErrorCode, RESUME_PROMPT, type StreamEvent, type WireDocument, errorCodeSchema } from "../protocol";
 import { readSseEvents } from "../sse";
 
@@ -14,7 +14,7 @@ export class TransportError extends Error {
 }
 
 /** `documents` are the ones the question is about: ready and switched on. Empty when there are none. */
-export type ChatTransport = (request: ChatRequest, signal: AbortSignal, documents: readonly StoredDocument[]) => Promise<AsyncIterable<StreamEvent>>;
+export type ChatTransport = (request: ChatRequest, signal: AbortSignal, documents: readonly QuestionDocument[]) => Promise<AsyncIterable<StreamEvent>>;
 
 const errorBodySchema = z.object({ code: errorCodeSchema, message: z.string() });
 
@@ -45,7 +45,7 @@ function toBase64(bytes: ArrayBuffer): string {
     return btoa(binary);
 }
 
-export function toWireDocument(document: StoredDocument): WireDocument {
+export function toWireDocument(document: QuestionDocument): WireDocument {
     if (document.kind === "pdf" && document.bytes) return { kind: "pdf", id: document.id, name: document.name, data: toBase64(document.bytes) };
     return { kind: "text", id: document.id, name: document.name, text: document.text };
 }

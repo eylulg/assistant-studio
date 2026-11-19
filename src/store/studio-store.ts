@@ -6,7 +6,7 @@ import { type ChatTransport, TransportError } from "@/lib/chat/transport";
 import { activePath, appendMessage, createConversation, forkUserMessage, pathTo, selectVersion as selectVersionIn, updateAssistant } from "@/lib/chat/tree";
 import type { AssistantMessage, Conversation, PersistedState, Settings, ToolPart } from "@/lib/chat/types";
 import { toWireMessages } from "@/lib/chat/wire";
-import type { StoredDocument } from "@/lib/documents/types";
+import type { QuestionDocument } from "@/lib/documents/types";
 import { DEFAULT_MODEL } from "@/lib/models";
 import { type StreamEvent } from "@/lib/protocol";
 import { findTool, runTool } from "@/lib/tools";
@@ -20,8 +20,11 @@ export interface StudioDeps {
     transport: ChatTransport;
     /** No API key on the server, so answers replay recordings. Stamped on each new answer. */
     demo: boolean;
-    /** The documents of a conversation that are ready and switched on. */
-    documents: (conversationId: string) => Promise<StoredDocument[]>;
+    /**
+     * The documents of a conversation that are ready and switched on, or with `only`, exactly those that are ready,
+     * switched on or not. `withBytes` asks for the original files, which only live mode sends.
+     */
+    documents: (conversationId: string, options: { only?: readonly string[]; withBytes: boolean }) => Promise<QuestionDocument[]>;
     storage: () => Storage | null;
     now: () => Date;
     newId: () => string;
@@ -141,9 +144,10 @@ export function createStudioStore(deps: StudioDeps): StoreApi<StudioState> {
             };
 
             try {
-                const documents = await deps.documents(conversationId).catch(() => {
+                const documents = await deps.documents(conversationId, { only: node.message.documentIds, withBytes: !deps.demo }).catch(() => {
                     throw new TransportError("unavailable", "Your documents could not be read from this browser's storage. Remove them and add them again.");
                 });
+                if (!continuing) patchAssistant(conversationId, nodeId, (message) => ({ ...message, documentIds: documents.map((document) => document.id) }));
                 const events = await deps.transport(
                     { model: node.message.model, system: settings.systemPrompt.trim() || undefined, messages: wire, tasks, documents: [], resume },
                     abort.signal,

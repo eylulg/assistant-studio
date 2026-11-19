@@ -46,9 +46,28 @@ function mapBack(source: Compact, first: number, endExclusive: number): Located 
     return start === undefined || last === undefined ? null : { start, end: last + 1 };
 }
 
+function squeeze(text: string): string {
+    return compact(text, 0, text.length).text;
+}
+
+/** The API counts characters (code points); `slice` counts UTF-16 units. They differ after every astral character, such as an emoji. */
+function toUnitRange(text: string, start: number, end: number): Located {
+    let unit = 0;
+    let startUnit = 0;
+    let point = 0;
+    for (const char of text) {
+        if (point === start) startUnit = unit;
+        if (point === end) return { start: startUnit, end: unit };
+        unit += char.length;
+        point += 1;
+    }
+    return { start: point === start ? unit : startUnit, end: unit };
+}
+
 /**
- * Where a citation points inside the document as it is stored. A character range is used as given when it fits
- * the text. A page is searched for the quoted text. Without either, the whole document is searched. Returns null
+ * Where a citation points inside the document as it is stored. A character range is used only when the text
+ * at that range is the quoted text, read as UTF-16 units or as characters; otherwise the quote is searched for.
+ * A page is searched for the quoted text. Without either, the whole document is searched. Returns null
  * when the place cannot be found, for example when the stored text and the quote disagree.
  */
 export function locateCitation(
@@ -57,7 +76,12 @@ export function locateCitation(
 ): Located | null {
     const { text } = document;
     const { start, end } = citation;
-    if (start !== undefined && end !== undefined && start < end && end <= text.length) return { start, end };
+    if (start !== undefined && end !== undefined && start < end) {
+        const wanted = squeeze(citation.quote);
+        if (end <= text.length && squeeze(text.slice(start, end)) === wanted) return { start, end };
+        const asCharacters = toUnitRange(text, start, end);
+        if (asCharacters.start < asCharacters.end && squeeze(text.slice(asCharacters.start, asCharacters.end)) === wanted) return asCharacters;
+    }
 
     if (citation.startPage !== undefined && document.pages) {
         const first = document.pages.find((span) => span.page === citation.startPage);

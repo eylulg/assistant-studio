@@ -39,6 +39,18 @@ describe("locateCitation", () => {
         expect(locateCitation({ text, pages: undefined }, { quote: "Intro", start: 0, end: 5 })).toEqual({ start: 0, end: 5 });
     });
 
+    it("reads a range counted in characters when an emoji comes before the quote, and ignores a range that does not match the quote", () => {
+        const emoji = "Launch \u{1F680}\u{1F680} is on Friday. Review is on Monday.";
+        const quote = "Review is on Monday.";
+        const inCharacters = emoji.indexOf(quote) - 2;
+
+        const counted = locateCitation({ text: emoji, pages: undefined }, { quote, start: inCharacters, end: inCharacters + quote.length });
+        const wrong = locateCitation({ text: emoji, pages: undefined }, { quote, start: 0, end: quote.length });
+
+        expect(emoji.slice(counted?.start, counted?.end)).toBe(quote);
+        expect(emoji.slice(wrong?.start, wrong?.end)).toBe(quote);
+    });
+
     it("looks for a PDF quote on the cited page and ignores the same words on another page", () => {
         const repeated = "Total due. Intro.\n\nTotal due. Later.";
         const spans = [
@@ -59,6 +71,7 @@ describe("locateCitation", () => {
 
     it.each([
         ["a range past the end of the text", { quote: "Intro line.", start: 5, end: 9999 }],
+        ["a range that is not the quoted text", { quote: "Intro line.", start: 20, end: 30 }],
         ["an empty range", { quote: "Intro line.", start: 5, end: 5 }],
     ])("falls back to searching for the quote when it is given %s", (_name, citation) => {
         expect(locateCitation({ text, pages: undefined }, citation)?.start).toBe(0);

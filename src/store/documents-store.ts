@@ -2,7 +2,7 @@ import { type StoreApi, createStore } from "zustand/vanilla";
 import { ExtractionError, type PdfPageReader, extractDocument } from "@/lib/documents/extract";
 import { MAX_DOCUMENTS, MAX_TOTAL_BYTES, MAX_TOTAL_CHARS } from "@/lib/documents/limits";
 import type { DocumentRepository } from "@/lib/documents/repository";
-import type { PageSpan, StoredDocument } from "@/lib/documents/types";
+import type { PageSpan, QuestionDocument, StoredDocument } from "@/lib/documents/types";
 
 /** What the Sources panel and the source viewer need to know about one document. */
 export interface DocumentEntry {
@@ -36,8 +36,11 @@ export interface DocumentsState {
     remove: (conversationId: string, id: string) => Promise<void>;
     setEnabled: (conversationId: string, id: string, enabled: boolean) => Promise<void>;
     removeConversation: (conversationId: string) => Promise<void>;
-    /** Ready and switched on, with their original bytes, for the next question. */
-    forQuestion: (conversationId: string) => Promise<StoredDocument[]>;
+    /**
+     * Ready and switched on, for the next question; with `only`, those ids whether they are switched on or not.
+     * Storage is read only with `withBytes`: the text and pages are already in memory.
+     */
+    forQuestion: (conversationId: string, options?: { only?: readonly string[]; withBytes?: boolean }) => Promise<QuestionDocument[]>;
 }
 
 const number = new Intl.NumberFormat("en");
@@ -193,10 +196,20 @@ export function createDocumentsStore(deps: DocumentsDeps): StoreApi<DocumentsSta
                 await deps.repository.removeConversation(conversationId).catch(() => undefined);
             },
 
-            forQuestion: async (conversationId) => {
-                const usable = (get().entries[conversationId] ?? []).filter((entry) => entry.status === "ready" && entry.enabled);
+            forQuestion: async (conversationId, { only, withBytes = true } = {}) => {
+                const wanted = only ? new Set(only) : null;
+                const usable = (get().entries[conversationId] ?? []).filter(
+                    (entry) => entry.status === "ready" && (wanted ? wanted.has(entry.id) : entry.enabled),
+                );
                 // Questions without documents never touch storage, so chat works even where storage does not.
                 if (usable.length === 0) return [];
+                if (!withBytes) {
+                    return usable.flatMap((entry) =>
+                        entry.text === undefined || !entry.kind
+                            ? []
+                            : [{ id: entry.id, name: entry.name, kind: entry.kind, size: entry.size, text: entry.text, pages: entry.pages }],
+                    );
+                }
                 const stored = new Map((await deps.repository.list(conversationId)).map((document) => [document.id, document]));
                 return usable.flatMap((entry) => {
                     const document = stored.get(entry.id);
