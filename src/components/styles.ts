@@ -13,3 +13,10 @@ export const META_CLASS = "text-xs text-tertiary";
 
 /** Visually hidden but read by screen readers. */
 export const SR_ONLY_CLASS = "sr-only";
+
+/** The numbered chip that opens a cited source. 24 px square at least, so it meets the minimum target size. */
+export const CHIP_CLASS =
+    "mx-0.5 inline-flex h-6 min-w-6 cursor-pointer items-center justify-center rounded-md border border-default bg-secondary px-1.5 align-baseline text-xs font-semibold text-brand hover:bg-brand-subtle focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus";
+
+/** The cited range in the source viewer. The underline keeps it visible without relying on colour. */
+export const HIGHLIGHT_CLASS = "rounded-sm bg-warning-subtle text-primary underline decoration-2 underline-offset-2";
