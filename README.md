@@ -63,7 +63,7 @@ With no API key the server replays recorded model streams from [`evals/transcrip
 
 Replay matches the last message you sent against the recorded prompts (an exact match after normalising, then a close match). Anything else gets a short message listing the example prompts, so the demo never pretends to answer what it cannot.
 
-**About the shipped recordings.** The 13 transcripts in this repository are marked `"source": "authored"`: they were written in the recorded format, with tool results computed by the real tools, because no API key was available when the project was built. Their token counts are estimates. Re-record them with a key: `ANTHROPIC_API_KEY=... npm run record-fixture -- "What is 18% of 2,450, plus 75?"`. A recording from the real API is marked `"source": "recorded"`, and a prompt that needs approval is recorded twice, to capture what the model says after a denial. The eval cases are keyed by prompt, so a re-recorded transcript replaces the authored one without other changes.
+**About the shipped recordings.** The 13 demo transcripts in this repository are marked `"source": "authored"`: they were written in the recorded format, with tool results computed by the real tools, because no API key was available when the project was built. Their token counts are estimates. Re-record them with a key: `ANTHROPIC_API_KEY=... npm run record-fixture -- "What is 18% of 2,450, plus 75?"`. A recording from the real API is marked `"source": "recorded"`, and a prompt that needs approval is recorded twice, to capture what the model says after a denial. The eval cases are keyed by prompt, so a re-recorded transcript replaces the authored one without other changes.
 
 The `list-tasks` recording assumes a task list that holds only the sample passport task, so in demo mode its answer is only right after the "renew my passport" example.
 
@@ -95,7 +95,7 @@ Module map: `src/lib/protocol.ts` (zod schemas for requests and events), `src/li
 
 ## Documents and citations
 
-Add `.txt`, `.md` or `.pdf` files with the attach button next to the message box, by dropping them on the message box, or in the Sources panel. Each file shows reading, ready, or failed with the reason. The refusals each have their own message: wrong type, over 5 MB, empty, not text, a password protected PDF, a PDF with no text layer (a scan), and a conversation over its limits. Retry is offered only where trying again can change the result. Each ready document has a switch for whether the next question uses it, and a remove button.
+Add `.txt`, `.md` or `.pdf` files with the attach button next to the message box, by dropping them on the message box, or in the Sources panel. Each file shows reading, ready, or failed with the reason. The refusals each have their own message: wrong type, over 5 MB, empty, not text, a password protected PDF, a PDF with no text layer (a scan), a file that is not a valid PDF, a PDF over 600 pages (the most the API takes in a request, counted over all PDFs of a conversation), and a conversation over its limits. A document removed while it is still being read is never saved, and stored documents of conversations the browser no longer lists are deleted on load. Retry is offered only where trying again can change the result. Each ready document has a switch for whether the next question uses it, and a remove button.
 
 | Limit                           | Value                   | Why                                                                   |
 | ------------------------------- | ----------------------- | --------------------------------------------------------------------- |
@@ -123,7 +123,7 @@ A cited span ends with a numbered chip. Activating it with a click, Enter or Spa
 
 ### Document evals
 
-Three cases run the extractive path with no transcript: a text file, a PDF page, and a question the documents cannot answer. Two cases run a model-shaped stream through the engine from authored transcripts (`evals/transcripts/documents`, marked `"source": "authored"` like the others): a character range citation and a PDF page citation. Every document case checks that each citation points inside a document it was given and that the quoted text equals the source at that range (for a PDF, that the quote is on the cited page). With a key, `npm run eval:live` runs the two model cases against the API with the same checks; the extractive cases never call the model.
+Four cases run the extractive path with no transcript: a text file, a PDF page, a text file with emoji ahead of the cited sentence (so offsets are checked past two-unit characters), and a question the documents cannot answer. Two cases run a model-shaped stream through the engine from authored transcripts (`evals/transcripts/documents`, marked `"source": "authored"` like the others): a character range citation and a PDF page citation. Every document case checks that each citation points inside a document it was given and that the quoted text equals the source at that range (for a PDF, that the quote is on the cited page). With a key, `npm run eval:live` runs the two model cases against the API with the same checks; the extractive cases never call the model.
 
 ### Tools
 
@@ -166,23 +166,29 @@ The checks themselves are tested (`evals/checks.eval.ts`) so a broken assertion 
 Latest fixture run (`npm run eval`):
 
 ```
-case                     result  tools                                     checks  chars  tokens  est. cost
------------------------  ------  ----------------------------------------  ------  -----  ------  ---------
-calc-basic               pass    calculate                                 4/4     78     2497    $0.0011
-convert-units-parallel   pass    convert_units, convert_units              7/7     93     2521    $0.0013
-time-zone                pass    get_time                                  5/5     141    2512    $0.0012
-notes-search-cites       pass    search_notes                              5/5     316    2566    $0.0018
-create-task-approved     pass    create_task                               5/5     126    2519    $0.0013
-create-task-denied       pass    create_task                               6/6     166    2530    $0.0014
-list-tasks               pass    list_tasks                                5/5     74     2492    $0.0010
-weather-sample-parallel  pass    lookup_weather, lookup_weather            8/8     216    2546    $0.0016
-parallel-mixed           pass    lookup_weather, lookup_weather, get_time  8/8     226    2567    $0.0018
-no-tool-needed           pass    none                                      3/3     120    1262    $0.0007
-markdown-code            pass    none                                      3/3     481    1363    $0.0017
-chain-search-then-task   pass    search_notes, create_task                 7/7     225    3794    $0.0021
-tool-error-recovery      pass    convert_units                             6/6     199    2531    $0.0014
+case                       result  tools                                     checks  chars  tokens  est. cost
+-------------------------  ------  ----------------------------------------  ------  -----  ------  ---------
+calc-basic                 pass    calculate                                 4/4     78     2497    $0.0011
+convert-units-parallel     pass    convert_units, convert_units              7/7     93     2521    $0.0013
+time-zone                  pass    get_time                                  5/5     141    2512    $0.0012
+notes-search-cites         pass    search_notes                              5/5     316    2566    $0.0018
+create-task-approved       pass    create_task                               5/5     126    2519    $0.0013
+create-task-denied         pass    create_task                               6/6     166    2530    $0.0014
+list-tasks                 pass    list_tasks                                5/5     74     2492    $0.0010
+weather-sample-parallel    pass    lookup_weather, lookup_weather            8/8     216    2546    $0.0016
+parallel-mixed             pass    lookup_weather, lookup_weather, get_time  8/8     226    2567    $0.0018
+no-tool-needed             pass    none                                      3/3     120    1262    $0.0007
+markdown-code              pass    none                                      3/3     481    1363    $0.0017
+chain-search-then-task     pass    search_notes, create_task                 7/7     225    3794    $0.0021
+tool-error-recovery        pass    convert_units                             6/6     199    2531    $0.0014
+docs-refund-window         pass    none                                      9/9     373    0       $0.0000
+docs-pdf-page              pass    none                                      10/10   234    0       $0.0000
+docs-emoji-offsets         pass    none                                      9/9     275    0       $0.0000
+docs-not-in-documents      pass    none                                      8/8     276    0       $0.0000
+docs-warranty-model-cited  pass    none                                      10/10   113    2948    $0.0070
+docs-meals-page-cited      pass    none                                      11/11   94     3440    $0.0080
 
-13 passed, 0 failed, 0 skipped.
+19 passed, 0 failed, 0 skipped. Estimated cost $0.0333.
 ```
 
 Passing on authored transcripts shows that the pipeline and the assertions work. It says nothing yet about the model. That is what `npm run eval:live` is for.
@@ -193,19 +199,19 @@ Passing on authored transcripts shows that the pipeline and the assertions work.
 
 **Usage** reads the conversations the studio saved in this browser (`localStorage`, the same key and schema the chat uses). It shows answers over time, tokens by model (uncached input, output, cache reads and writes), the cache-read share, estimated cost per conversation, tool calls by tool, and latency as a distribution of time to first token and total time, plus summary tiles. Filters: date range, model, answer mode, tool and conversation. A conversation that has been deleted, or is older than the 30 most recent that the browser keeps, is not counted.
 
-- **Answer modes.** Each answer is stamped when it is made as `model` (the real API), `replay` (a recording in demo mode) or `extractive` (built from your documents in the browser, no model call). Replay numbers are labelled demo everywhere and are grouped apart from the model they imitate, because their usage is a sample from the recording and their timing is the pace of the recording. Answers saved before the stamp existed show as "mode not recorded".
+- **Answer modes.** Each answer is stamped when it is made as `model` (the real API), `replay` (a recording in demo mode) or `extractive` (built from your documents in the browser, no model call). The summary tiles for cost, cache-read share and time to first token are computed from `model` answers only and say "No model answers yet" otherwise, with the demo replay and extractive counts named beside them. Replay numbers are labelled demo wherever they appear and are grouped apart from the model they imitate, because their usage is a sample from the recording and their timing is the pace of the recording. The latency chart bins model answers only. Answers that failed or wait for an approval still count their tokens and cost, because they were billed, but not as answers. Answers saved before the stamp existed show as "mode not recorded".
 - **Timing.** The store measures time to first token and total request time for new answers. Older answers have no timing. They are left out of the latency bins and tiles and counted in a note, never shown as zero. A day with no input tokens is a gap in the cache chart, not 0 percent.
 - **Cost** is an estimate from list prices, as it is under each answer.
 
 **Evals** reads the reports the eval suite writes to `evals/reports` and imports them when the page is built, so the browser fetches no report. `npm run eval` writes `fixture.json`, which has no timestamp, so it only changes when the results change. `npm run eval:live` writes `live-<timestamp>.json`. The page shows a heat grid of case by check type (pass, fail or skipped, with an icon as well as a colour), tokens and estimated cost per case, and a report picker. Fixture tokens and cost are the usage stored in the recordings, and the page says so. With no live report it says that live runs happen on your own machine with your own key, and shows `npm run eval:live`. A unit test fails when `fixture.json` no longer matches the cases in `evals/cases.ts`; run `npm run eval` and commit the file to fix it.
 
-**Views.** Every filter and the list of hidden widgets live in the URL, so a view can be linked. Named views, which hold the same state, are stored in `localStorage` under their own key; every read and write is guarded, and a refused write is reported. Widgets are laid out in a grid that works from 320 px. A hidden widget is not rendered, so it computes nothing.
+**Views.** Every filter and the list of hidden widgets live in the URL, so a view can be linked. Named views, which hold the same state, are stored in `localStorage` under their own key; every read and write is guarded, and a refused write is reported. Widgets are laid out in a grid that works from 320 px. A hidden widget is not rendered, so it computes nothing. A date range that is backwards is never swapped: it matches nothing and the To field says why, so typing a year does not rewrite the other field. Saved views are read one by one, so one outdated entry costs only itself, and a save that would replace unreadable entries keeps a copy of them under a second key.
 
 **Performance.** Aggregation is in pure selectors (`src/lib/insights`) that remember their last result for equal inputs, tested for correctness against 1,000 generated answers. All selectors over 1,000 answers take about 6 ms cold on a laptop and nothing when the inputs are unchanged. The chart code loads only with the `/insights` route.
 
 ## What is sent to the model
 
-On every request: the system prompt (the default, or yours from Settings), the conversation of the visible branch (your messages, the assistant's earlier text, tool calls and their results), and the tool definitions. Reasoning blocks are sent back only while a turn is still running. The task list is sent to this app's server so `list_tasks` can read it, and reaches the model only through that tool's result. The sample notebook lives on the server and reaches the model only as search results. Nothing else leaves the browser, and nothing is stored on the server. Conversations and tasks stay in `localStorage`.
+On every request: the system prompt (the default, or yours from Settings), the conversation of the visible branch (your messages, the assistant's earlier text, tool calls and their results), and the tool definitions. Reasoning blocks are sent back only while a turn is still running. The task list is sent to this app's server so `list_tasks` can read it, and reaches the model only through that tool's result. The sample notebook lives on the server and reaches the model only as search results. In demo mode an earlier answer that quoted your documents is replaced by a placeholder in that history, and no document is ever in the request. Nothing else leaves the browser, and nothing is stored on the server. Conversations and tasks stay in `localStorage`.
 
 ## Cost controls
 

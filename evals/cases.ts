@@ -209,6 +209,16 @@ export const CASES: EvalCase[] = [
         },
     },
     {
+        id: "docs-emoji-offsets",
+        prompt: "When are the retrospectives held?",
+        documents: { ids: ["team-notes"], via: "extractive" },
+        expect: {
+            tools: [],
+            citations: { documents: ["team-notes"], quotes: [/every second Thursday at 15:00/] },
+            answer: { contains: ["second Thursday"] },
+        },
+    },
+    {
         id: "docs-not-in-documents",
         prompt: "Who won the 1998 World Cup?",
         documents: { ids: ["refund-policy", "travel-handbook"], via: "extractive" },

@@ -742,6 +742,71 @@
       "costUsd": 0
     },
     {
+      "id": "docs-emoji-offsets",
+      "prompt": "When are the retrospectives held?",
+      "status": "pass",
+      "tools": [],
+      "checks": [
+        {
+          "type": "tools",
+          "name": "no unexpected tools",
+          "passed": true,
+          "detail": "none"
+        },
+        {
+          "type": "answer",
+          "name": "contains \"second Thursday\"",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "type": "citations",
+          "name": "every citation points inside its document",
+          "passed": true,
+          "detail": "1 checked"
+        },
+        {
+          "type": "citations",
+          "name": "every quote matches the source at its range",
+          "passed": true,
+          "detail": "1 checked"
+        },
+        {
+          "type": "citations",
+          "name": "the answer shows each quote it cites",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "type": "answer",
+          "name": "answered without a model",
+          "passed": true,
+          "detail": "mode extractive"
+        },
+        {
+          "type": "citations",
+          "name": "cites something",
+          "passed": true,
+          "detail": "no citations"
+        },
+        {
+          "type": "citations",
+          "name": "cites team-notes.md",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "type": "citations",
+          "name": "a quote matches /every second Thursday at 15:00/",
+          "passed": true,
+          "detail": ""
+        }
+      ],
+      "chars": 275,
+      "tokens": 0,
+      "costUsd": 0
+    },
+    {
       "id": "docs-not-in-documents",
       "prompt": "Who won the 1998 World Cup?",
       "status": "pass",
@@ -796,7 +861,7 @@
           "detail": "0 citations"
         }
       ],
-      "chars": 208,
+      "chars": 276,
       "tokens": 0,
       "costUsd": 0
     },

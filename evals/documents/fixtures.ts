@@ -18,6 +18,14 @@ Support
 Our support team answers email within one business day and phone calls from 9:00 to 17:00 on weekdays.
 `;
 
+/** Emoji are two UTF-16 units each, so every offset after them checks that ranges are counted the same way everywhere. */
+const TEAM_NOTES = `Team notes \u{1F680}\u{1F389}\u{1F680}
+
+Launch day is the first Friday of March. \u{1F680} The press list is final by then.
+
+Retrospectives happen every second Thursday at 15:00 in the large meeting room.
+`;
+
 const HANDBOOK_PAGES = [
     "Travel policy\n\nEmployees may book economy flights for trips under six hours.\nBusiness class needs written approval from a director.",
     "Expenses\n\nMeals are reimbursed up to 40 euros per day while travelling.\nReceipts must be uploaded within 14 days of the trip.",
@@ -32,6 +40,7 @@ const handbook = assemblePages(HANDBOOK_PAGES);
 
 const FIXTURES: Record<string, StoredDocument> = {
     "refund-policy": document("refund-policy", "refund-policy.txt", "text", REFUND_POLICY),
+    "team-notes": document("team-notes", "team-notes.md", "text", TEAM_NOTES),
     "travel-handbook": document("travel-handbook", "travel-handbook.pdf", "pdf", handbook.text, handbook.pages),
 };
 
