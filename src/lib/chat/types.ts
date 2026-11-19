@@ -7,6 +7,9 @@ const reasoningBlockSchema = z.union([
     z.object({ type: z.literal("redacted_thinking"), data: z.string() }),
 ]);
 
+export const answerModeSchema = z.enum(["model", "replay", "extractive"]);
+export type AnswerMode = z.infer<typeof answerModeSchema>;
+
 const toolStatusSchema = z.enum(["streaming", "awaiting_approval", "running", "done", "error", "denied", "cancelled"]);
 export type ToolStatus = z.infer<typeof toolStatusSchema>;
 
@@ -55,8 +58,13 @@ const assistantMessageSchema = z.object({
     resumes: z.array(z.number().int().nonnegative()),
     usage: z.object({ inputTokens: z.number(), outputTokens: z.number(), cacheReadTokens: z.number(), cacheWriteTokens: z.number() }),
     doneReason: doneReasonSchema.optional(),
-    /** `extractive`: assembled from the user's documents in the browser, no model call. Absent for model answers. */
-    mode: z.literal("extractive").optional(),
+    /**
+     * Where the answer came from: `model` (the real API), `replay` (a recording, in demo mode) or `extractive`
+     * (assembled from the user's documents in the browser, no model call). Absent on answers saved before this was recorded.
+     */
+    mode: answerModeSchema.optional(),
+    /** Wall-clock timing seen by the browser. Absent on answers saved before timing was recorded; never zero for "unknown". */
+    timing: z.object({ firstTokenMs: z.number().nonnegative().optional(), totalMs: z.number().nonnegative() }).optional(),
     error: z.string().optional(),
 });
 

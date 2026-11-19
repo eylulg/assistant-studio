@@ -37,6 +37,7 @@ function createBrowserStores(demo: boolean) {
     });
     const store = createStudioStore({
         transport: createTransport({ demo }),
+        demo,
         documents: (conversationId) => documents.getState().forQuestion(conversationId),
         storage: browserStorage,
         now: () => new Date(),

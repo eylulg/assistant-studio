@@ -94,6 +94,39 @@ describe("sending a message", () => {
     });
 });
 
+describe("answer mode and timing", () => {
+    function slowAnswer(clock: { time: number }) {
+        return (): AsyncIterable<StreamEvent> =>
+            (async function* () {
+                clock.time += 300;
+                yield { type: "round_start" };
+                yield { type: "text", text: "Hi" };
+                clock.time += 700;
+                yield { type: "done", reason: "end_turn" };
+            })();
+    }
+
+    it("records the time to the first text and the total, from the clock the store was given", async () => {
+        const clock = { time: Date.parse("2026-11-10T09:30:00.000Z") };
+        const store = testStore(scriptedTransport([slowAnswer(clock)]).transport, { now: () => new Date(clock.time) });
+
+        await store.getState().send("Hi");
+
+        expect(lastAssistant(store).timing).toEqual({ firstTokenMs: 300, totalMs: 1000 });
+    });
+
+    it.each([
+        { demo: false, mode: "model" },
+        { demo: true, mode: "replay" },
+    ])("marks an answer from a demo=$demo store as $mode", async ({ demo, mode }) => {
+        const store = testStore(scriptedTransport([answer("Hello")]).transport, { demo });
+
+        await store.getState().send("Hi");
+
+        expect(lastAssistant(store).mode).toBe(mode);
+    });
+});
+
 describe("asking about documents", () => {
     it("asks for the documents of the conversation being answered and hands them to the transport with the question", async () => {
         const refunds = textDocument("d1", "refunds.txt", "Refund within 30 days.");

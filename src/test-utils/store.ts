@@ -24,6 +24,7 @@ export function testStore(transport: ChatTransport, overrides: Partial<StudioDep
     let counter = 0;
     const store = createStudioStore({
         transport,
+        demo: false,
         documents: async () => [],
         storage: () => null,
         now: () => NOW,

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { type StoreApi, createStore } from "zustand/vanilla";
 import { emptyState, loadState, saveState } from "@/lib/chat/persistence";
-import { applyStreamEvent, failMessage, interruptMessage, newAssistantMessage, stopMessage } from "@/lib/chat/reducer";
+import { applyStreamEvent, failMessage, interruptMessage, newAssistantMessage, recordFirstToken, recordRequestTime, stopMessage } from "@/lib/chat/reducer";
 import { type ChatTransport, TransportError } from "@/lib/chat/transport";
 import { activePath, appendMessage, createConversation, forkUserMessage, pathTo, selectVersion as selectVersionIn, updateAssistant } from "@/lib/chat/tree";
 import type { AssistantMessage, Conversation, PersistedState, Settings, ToolPart } from "@/lib/chat/types";
@@ -18,6 +18,8 @@ const SKIPPED_OUTPUT = "Skipped: the user sent a new message instead.";
 
 export interface StudioDeps {
     transport: ChatTransport;
+    /** No API key on the server, so answers replay recordings. Stamped on each new answer. */
+    demo: boolean;
     /** The documents of a conversation that are ready and switched on. */
     documents: (conversationId: string) => Promise<StoredDocument[]>;
     storage: () => Storage | null;
@@ -125,6 +127,7 @@ export function createStudioStore(deps: StudioDeps): StoreApi<StudioState> {
             controller = abort;
             set({ streaming: { conversationId, nodeId } });
 
+            const startedAt = deps.now().getTime();
             let queue: StreamEvent[] = [];
             let scheduled = false;
             const flush = () => {
@@ -132,7 +135,9 @@ export function createStudioStore(deps: StudioDeps): StoreApi<StudioState> {
                 if (queue.length === 0) return;
                 const batch = queue;
                 queue = [];
-                patchAssistant(conversationId, nodeId, (message) => batch.reduce(applyStreamEvent, message));
+                patchAssistant(conversationId, nodeId, (message) =>
+                    recordFirstToken(batch.reduce(applyStreamEvent, message), batch, deps.now().getTime() - startedAt),
+                );
             };
 
             try {
@@ -160,6 +165,7 @@ export function createStudioStore(deps: StudioDeps): StoreApi<StudioState> {
                 else if (error instanceof TransportError) patchAssistant(conversationId, nodeId, (message) => failMessage(message, error.message));
                 else patchAssistant(conversationId, nodeId, interruptMessage);
             } finally {
+                patchAssistant(conversationId, nodeId, (message) => recordRequestTime(message, deps.now().getTime() - startedAt));
                 controller = null;
                 set({ streaming: null });
             }
@@ -175,7 +181,7 @@ export function createStudioStore(deps: StudioDeps): StoreApi<StudioState> {
         function startAnswer(conversationId: string, parentId: string): string {
             const id = deps.newId();
             patchConversation(conversationId, (conversation) =>
-                appendMessage(conversation, parentId, newAssistantMessage(id, get().settings.model, stamp()), stamp()),
+                appendMessage(conversation, parentId, newAssistantMessage(id, get().settings.model, stamp(), deps.demo ? "replay" : "model"), stamp()),
             );
             return id;
         }

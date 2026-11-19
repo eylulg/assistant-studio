@@ -42,6 +42,13 @@ Each event is `data: <json>` followed by a blank line. The browser validates eve
 
 Failures that happen before the stream starts (bad body, wrong origin, rate limit) are plain JSON responses with `{code, message}` and a 4xx status.
 
+## Fields the browser adds to an answer
+
+These never travel over the wire. The browser stores them with the answer and the Insights page reads them.
+
+- `mode`: where the answer came from. `model` for the real API, `replay` for a recording in demo mode, `extractive` for an answer built from documents in the browser (set by the `answer_mode` event). Answers saved before this field existed have none, and Insights shows them as "mode not recorded".
+- `timing`: `{firstTokenMs?, totalMs}` measured with the browser clock. `firstTokenMs` runs from sending the request to the first text, reasoning, tool or citation event. `totalMs` is the sum of the requests the answer took, so the wait for an approval is not counted. Answers saved before this field existed have none, and Insights shows "no timing recorded" for them, never zero. Timing of a `replay` answer is the pace of the recording, not model speed.
+
 ## The two-phase tool protocol
 
 Tools are classified when they are defined. `calculate`, `convert_units`, `get_time`, `search_notes`, `list_tasks` and `lookup_weather` have no side effects. `create_task` has one.
