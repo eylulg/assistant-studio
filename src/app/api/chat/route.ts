@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { serverConfig } from "@/lib/config";
+import { MAX_DOCUMENT_BODY_BYTES } from "@/lib/documents/limits";
 import { createAnthropicClient } from "@/lib/engine/anthropic-client";
 import { DEMO_NOW, demoTranscripts } from "@/lib/engine/demo";
 import { runChat } from "@/lib/engine/engine";
@@ -50,7 +51,8 @@ export async function POST(request: Request): Promise<Response> {
 
     if (!isSameOrigin(request)) return jsonError(403, "forbidden", "Chat requests can only be sent from this site.");
 
-    const body = await readBody(request, config.maxBodyBytes);
+    // Documents are only ever read in live mode, so the demo keeps the small cap.
+    const body = await readBody(request, config.apiKey ? config.maxBodyBytes + MAX_DOCUMENT_BODY_BYTES : config.maxBodyBytes);
     if (!body) return jsonError(400, "bad_request", "That request was not valid or was too large. Start a new conversation or shorten it.");
     if (!isKnownModel(body.model)) return jsonError(400, "bad_request", "That model is not available here.");
     if (body.messages[body.messages.length - 1]?.role !== "user")
@@ -74,6 +76,7 @@ export async function POST(request: Request): Promise<Response> {
             model: body.model,
             system: body.system?.trim() || DEFAULT_SYSTEM_PROMPT,
             messages: body.messages,
+            documents: demo ? [] : body.documents,
             tasks: body.tasks,
             resume: body.resume ?? false,
             maxRounds: config.maxRounds,

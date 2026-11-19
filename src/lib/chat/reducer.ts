@@ -54,6 +54,16 @@ export function applyStreamEvent(message: AssistantMessage, event: StreamEvent):
             }
             return { ...message, parts: [...message.parts, { type: "text", round, text: event.text }] };
         }
+        case "citation": {
+            const last = message.parts[message.parts.length - 1];
+            if (last?.type === "text" && last.round === round) {
+                const citations = [...(last.citations ?? []), { at: last.text.length, citation: event.citation }];
+                return { ...message, parts: [...message.parts.slice(0, -1), { ...last, citations }] };
+            }
+            return { ...message, parts: [...message.parts, { type: "text", round, text: "", citations: [{ at: 0, citation: event.citation }] }] };
+        }
+        case "answer_mode":
+            return { ...message, mode: event.mode };
         case "reasoning":
             return { ...message, parts: [...message.parts, { type: "reasoning", round, block: event.block }] };
         case "tool_start":

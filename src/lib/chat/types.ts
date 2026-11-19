@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { doneReasonSchema } from "../protocol";
+import { citationSchema, doneReasonSchema } from "../protocol";
 import { taskSchema } from "../tools/types";
 
 const reasoningBlockSchema = z.union([
@@ -12,8 +12,12 @@ export type ToolStatus = z.infer<typeof toolStatusSchema>;
 
 const inputSchema = z.record(z.string(), z.unknown());
 
+/** A citation placed in a text part: `at` is the offset in the part's text where the cited span ends. */
+const placedCitationSchema = z.object({ at: z.number().int().nonnegative(), citation: citationSchema });
+export type PlacedCitation = z.infer<typeof placedCitationSchema>;
+
 const partSchema = z.discriminatedUnion("type", [
-    z.object({ type: z.literal("text"), round: z.number().int().nonnegative(), text: z.string() }),
+    z.object({ type: z.literal("text"), round: z.number().int().nonnegative(), text: z.string(), citations: z.array(placedCitationSchema).optional() }),
     z.object({ type: z.literal("reasoning"), round: z.number().int().nonnegative(), block: reasoningBlockSchema }),
     z.object({
         type: z.literal("tool"),
@@ -51,6 +55,8 @@ const assistantMessageSchema = z.object({
     resumes: z.array(z.number().int().nonnegative()),
     usage: z.object({ inputTokens: z.number(), outputTokens: z.number(), cacheReadTokens: z.number(), cacheWriteTokens: z.number() }),
     doneReason: doneReasonSchema.optional(),
+    /** `extractive`: assembled from the user's documents in the browser, no model call. Absent for model answers. */
+    mode: z.literal("extractive").optional(),
     error: z.string().optional(),
 });
 

@@ -1,4 +1,4 @@
-import type { AssistantBlock, DoneReason, ModelEvent, StreamEvent, WireMessage } from "../protocol";
+import type { AssistantBlock, DoneReason, ModelEvent, StreamEvent, WireDocument, WireMessage } from "../protocol";
 import { type ToolOutcome, findTool, runTool, validateInput } from "../tools";
 import type { Task, Tool, ToolContext } from "../tools/types";
 import { type ModelClient, ModelFailure, UpstreamInterrupted } from "./model-client";
@@ -10,6 +10,7 @@ export interface EngineOptions {
     model: string;
     system: string;
     messages: WireMessage[];
+    documents?: readonly WireDocument[];
     tasks: readonly Task[];
     resume: boolean;
     maxRounds: number;
@@ -44,6 +45,7 @@ function describeError(error: unknown): string {
 export async function* runChat(options: EngineOptions, client: ModelClient): AsyncGenerator<StreamEvent> {
     const { signal } = options;
     const messages = [...options.messages];
+    const documents = options.documents ?? [];
     const context: ToolContext = { ...options.context, tasks: options.tasks, signal };
     let outputUsed = 0;
 
@@ -62,13 +64,18 @@ export async function* runChat(options: EngineOptions, client: ModelClient): Asy
                 model: options.model,
                 system: options.system,
                 messages,
+                documents,
                 maxTokens: remaining,
                 resume: options.resume && round === 0,
                 signal,
             });
             for await (const event of stream) {
                 if (event.type === "end") end = event;
-                else yield event;
+                else if (event.type === "citation") {
+                    // The model cites a document by its position in the request. The browser needs the id it stored it under.
+                    const document = documents[event.documentIndex];
+                    if (document) yield { type: "citation", citation: { ...event.citation, documentId: document.id, documentName: document.name } };
+                } else yield event;
             }
         } catch (error) {
             if (signal?.aborted) return;

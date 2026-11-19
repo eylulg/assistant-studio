@@ -6,6 +6,7 @@ import { type ChatTransport, TransportError } from "@/lib/chat/transport";
 import { activePath, appendMessage, createConversation, forkUserMessage, pathTo, selectVersion as selectVersionIn, updateAssistant } from "@/lib/chat/tree";
 import type { AssistantMessage, Conversation, PersistedState, Settings, ToolPart } from "@/lib/chat/types";
 import { toWireMessages } from "@/lib/chat/wire";
+import type { StoredDocument } from "@/lib/documents/types";
 import { DEFAULT_MODEL } from "@/lib/models";
 import { type StreamEvent } from "@/lib/protocol";
 import { findTool, runTool } from "@/lib/tools";
@@ -17,6 +18,8 @@ const SKIPPED_OUTPUT = "Skipped: the user sent a new message instead.";
 
 export interface StudioDeps {
     transport: ChatTransport;
+    /** The documents of a conversation that are ready and switched on. */
+    documents: (conversationId: string) => Promise<StoredDocument[]>;
     storage: () => Storage | null;
     now: () => Date;
     newId: () => string;
@@ -133,9 +136,13 @@ export function createStudioStore(deps: StudioDeps): StoreApi<StudioState> {
             };
 
             try {
+                const documents = await deps.documents(conversationId).catch(() => {
+                    throw new TransportError("unavailable", "Your documents could not be read from this browser's storage. Remove them and add them again.");
+                });
                 const events = await deps.transport(
-                    { model: node.message.model, system: settings.systemPrompt.trim() || undefined, messages: wire, tasks, resume },
+                    { model: node.message.model, system: settings.systemPrompt.trim() || undefined, messages: wire, tasks, documents: [], resume },
                     abort.signal,
+                    documents,
                 );
                 for await (const event of events) {
                     queue.push(event);

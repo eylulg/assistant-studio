@@ -45,6 +45,7 @@ export async function runCase(testCase: EvalCase, { client, model, clock, maxOut
                 },
                 client,
             ),
+        documents: async () => [],
         storage: () => null,
         now,
         newId: () => `id-${(counter += 1)}`,
