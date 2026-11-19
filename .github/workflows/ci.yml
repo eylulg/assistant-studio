@@ -45,8 +45,9 @@ jobs:
           npm --prefix ../ui ci
           npm --prefix ../ui run build
 
-      # Copy the library in, as the local relink does. A symlink would give TypeScript two copies of the React types.
-      - run: npm ci --install-links
+      # Copy the library in, as the local relink does. A symlink would give TypeScript two copies of the
+      # React types. npm ci cannot be used: the lockfile records the library as a link.
+      - run: npm install --no-audit --no-fund --install-links
 
       - name: Secret scan
         uses: gitleaks/gitleaks-action@v3
