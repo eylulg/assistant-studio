@@ -4,6 +4,7 @@ import { STORAGE_KEY } from "@/lib/chat/persistence";
 import { TransportError } from "@/lib/chat/transport";
 import { activePath } from "@/lib/chat/tree";
 import { RESUME_PROMPT, type StreamEvent } from "@/lib/protocol";
+import { textDocument } from "@/test-utils/documents";
 import { memoryStorage, scriptedTransport, testStore, untilAborted } from "@/test-utils/store";
 import type { StudioState } from "../studio-store";
 
@@ -90,6 +91,48 @@ describe("sending a message", () => {
 
         expect(lastAssistant(store)).toMatchObject({ status: "error", error: "You have sent a lot of messages. Try again in 10 minutes." });
         expect(visible(store)[0]).toMatchObject({ role: "user", text: "Hi" });
+    });
+});
+
+describe("asking about documents", () => {
+    it("asks for the documents of the conversation being answered and hands them to the transport with the question", async () => {
+        const refunds = textDocument("d1", "refunds.txt", "Refund within 30 days.");
+        const asked: string[] = [];
+        const handed: unknown[] = [];
+        const store = testStore(
+            async (_request, _signal, documents) => {
+                handed.push(documents);
+                return (async function* () {
+                    for (const event of answer("Quoted.")) yield event;
+                })();
+            },
+            {
+                documents: async (conversationId) => {
+                    asked.push(conversationId);
+                    return [refunds];
+                },
+            },
+        );
+
+        await store.getState().send("How long do I have?");
+
+        expect(asked).toEqual([store.getState().activeId]);
+        expect(handed).toEqual([[refunds]]);
+        expect(visible(store)[1]).toMatchObject({ status: "complete" });
+    });
+
+    it("shows an error the user can act on when the stored documents cannot be read, and sends nothing", async () => {
+        const { transport, requests } = scriptedTransport([answer("Never sent.")]);
+        const store = testStore(transport, {
+            documents: async () => {
+                throw new Error("IndexedDB is not available.");
+            },
+        });
+
+        await store.getState().send("How long do I have?");
+
+        expect(requests).toEqual([]);
+        expect(visible(store)[1]).toMatchObject({ status: "error", error: expect.stringContaining("documents could not be read") });
     });
 });
 

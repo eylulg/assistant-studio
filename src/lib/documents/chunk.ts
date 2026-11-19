@@ -54,14 +54,21 @@ function split(text: string, range: Range): Range[] {
     return pieces;
 }
 
+/** A short line with no closing punctuation is a heading. It belongs to the text after it, not to the passage before it. */
+function isHeading(text: string, range: Range): boolean {
+    return range.end - range.start <= 80 && !/[.!?:;,]$/.test(text.slice(range.start, range.end));
+}
+
 function chunkRegion(text: string, start: number, end: number): Range[] {
     const units = paragraphs(text, start, end).flatMap((paragraph) => split(text, paragraph));
     const passages: Range[] = [];
     let current: Range | null = null;
     for (const unit of units) {
-        if (current && unit.end - current.start <= TARGET_CHARS) current = { start: current.start, end: unit.end };
+        if (!current) current = unit;
+        else if (isHeading(text, current)) current = { start: current.start, end: unit.end };
+        else if (!isHeading(text, unit) && unit.end - current.start <= TARGET_CHARS) current = { start: current.start, end: unit.end };
         else {
-            if (current) passages.push(current);
+            passages.push(current);
             current = unit;
         }
     }
