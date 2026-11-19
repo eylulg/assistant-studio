@@ -8,7 +8,7 @@ import { CASES } from "./cases";
 import { evaluateCase } from "./checks";
 import { documentTranscripts } from "./documents/transcripts";
 import { runCase } from "./harness";
-import { type ReportRow, formatReport } from "./report";
+import { type ReportRow, formatReport, writeReport } from "./report";
 
 const live = process.env.EVAL_MODE === "live";
 const hasKey = Boolean(process.env.ANTHROPIC_API_KEY);
@@ -25,6 +25,11 @@ describe.skipIf(live && !hasKey)(`assistant evals (${live ? `live, ${model}` : "
         process.stdout.write(
             formatReport(live ? `Live eval report, ${model}, budget $${budgetUsd.toFixed(2)}` : "Eval report, recorded transcripts replayed", rows),
         );
+        // A run of a few cases (a name filter) must not replace the full fixture report.
+        if (live ? rows.length > 0 : rows.length === CASES.length) {
+            const path = writeReport(rows, live ? { kind: "live", at: new Date() } : { kind: "fixture" }, model);
+            process.stdout.write(`Report written to ${path}\n`);
+        }
     });
 
     if (!live) {
@@ -42,9 +47,11 @@ describe.skipIf(live && !hasKey)(`assistant evals (${live ? `live, ${model}` : "
         if (live && spent >= budgetUsd) {
             rows.push({
                 id: testCase.id,
+                prompt: testCase.prompt,
                 status: "skipped",
                 tools: "",
                 checks: "",
+                results: [],
                 chars: 0,
                 tokens: 0,
                 costUsd: 0,
@@ -63,9 +70,11 @@ describe.skipIf(live && !hasKey)(`assistant evals (${live ? `live, ${model}` : "
         const failed = checks.filter((check) => !check.passed);
         rows.push({
             id: testCase.id,
+            prompt: testCase.prompt,
             status: failed.length === 0 ? "pass" : "fail",
             tools: run.tools.map((tool) => tool.name).join(", "),
             checks: `${checks.length - failed.length}/${checks.length}`,
+            results: checks,
             chars: run.text.length,
             tokens: run.message.usage.inputTokens + run.message.usage.cacheReadTokens + run.message.usage.cacheWriteTokens + run.message.usage.outputTokens,
             costUsd,
