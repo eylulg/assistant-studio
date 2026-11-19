@@ -1,15 +1,18 @@
-import { fileURLToPath } from "node:url";
-import { defineConfig } from "vitest/config";
+import { fileURLToPath } from 'node:url';
+import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
-    resolve: {
-        alias: { "@": fileURLToPath(new URL("./src", import.meta.url)), "@evals": fileURLToPath(new URL("./evals", import.meta.url)) },
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+      '@evals': fileURLToPath(new URL('./evals', import.meta.url)),
     },
-    test: {
-        environment: "node",
-        include: ["evals/**/*.eval.ts"],
-        testTimeout: 120_000,
-        // One file at a time so the table at the end lists every case.
-        fileParallelism: false,
-    },
+  },
+  test: {
+    environment: 'node',
+    include: ['evals/**/*.eval.ts'],
+    testTimeout: 120_000,
+    // One file at a time so the table at the end lists every case.
+    fileParallelism: false,
+  },
 });
