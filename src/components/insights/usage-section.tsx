@@ -153,7 +153,7 @@ export function UsageSection({ records, view, onChange }: UsageSectionProps) {
       ) : (
         <>
           <p className={META_CLASS}>
-            {`${filtered.length} of ${records.length} answers. Cost, cache share and latency are about answers a model produced. Demo replay answers carry sample numbers and extractive answers called no model, so both are counted apart.`}
+            {`${filtered.length} of ${records.length} answers. Cost, cache share and latency cover model answers only. Demo replay and extractive answers are counted apart.`}
           </p>
           <div className={WIDGET_GRID_CLASS}>
             {shown('kpis') ? <KpiWidget records={filtered} /> : null}
@@ -178,7 +178,7 @@ export function NoConversations() {
       size='md'
       headingLevel={3}
       title='No conversations yet'
-      description='This section charts the answers you get in the studio: how many, how many tokens, what they cost, which tools ran and how long they took. It reads only conversations saved in this browser, so nothing appears until you ask something.'
+      description='Ask something in the studio and your usage shows up here.'
       primaryAction={
         <Button href='/' variant='primary'>
           Open the studio

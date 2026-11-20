@@ -12,7 +12,7 @@ This project exists to show AI-native product UI craft, not a chat box with a mo
 - **A conversation is a tree.** Editing an earlier message forks the conversation, regenerating adds a sibling answer, and a version picker steps between branches without losing any.
 - **Honest numbers.** Tokens, cache reads and an estimated cost for every answer, labelled as estimates, and a demo mode that says what it is.
 - **Answers can rest on the user's own documents.** Text, Markdown and PDF files are read in the browser, kept in IndexedDB per conversation, and cited by exact range. Every claim carries a numbered chip that opens the source with the cited text highlighted. Streaming citations go through the same reducer as everything else, and file handling has a specific message for each way it can fail. See [Documents and citations](#documents-and-citations).
-- **Evals are part of the product.** A fixture suite replays recorded model streams through the real engine, store and tools and asserts tool choice, tool input shape and answer constraints. The same cases run against the real API when a key is set.
+- **Evals are part of the product.** A fixture suite replays authored sample transcripts through the real engine, store and tools and asserts tool choice, tool input shape and answer constraints. The same cases run against the real API when a key is set.
 
 ## Run it
 
@@ -29,16 +29,16 @@ npm run dev             # http://localhost:3000
 
 Without `ANTHROPIC_API_KEY` the app starts in demo mode. With one in `.env.local` it talks to the real API.
 
-| Script                                              | What it does                                                                                          |
-| --------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| `npm run dev`                                       | Development server.                                                                                   |
-| `npm test`                                          | Unit and component tests (Vitest, Testing Library).                                                   |
-| `npm run eval`                                      | The eval suite on recorded transcripts, with a table report and `evals/reports/fixture.json`. No key. |
-| `npm run eval:live`                                 | The same cases against the real API, written to `evals/reports/live-<timestamp>.json`. Needs a key.   |
-| `npm run record-fixture`                            | Records a real answer for a prompt into `evals/transcripts`. Needs a key and spends tokens.           |
-| `npm run test:e2e`                                  | One Playwright run in demo mode with an axe check in light and dark, at 375 and 1280 pixels.          |
-| `npm run typecheck`, `lint`, `format:check`, `knip` | The static gates. ESLint 9 flat config with zero warnings, Prettier, unused code and dependencies.    |
-| `npm run build`                                     | Production build.                                                                                     |
+| Script                                              | What it does                                                                                        |
+| --------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `npm run dev`                                       | Development server.                                                                                 |
+| `npm test`                                          | Unit and component tests (Vitest, Testing Library).                                                 |
+| `npm run eval`                                      | The eval suite on sample transcripts, with a table report and `evals/reports/fixture.json`. No key. |
+| `npm run eval:live`                                 | The same cases against the real API, written to `evals/reports/live-<timestamp>.json`. Needs a key. |
+| `npm run record-fixture`                            | Records a real answer for a prompt into `evals/transcripts`. Needs a key and spends tokens.         |
+| `npm run test:e2e`                                  | One Playwright run in demo mode with an axe check in light and dark, at 375 and 1280 pixels.        |
+| `npm run typecheck`, `lint`, `format:check`, `knip` | The static gates. ESLint 9 flat config with zero warnings, Prettier, unused code and dependencies.  |
+| `npm run build`                                     | Production build.                                                                                   |
 
 ## Environment variables
 
@@ -69,13 +69,13 @@ The rate limit is kept in memory, so each serverless instance counts on its own.
 
 ## Demo mode
 
-With no API key the server replays recorded model streams from [`evals/transcripts`](./evals/transcripts) and a banner says so. Replay happens at the model boundary: the recorded events are exactly what the model streamed (text deltas, tool calls with streamed input, usage), and everything after that is real. The tools run again, the approval step is real, the task list is real, and `get_time` uses a frozen clock so the recorded answer matches. The recordings include a tool chain with an approval, parallel calls, a failing tool, a denied task and an interruption (the connection drops partway through "Explain how server-sent events work" so you can try Resume).
+With no API key the server replays sample model streams from [`evals/transcripts`](./evals/transcripts) and a banner says so. Replay happens at the model boundary: the transcript holds the events a model would stream (text deltas, tool calls with streamed input, usage), and everything after that is real. The tools run again, the approval step is real, the task list is real, and `get_time` uses a frozen clock so the answer matches. The transcripts include a tool chain with an approval, parallel calls, a failing tool, a denied task and an interruption (the connection drops partway through "Explain how server-sent events work" so you can try Resume).
 
-Replay matches the last message you sent against the recorded prompts (an exact match after normalising, then a close match). Anything else gets a short message listing the example prompts, so the demo never pretends to answer what it cannot.
+Replay matches the last message you sent against the example prompts (an exact match after normalising, then a close match). Anything else gets a short message listing the example prompts, so the demo never pretends to answer what it cannot.
 
 **About the shipped recordings.** The 13 demo transcripts in this repository are marked `"source": "authored"`: they were written in the recorded format, with tool results computed by the real tools, because no API key was available when the project was built. Their token counts are estimates. To re-record them, set `ANTHROPIC_API_KEY` in your environment and run `npm run record-fixture -- "What is 18% of 2,450, plus 75?"`. A recording from the real API is marked `"source": "recorded"`, and a prompt that needs approval is recorded twice, to capture what the model says after a denial. The eval cases are keyed by prompt, so a re-recorded transcript replaces the authored one without other changes.
 
-The `list-tasks` recording assumes a task list that holds only the sample passport task, so in demo mode its answer is only right after the "renew my passport" example.
+The `list-tasks` transcript assumes a task list that holds only the sample passport task, so in demo mode its answer is only right after the "renew my passport" example.
 
 ## How a turn works
 
@@ -119,7 +119,7 @@ PDF text is read with `pdfjs-dist`, imported only when a PDF is chosen and parse
 
 With documents switched on and no API key, a question is answered in the browser and does not reach the server. The text of a document never leaves the page in demo mode: a later question, a regenerate or a resume that does go to the server carries a placeholder in place of every earlier answer that quoted a document (`toWireMessages` builds the history of every request), and a request in demo mode never holds documents. A test drives the store and the transport through use, switch off and removal and checks every request body. Resume on a cut-off answer from documents makes the answer again in the browser instead. The text is split into passages with exact character offsets (a PDF page by page, so no passage crosses a page), the passages are ranked against the question with BM25, and the answer quotes the best two or three, each with a citation to its range. The answer is streamed through the same events and reducer as a model answer, so there is one rendering path, and the interface labels it: an extractive answer built from your documents, no model was called. Every quoted character is copied from the document at the cited range. If no passage shares a word with the question, the answer says so and cites nothing.
 
-Limits of the demo path: it matches words, not meaning, so a question has to share vocabulary with the document; it cannot combine facts or summarise; and while a document is switched on, questions in that conversation are answered from it instead of the recorded demos (switch it off to use them).
+Limits of the demo path: it matches words, not meaning, so a question has to share vocabulary with the document; it cannot combine facts or summarise; and while a document is switched on, questions in that conversation are answered from it instead of the example prompts (switch it off to use them).
 
 ### Live mode: cited model answers
 
@@ -157,7 +157,7 @@ Answers render as Markdown with GitHub tables, and fenced code goes through the 
 
 An eval case is a prompt plus expectations (`evals/cases.ts`). The harness (`evals/harness.ts`) runs it through the real client store and the real engine in process, so the reducer, the wire builder, the approval flow and the tools are exercised exactly as in the app. Only the model backend changes between modes:
 
-- `npm run eval` replays the recorded transcript for the prompt (`evals/transcripts`).
+- `npm run eval` replays the sample transcript for the prompt (`evals/transcripts`).
 - `npm run eval:live` calls the real API with the same cases, on the real clock, with a per-case output cap.
 
 A simulated user approves or denies at approval steps (`approval` on the case). Checks (`evals/checks.ts`):
@@ -209,11 +209,11 @@ Passing on authored transcripts shows that the pipeline and the assertions work.
 
 **Usage** reads the conversations the studio saved in this browser (`localStorage`, the same key and schema the chat uses). It shows answers over time, tokens by model (uncached input, output, cache reads and writes), the cache-read share, estimated cost per conversation, tool calls by tool, and latency as a distribution of time to first token and total time, plus summary tiles. Filters: date range, model, answer mode, tool and conversation. A conversation that has been deleted, or is older than the 30 most recent that the browser keeps, is not counted.
 
-- **Answer modes.** Each answer is stamped when it is made as `model` (the real API), `replay` (a recording in demo mode) or `extractive` (built from your documents in the browser, no model call). The summary tiles for cost, cache-read share and time to first token are computed from `model` answers only and say "No model answers yet" otherwise, with the demo replay and extractive counts named beside them. Replay numbers are labelled demo wherever they appear and are grouped apart from the model they imitate, because their usage is a sample from the recording and their timing is the pace of the recording. The latency chart bins model answers only. Answers that failed or wait for an approval still count their tokens and cost, because they were billed, but not as answers. Answers saved before the stamp existed show as "mode not recorded".
+- **Answer modes.** Each answer is stamped when it is made as `model` (the real API), `replay` (a sample transcript in demo mode) or `extractive` (built from your documents in the browser, no model call). The summary tiles for cost, cache-read share and time to first token are computed from `model` answers only and say "No model answers yet" otherwise, with the demo replay and extractive counts named beside them. Replay numbers are labelled demo wherever they appear and are grouped apart from the model they imitate, because their usage is a sample from the transcript and their timing is the pace of the demo. The latency chart bins model answers only. Answers that failed or wait for an approval still count their tokens and cost, because they were billed, but not as answers. Answers saved before the stamp existed show as "mode not recorded".
 - **Timing.** The store measures time to first token and total request time for new answers. Older answers have no timing. They are left out of the latency bins and tiles and counted in a note, never shown as zero. A day with no input tokens is a gap in the cache chart, not 0 percent.
 - **Cost** is an estimate from list prices, as it is under each answer.
 
-**Evals** reads the reports the eval suite writes to `evals/reports` and imports them when the page is built, so the browser fetches no report. `npm run eval` writes `fixture.json`, which has no timestamp, so it only changes when the results change. `npm run eval:live` writes `live-<timestamp>.json`. The page shows a heat grid of case by check type (pass, fail or skipped, with an icon as well as a colour), tokens and estimated cost per case, and a report picker. Fixture tokens and cost are the usage stored in the recordings, and the page says so. With no live report it says that live runs happen on your own machine with your own key, and shows `npm run eval:live`. A unit test fails when `fixture.json` no longer matches the cases in `evals/cases.ts`; run `npm run eval` and commit the file to fix it.
+**Evals** reads the reports the eval suite writes to `evals/reports` and imports them when the page is built, so the browser fetches no report. `npm run eval` writes `fixture.json`, which has no timestamp, so it only changes when the results change. `npm run eval:live` writes `live-<timestamp>.json`. The page shows a heat grid of case by check type (pass, fail or skipped, with an icon as well as a colour), tokens and estimated cost per case, and a report picker. Each case has a short label, kept in `evals/cases.ts`. Fixture tokens and cost are the usage written into the authored transcripts, so they are estimates, and the page says so. Cases that make no model call have no usage and are left out of the token and cost charts, with a note. With no live report it says that live runs happen on your own machine with your own key, and shows `npm run eval:live`. A unit test fails when `fixture.json` no longer matches the cases in `evals/cases.ts`; run `npm run eval` and commit the file to fix it.
 
 **Views.** Every filter and the list of hidden widgets live in the URL, so a view can be linked. Named views, which hold the same state, are stored in `localStorage` under their own key; every read and write is guarded, and a refused write is reported. Widgets are laid out in a grid that works from 320 px. A hidden widget is not rendered, so it computes nothing. A date range that is backwards is never swapped: it matches nothing and the To field says why, so typing a year does not rewrite the other field. Saved views are read one by one, so one outdated entry costs only itself, and a save that would replace unreadable entries keeps a copy of them under a second key.
 
@@ -255,7 +255,7 @@ Everything works by keyboard (Enter sends, Shift plus Enter adds a line, Escape 
 ## Known limits
 
 - The rate limit is in memory, so on a serverless host each instance counts for itself.
-- The demo can only answer its recorded prompts.
+- The demo can only answer its example prompts.
 - Markdown is parsed again on each batch of deltas. Updates are batched per animation frame, and answers are short, but a very long answer would want incremental rendering.
 - A conversation is stored whole in `localStorage` (the 30 most recent are kept), so very long tool outputs use quota.
 - The weather tool returns fixture data on purpose.

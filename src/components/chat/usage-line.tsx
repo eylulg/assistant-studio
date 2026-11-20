@@ -19,7 +19,7 @@ export function UsageLine({ message }: { message: AssistantMessage }) {
       {usage.cacheReadTokens > 0 ? ` (${formatNumber(usage.cacheReadTokens)} cached)` : ''},{' '}
       {formatNumber(usage.outputTokens)} out, about{' '}
       {formatCost(estimateCostUsd(message.model, usage))}
-      {demo ? ', sample usage from the recording' : ''}
+      {demo ? ', sample usage' : ''}
     </p>
   );
 }

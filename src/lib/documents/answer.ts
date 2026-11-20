@@ -88,7 +88,7 @@ export function composeExtractiveAnswer(
     return [
       {
         type: 'text',
-        text: `Nothing in your documents matches this question. The search compares the words you used with the words in the documents, so try other words from the document. To try the recorded examples, switch your documents off in Sources. Searched: ${names}.`,
+        text: `Nothing in your documents matches this question. The search compares the words you used with the words in the documents, so try other words from the document. To try the example prompts, switch your documents off in Sources. Searched: ${names}.`,
       },
     ];
   }

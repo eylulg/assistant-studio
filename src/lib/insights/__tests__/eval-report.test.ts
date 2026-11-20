@@ -20,6 +20,7 @@ describe('staleness', () => {
   ];
   const result = (id: string, prompt: string) => ({
     id,
+    label: id,
     prompt,
     status: 'pass' as const,
     tools: [],

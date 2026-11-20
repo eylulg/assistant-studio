@@ -5,6 +5,7 @@ import { checkGrid, chooseReport, evalOptions, filterCases, summarizeEvals } fro
 function result(id: string, overrides: Partial<CaseResult> = {}): CaseResult {
   return {
     id,
+    label: id,
     prompt: id,
     status: 'pass',
     tools: [],

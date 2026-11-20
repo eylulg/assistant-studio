@@ -29,7 +29,13 @@ async function record(
   effort: ReturnType<typeof serverConfig>['effort'],
 ) {
   const recorder = createRecorder(createAnthropicClient(new Anthropic({ apiKey }), effort));
-  const testCase: EvalCase = { id: 'record', prompt, approval, expect: { tools: [], answer: {} } };
+  const testCase: EvalCase = {
+    id: 'record',
+    label: 'Record',
+    prompt,
+    approval,
+    expect: { tools: [], answer: {} },
+  };
   const run = await runCase(testCase, {
     client: recorder.client,
     model,

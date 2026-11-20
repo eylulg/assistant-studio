@@ -12,6 +12,17 @@ interface EvalWidgetProps {
   sampleNote: string | null;
 }
 
+/** The charts show only cases that called a model. The others, answered in the browser, have no usage to chart. */
+function modelCases(cases: readonly CaseResult[]) {
+  const ran = cases.filter((result) => result.status !== 'skipped');
+  const withUsage = ran.filter((result) => result.tokens > 0);
+  const left = ran.length - withUsage.length;
+  return {
+    withUsage,
+    leftOutNote: left > 0 ? `${left} cases made no model call and are left out.` : null,
+  };
+}
+
 const STATES = {
   pass: { label: 'Pass', tone: 'success' },
   fail: { label: 'Fail', tone: 'error' },
@@ -30,16 +41,16 @@ export function EvalGridWidget({
   return (
     <WidgetCard
       title='Checks by case'
-      description='Each cell is one type of check on one case. It fails when any check of that type failed.'
+      description='One cell per case and check type. A cell fails if any check of that type failed.'
       className={WIDGET_WIDE_CLASS}
-      note='A blank cell means the case has no check of that type.'
+      note='Blank means the case has no check of that type.'
     >
       <HeatGrid
         title='Checks by case'
         labels={tableLabels('Checks by case')}
         hideTitle
         rowLabel='Case'
-        rows={cases.map((result) => ({ id: result.id, label: result.id }))}
+        rows={cases.map((result) => ({ id: result.id, label: result.label }))}
         columns={columns.map((type) => ({ id: type, label: CHECK_TYPE_LABEL[type] }))}
         states={STATES}
         cells={cells}
@@ -49,13 +60,13 @@ export function EvalGridWidget({
 }
 
 export function EvalTokensWidget({ cases, sampleNote }: EvalWidgetProps) {
-  const ran = cases.filter((result) => result.status !== 'skipped');
+  const { withUsage: ran, leftOutNote } = modelCases(cases);
 
   return (
     <WidgetCard
       title='Tokens per case'
-      description='Input, cache and output tokens of each answer.'
-      note={sampleNote ?? undefined}
+      description='Input, cache and output tokens per answer.'
+      note={[sampleNote, leftOutNote].filter(Boolean).join(' ')}
     >
       <BarChart
         title='Tokens per case'
@@ -65,13 +76,13 @@ export function EvalTokensWidget({ cases, sampleNote }: EvalWidgetProps) {
         orientation='horizontal'
         categoryLabel='Case'
         valueFormat={{ maximumFractionDigits: 0 }}
-        categories={ran.map((result) => result.id)}
+        categories={ran.map((result) => result.label)}
         series={[
           {
             id: 'tokens',
             label: 'Tokens',
             values: ran.map((result) => result.tokens),
-            colorIndex: 0,
+            colorIndex: 3,
           },
         ]}
       />
@@ -80,13 +91,13 @@ export function EvalTokensWidget({ cases, sampleNote }: EvalWidgetProps) {
 }
 
 export function EvalCostWidget({ cases, sampleNote }: EvalWidgetProps) {
-  const ran = cases.filter((result) => result.status !== 'skipped');
+  const { withUsage: ran, leftOutNote } = modelCases(cases);
 
   return (
     <WidgetCard
       title='Estimated cost per case'
-      description='An estimate from list prices.'
-      note={sampleNote ?? undefined}
+      description='Estimated from list prices.'
+      note={[sampleNote, leftOutNote].filter(Boolean).join(' ')}
     >
       <BarChart
         title='Estimated cost per case'
@@ -96,13 +107,13 @@ export function EvalCostWidget({ cases, sampleNote }: EvalWidgetProps) {
         orientation='horizontal'
         categoryLabel='Case'
         valueFormat={{ style: 'currency', currency: 'USD', maximumFractionDigits: 4 }}
-        categories={ran.map((result) => result.id)}
+        categories={ran.map((result) => result.label)}
         series={[
           {
             id: 'cost',
             label: 'Estimated cost',
             values: ran.map((result) => result.costUsd),
-            colorIndex: 1,
+            colorIndex: 3,
           },
         ]}
       />

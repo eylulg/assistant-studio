@@ -33,14 +33,11 @@ function Sections({ reports }: { reports: readonly NamedReport[] }) {
 
   return (
     <>
-      <SavedViews view={view} onApply={setView} />
       <section aria-labelledby='usage-heading' className='flex flex-col gap-4'>
         <h2 id='usage-heading' className='font-display text-xl font-semibold text-primary'>
           Usage
         </h2>
-        <p className='text-sm text-tertiary'>
-          Your own conversations, read from this browser. Nothing leaves it.
-        </p>
+        <p className='text-sm text-tertiary'>Read from this browser. Nothing leaves it.</p>
         {records.status === 'loading' ? (
           <Loading />
         ) : records.records.length === 0 ? (
@@ -54,10 +51,11 @@ function Sections({ reports }: { reports: readonly NamedReport[] }) {
           Evals
         </h2>
         <p className='text-sm text-tertiary'>
-          Reports written by the eval suite and read when the page was built.
+          Results of the eval suite, read when the page was built.
         </p>
         <EvalsSection reports={reports} view={view} onChange={setView} />
       </section>
+      <SavedViews view={view} onApply={setView} />
     </>
   );
 }
@@ -67,7 +65,7 @@ export function Insights({ reports }: { reports: readonly NamedReport[] }) {
     <div className='flex flex-col gap-8 py-2'>
       <PageHeader
         title='Insights'
-        description='What the assistant did in your conversations, and how the eval suite scores it.'
+        description='Your usage in this browser, and how the eval suite scores the assistant.'
       />
       <Suspense fallback={<Loading />}>
         <Sections reports={reports} />
