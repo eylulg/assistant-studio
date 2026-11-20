@@ -40,7 +40,7 @@ const EVAL_WIDGETS = WIDGET_IDS.filter((id) => WIDGET_META[id].section === 'eval
 const LIVE_COMMAND = 'npm run eval:live';
 
 function describeReport({ id, report }: NamedReport): string {
-  if (report.kind === 'fixture') return 'Fixture, recorded transcripts';
+  if (report.kind === 'fixture') return 'Sample transcripts written by hand';
   return `Live run, ${report.model}${report.generatedAt ? `, ${report.generatedAt.slice(0, 16).replace('T', ' ')} UTC` : ''} (${id})`;
 }
 
@@ -55,7 +55,7 @@ function LiveEmptyState() {
       size='sm'
       headingLevel={3}
       title='No live report yet'
-      description='Live runs happen on your own machine with your own API key. The public demo has no key and never calls the model. A run writes a report to evals/reports, and the next build of this page shows it here.'
+      description='Live runs use your own API key on your machine. The public demo never calls the model. Run this, then build again to see the report here.'
       primaryAction={
         <CodeBlock label='Command for a live eval run' copyable copyLabel='Copy the command' wrap>
           {LIVE_COMMAND}
@@ -89,8 +89,13 @@ export function EvalsSection({ reports, view, onChange }: EvalsSectionProps) {
   const summary = summarizeEvals(cases, evals.checkTypes);
   const sampleNote =
     report.kind === 'fixture'
-      ? 'Fixture report: tokens and cost are the usage stored in the recorded transcripts, so they are samples and not a live measurement.'
+      ? 'The transcripts were written by hand, so tokens and cost are estimates, not a live measurement.'
       : 'Measured on a live run. Cost is an estimate from list prices.';
+
+  const summaryLine =
+    report.kind === 'fixture'
+      ? `${describeReport(chosen)}. Priced as ${report.model}.`
+      : `${describeReport(chosen)}.`;
 
   function update(patch: Partial<EvalFilters>) {
     onChange({ ...view, evals: { ...evals, ...patch } });
@@ -150,7 +155,7 @@ export function EvalsSection({ reports, view, onChange }: EvalsSectionProps) {
 
       {hasLive ? null : <LiveEmptyState />}
 
-      <p className={META_CLASS}>{`${describeReport(chosen)}, model ${report.model}.`}</p>
+      <p className={META_CLASS}>{summaryLine}</p>
       <div className='grid grid-cols-2 gap-4 lg:grid-cols-4'>
         <Stat
           isCard

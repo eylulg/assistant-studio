@@ -5,6 +5,7 @@ import type { Check } from './checks';
 
 export interface ReportRow {
   id: string;
+  label: string;
   prompt: string;
   status: 'pass' | 'fail' | 'skipped';
   tools: string;
@@ -68,6 +69,7 @@ export function writeReport(
 ): string {
   const cases: CaseResult[] = rows.map((row) => ({
     id: row.id,
+    label: row.label,
     prompt: row.prompt,
     status: row.status,
     tools: row.tools ? row.tools.split(', ') : [],

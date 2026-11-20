@@ -159,7 +159,7 @@ export function TokensWidget({ records }: WidgetProps) {
     <WidgetCard
       title='Tokens by model'
       description='Uncached input, output, cache reads and cache writes.'
-      note='Replays are grouped apart from the model they imitate. Their token counts are samples from the recordings. Answers that failed or wait for an approval are included, because they were billed.'
+      note='Replays are grouped apart from the model they imitate. Their token counts are samples from the demo transcripts. Answers that failed or wait for an approval are included, because they were billed.'
     >
       <BarChart
         title='Tokens by model'
@@ -235,7 +235,7 @@ export function CostWidget({ records }: WidgetProps) {
     <WidgetCard
       title='Estimated cost per conversation'
       description='The twelve most expensive conversations, by mode.'
-      note='An estimate from list prices. Demo replay cost comes from sample usage in the recordings.'
+      note='An estimate from list prices. Demo replay cost comes from sample usage in the demo transcripts.'
     >
       <BarChart
         title='Estimated cost per conversation'
@@ -299,7 +299,7 @@ export function LatencyWidget({ records }: WidgetProps) {
       ? `${plural(histogram.untimed, 'model answer has', 'model answers have')} no timing recorded and ${histogram.untimed === 1 ? 'is' : 'are'} left out.`
       : null,
     Object.keys(histogram.leftOut).length > 0
-      ? `Left out, because no model was timed: ${modeBreakdown(histogram.leftOut)}. Their timing is the pace of a recording or of the browser.`
+      ? `Left out, because no model was timed: ${modeBreakdown(histogram.leftOut)}. Their timing is the pace of the demo or of the browser.`
       : null,
   ].filter(Boolean);
 

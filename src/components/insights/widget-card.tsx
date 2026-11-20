@@ -4,7 +4,8 @@ import { META_CLASS } from '@/components/styles';
 
 /** Every chart has its own table button name, because nine buttons that all say "Show table" cannot be told apart in a list of controls. */
 export function tableLabels(title: string): { showTable: string; hideTable: string } {
-  return { showTable: `Show table: ${title}`, hideTable: `Hide table: ${title}` };
+  const name = title.toLowerCase();
+  return { showTable: `Show ${name} as a table`, hideTable: `Hide the ${name} table` };
 }
 
 interface WidgetCardProps {
