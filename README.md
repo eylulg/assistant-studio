@@ -57,6 +57,16 @@ Copy `.env.example` to `.env.local`. Every value is optional.
 | `DEMO_PACE`                 | `1`                 | Replay speed in demo mode. `0` replays instantly.                                            |
 | `EVAL_BUDGET_USD`           | `0.50`              | Live evals stop starting new cases once the estimated spend passes this.                     |
 
+## Deploy
+
+The public demo runs on Vercel with no environment variables. Without `ANTHROPIC_API_KEY` the route replays the authored transcripts and never calls the API, so a visit costs nothing.
+
+1. Import the repository as a Vercel project. The framework is Next.js and the root is the repository root.
+2. `vercel.json` sets the install command. The component library is not on npm, so the install clones `eylulg/ui` into `.ui`, builds it, installs the app with `npm install ./.ui --install-links` and removes the clone. The build command is the default `next build`.
+3. Leave `ANTHROPIC_API_KEY` unset. To try live answers, run the app locally with your own key.
+
+The rate limit is kept in memory, so each serverless instance counts on its own. In demo mode it only guards against a flood of requests, not spend.
+
 ## Demo mode
 
 With no API key the server replays recorded model streams from [`evals/transcripts`](./evals/transcripts) and a banner says so. Replay happens at the model boundary: the recorded events are exactly what the model streamed (text deltas, tool calls with streamed input, usage), and everything after that is real. The tools run again, the approval step is real, the task list is real, and `get_time` uses a frozen clock so the recorded answer matches. The recordings include a tool chain with an approval, parallel calls, a failing tool, a denied task and an interruption (the connection drops partway through "Explain how server-sent events work" so you can try Resume).
