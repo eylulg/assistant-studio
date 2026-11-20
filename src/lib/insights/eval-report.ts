@@ -5,6 +5,7 @@ export type CheckType = (typeof CHECK_TYPES)[number];
 
 const caseResultSchema = z.object({
   id: z.string(),
+  label: z.string(),
   prompt: z.string(),
   status: z.enum(['pass', 'fail', 'skipped']),
   tools: z.array(z.string()),

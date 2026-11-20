@@ -11,6 +11,8 @@ export interface ToolExpectation {
 
 export interface EvalCase {
   id: string;
+  /** Short sentence-case name shown on the Insights page. */
+  label: string;
   prompt: string;
   /** Task list at the start of the conversation. */
   tasks?: Task[];
@@ -63,6 +65,7 @@ const PASSPORT: Task = {
 export const CASES: EvalCase[] = [
   {
     id: 'calc-basic',
+    label: 'Basic calculation',
     prompt: 'What is 18% of 2,450, plus 75?',
     expect: {
       tools: [{ name: 'calculate', input: z.object({ expression: z.string().regex(/2450/) }) }],
@@ -71,6 +74,7 @@ export const CASES: EvalCase[] = [
   },
   {
     id: 'convert-units-parallel',
+    label: 'Unit conversions',
     prompt: 'How many miles is a 10 km run, and how many pounds is 72 kg?',
     expect: {
       tools: [
@@ -97,6 +101,7 @@ export const CASES: EvalCase[] = [
   },
   {
     id: 'time-zone',
+    label: 'Time in Tokyo',
     prompt: 'What time is it in Tokyo right now?',
     expect: {
       tools: [{ name: 'get_time', input: z.object({ timezone: z.literal('Asia/Tokyo') }) }],
@@ -105,6 +110,7 @@ export const CASES: EvalCase[] = [
   },
   {
     id: 'notes-search-cites',
+    label: 'Cited note search',
     prompt: 'Do I have a lentil soup recipe in my notes? What goes in it?',
     expect: {
       tools: [{ name: 'search_notes', input: z.object({ query: z.string().regex(/lentil/i) }) }],
@@ -113,6 +119,7 @@ export const CASES: EvalCase[] = [
   },
   {
     id: 'create-task-approved',
+    label: 'Approved new task',
     prompt: 'Add a task to renew my passport by 2026-12-01, high priority.',
     expect: {
       tools: [
@@ -132,6 +139,7 @@ export const CASES: EvalCase[] = [
   },
   {
     id: 'create-task-denied',
+    label: 'Denied new task',
     prompt: 'Add a task to renew my passport by 2026-12-01, high priority.',
     approval: 'deny',
     expect: {
@@ -152,6 +160,7 @@ export const CASES: EvalCase[] = [
   },
   {
     id: 'list-tasks',
+    label: 'List open tasks',
     prompt: 'What tasks do I have open?',
     tasks: [PASSPORT],
     expect: {
@@ -164,6 +173,7 @@ export const CASES: EvalCase[] = [
   },
   {
     id: 'weather-sample-parallel',
+    label: 'Weather, two cities',
     prompt: "What's the weather like in Oslo and Lisbon?",
     expect: {
       tools: [
@@ -176,6 +186,7 @@ export const CASES: EvalCase[] = [
   },
   {
     id: 'parallel-mixed',
+    label: 'Mixed parallel calls',
     prompt: 'Is it warmer in Istanbul or Amsterdam right now, and what time is it in Istanbul?',
     expect: {
       tools: [
@@ -189,16 +200,19 @@ export const CASES: EvalCase[] = [
   },
   {
     id: 'no-tool-needed',
+    label: 'No tool needed',
     prompt: 'In one sentence, what does a mutex do?',
     expect: { tools: [], answer: { contains: [/thread|process|lock|exclusive/i], maxChars: 300 } },
   },
   {
     id: 'markdown-code',
+    label: 'Code answer',
     prompt: 'Show me a TypeScript debounce function.',
     expect: { tools: [], answer: { contains: ['```', /debounce/i] } },
   },
   {
     id: 'chain-search-then-task',
+    label: 'Search, then task',
     prompt: 'Find my Kyoto notes and add a task to book the tea ceremony.',
     expect: {
       tools: [
@@ -216,6 +230,7 @@ export const CASES: EvalCase[] = [
   },
   {
     id: 'tool-error-recovery',
+    label: 'Tool error recovery',
     prompt: 'How many cups is 3 kilometres?',
     expect: {
       tools: [{ name: 'convert_units', status: 'error' }],
@@ -228,6 +243,7 @@ export const CASES: EvalCase[] = [
   },
   {
     id: 'docs-refund-window',
+    label: 'Refund window',
     prompt: 'How many days do customers have to return a product?',
     documents: { ids: ['refund-policy'], via: 'extractive' },
     expect: {
@@ -238,6 +254,7 @@ export const CASES: EvalCase[] = [
   },
   {
     id: 'docs-pdf-page',
+    label: 'PDF page lookup',
     prompt: 'How much are meals reimbursed per day while travelling?',
     documents: { ids: ['refund-policy', 'travel-handbook'], via: 'extractive' },
     expect: {
@@ -248,6 +265,7 @@ export const CASES: EvalCase[] = [
   },
   {
     id: 'docs-emoji-offsets',
+    label: 'Emoji in quote',
     prompt: 'When are the retrospectives held?',
     documents: { ids: ['team-notes'], via: 'extractive' },
     expect: {
@@ -258,6 +276,7 @@ export const CASES: EvalCase[] = [
   },
   {
     id: 'docs-not-in-documents',
+    label: 'Not in documents',
     prompt: 'Who won the 1998 World Cup?',
     documents: { ids: ['refund-policy', 'travel-handbook'], via: 'extractive' },
     expect: {
@@ -268,6 +287,7 @@ export const CASES: EvalCase[] = [
   },
   {
     id: 'docs-warranty-model-cited',
+    label: 'Warranty, cited',
     prompt: 'What does the warranty cover, and what does it leave out?',
     documents: { ids: ['refund-policy'], via: 'model' },
     expect: {
@@ -278,6 +298,7 @@ export const CASES: EvalCase[] = [
   },
   {
     id: 'docs-meals-page-cited',
+    label: 'Meals page, cited',
     prompt: 'How much are meals reimbursed per day, and by when are receipts due?',
     documents: { ids: ['travel-handbook'], via: 'model' },
     expect: {

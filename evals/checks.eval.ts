@@ -10,6 +10,7 @@ import type { RunResult } from './harness';
 
 const testCase: EvalCase = {
   id: 'demo',
+  label: 'Demo',
   prompt: 'p',
   expect: {
     tools: [{ name: 'search_notes', input: z.object({ query: z.string().regex(/lentil/i) }) }],
@@ -90,6 +91,7 @@ describe('the eval checks catch what they are meant to catch', () => {
 describe('the document checks catch citations that do not hold up', () => {
   const documentCase: EvalCase = {
     id: 'docs',
+    label: 'Docs',
     prompt: 'p',
     documents: { ids: ['refund-policy', 'travel-handbook'], via: 'model' },
     expect: { tools: [], citations: { documents: ['refund-policy'] }, answer: {} },

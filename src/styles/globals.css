@@ -2,3 +2,12 @@
 @import '@eylulg/ui/theme.css';
 @import '@eylulg/ui/themes/assistant.css';
 @source '../../node_modules/@eylulg/ui/dist';
+
+/* The library's colour transitions run for 150 ms even when the visitor asks for reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    transition-duration: 0s !important;
+  }
+}

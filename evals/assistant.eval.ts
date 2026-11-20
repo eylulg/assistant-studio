@@ -21,7 +21,7 @@ if (live && !hasKey)
   );
 
 describe.skipIf(live && !hasKey)(
-  `assistant evals (${live ? `live, ${model}` : 'recorded transcripts'})`,
+  `assistant evals (${live ? `live, ${model}` : 'sample transcripts'})`,
   () => {
     const rows: ReportRow[] = [];
     let spent = 0;
@@ -31,7 +31,7 @@ describe.skipIf(live && !hasKey)(
         formatReport(
           live
             ? `Live eval report, ${model}, budget $${budgetUsd.toFixed(2)}`
-            : 'Eval report, recorded transcripts replayed',
+            : 'Eval report, sample transcripts replayed',
           rows,
         ),
       );
@@ -47,7 +47,7 @@ describe.skipIf(live && !hasKey)(
     });
 
     if (!live) {
-      it('has a recording for every case', () => {
+      it('has a sample transcript for every case', () => {
         const missing = CASES.filter((testCase) => {
           if (testCase.documents?.via === 'extractive') return false;
           return !findTranscript(
@@ -64,6 +64,7 @@ describe.skipIf(live && !hasKey)(
       if (live && spent >= budgetUsd) {
         rows.push({
           id: testCase.id,
+          label: testCase.label,
           prompt: testCase.prompt,
           status: 'skipped',
           tools: '',
@@ -95,6 +96,7 @@ describe.skipIf(live && !hasKey)(
       const failed = checks.filter((check) => !check.passed);
       rows.push({
         id: testCase.id,
+        label: testCase.label,
         prompt: testCase.prompt,
         status: failed.length === 0 ? 'pass' : 'fail',
         tools: run.tools.map((tool) => tool.name).join(', '),

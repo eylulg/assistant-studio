@@ -11,3 +11,5 @@ next-env.d.ts
 .vercel
 .DS_Store
 results.sarif
+
+.ui

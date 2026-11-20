@@ -84,7 +84,7 @@ function noRecording(prompt: string, transcripts: readonly Transcript[]): TimedE
     .filter((transcript) => transcript.suggested)
     .map((transcript) => `- ${transcript.prompt}`)
     .join('\n');
-  const text = `This is demo mode, so I can only replay answers that were recorded ahead of time, and I have no recording for "${prompt.slice(0, 80)}". Try one of these instead:\n\n${examples}`;
+  const text = `This is demo mode, so I can only replay sample answers written ahead of time, and I have none for "${prompt.slice(0, 80)}". Try one of these instead:\n\n${examples}`;
   const events: TimedEvent[] = [];
   let at = 0;
   for (const chunk of text.match(/.{1,6}/gs) ?? []) {
