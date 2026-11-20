@@ -50,7 +50,7 @@ The eval suite has 19 cases. Each runs a prompt through the real store, engine a
 
 ## Deploy
 
-Vercel, Next.js preset, repository root, with no environment variables. `vercel.json` clones and builds `eylulg/ui` during install, because the library is not on npm yet. Leave `ANTHROPIC_API_KEY` unset so a visit costs nothing.
+Vercel, Next.js preset, repository root, with no environment variables. `vercel.json` clones and builds `eylulg/ui` from its main branch during install, so the app uses the latest library code before it is released to npm. Leave `ANTHROPIC_API_KEY` unset so a visit costs nothing.
 
 Every variable is optional (see `.env.example`):
 
