@@ -71,11 +71,11 @@ The rate limit is kept in memory, so each serverless instance counts on its own.
 
 With no API key the server replays sample model streams from [`evals/transcripts`](./evals/transcripts) and a banner says so. Replay happens at the model boundary: the transcript holds the events a model would stream (text deltas, tool calls with streamed input, usage), and everything after that is real. The tools run again, the approval step is real, the task list is real, and `get_time` uses a frozen clock so the answer matches. The transcripts include a tool chain with an approval, parallel calls, a failing tool, a denied task and an interruption (the connection drops partway through "Explain how server-sent events work" so you can try Resume).
 
-Replay matches the last message you sent against the recorded prompts (an exact match after normalising, then a close match). Anything else gets a short message listing the example prompts, so the demo never pretends to answer what it cannot.
+Replay matches the last message you sent against the example prompts (an exact match after normalising, then a close match). Anything else gets a short message listing the example prompts, so the demo never pretends to answer what it cannot.
 
 **About the shipped recordings.** The 13 demo transcripts in this repository are marked `"source": "authored"`: they were written in the recorded format, with tool results computed by the real tools, because no API key was available when the project was built. Their token counts are estimates. To re-record them, set `ANTHROPIC_API_KEY` in your environment and run `npm run record-fixture -- "What is 18% of 2,450, plus 75?"`. A recording from the real API is marked `"source": "recorded"`, and a prompt that needs approval is recorded twice, to capture what the model says after a denial. The eval cases are keyed by prompt, so a re-recorded transcript replaces the authored one without other changes.
 
-The `list-tasks` recording assumes a task list that holds only the sample passport task, so in demo mode its answer is only right after the "renew my passport" example.
+The `list-tasks` transcript assumes a task list that holds only the sample passport task, so in demo mode its answer is only right after the "renew my passport" example.
 
 ## How a turn works
 
@@ -119,7 +119,7 @@ PDF text is read with `pdfjs-dist`, imported only when a PDF is chosen and parse
 
 With documents switched on and no API key, a question is answered in the browser and does not reach the server. The text of a document never leaves the page in demo mode: a later question, a regenerate or a resume that does go to the server carries a placeholder in place of every earlier answer that quoted a document (`toWireMessages` builds the history of every request), and a request in demo mode never holds documents. A test drives the store and the transport through use, switch off and removal and checks every request body. Resume on a cut-off answer from documents makes the answer again in the browser instead. The text is split into passages with exact character offsets (a PDF page by page, so no passage crosses a page), the passages are ranked against the question with BM25, and the answer quotes the best two or three, each with a citation to its range. The answer is streamed through the same events and reducer as a model answer, so there is one rendering path, and the interface labels it: an extractive answer built from your documents, no model was called. Every quoted character is copied from the document at the cited range. If no passage shares a word with the question, the answer says so and cites nothing.
 
-Limits of the demo path: it matches words, not meaning, so a question has to share vocabulary with the document; it cannot combine facts or summarise; and while a document is switched on, questions in that conversation are answered from it instead of the recorded demos (switch it off to use them).
+Limits of the demo path: it matches words, not meaning, so a question has to share vocabulary with the document; it cannot combine facts or summarise; and while a document is switched on, questions in that conversation are answered from it instead of the example prompts (switch it off to use them).
 
 ### Live mode: cited model answers
 
